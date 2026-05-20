@@ -1,38 +1,32 @@
-//
-//  NutritionAppTests.swift
-//  NutritionAppTests
-//
-//  Created by Marcello Merico on 20.05.26.
-//
-
 import XCTest
 @testable import NutritionApp
 
 final class NutritionAppTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testDefaultSnacksLoadFromBundle() throws {
+        let snacks = try DefaultSnackLoader.loadBuiltInSnacks()
+        XCTAssertGreaterThanOrEqual(snacks.count, 20)
+        XCTAssertTrue(snacks.allSatisfy(\.isBuiltIn))
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testEnglishLocalizationKeysResolve() {
+        guard let path = Bundle.main.path(forResource: "en", ofType: "lproj"),
+              let bundle = Bundle(path: path) else {
+            XCTFail("Missing en.lproj bundle")
+            return
         }
+        XCTAssertEqual(bundle.localizedString(forKey: "onboarding.tagline", value: nil, table: nil),
+                         "Fuel that fits your session.")
+        XCTAssertEqual(bundle.localizedString(forKey: "snack.gel.standard", value: nil, table: nil),
+                         "Energy gel")
     }
 
+    func testGermanLocalizationKeysResolve() {
+        guard let path = Bundle.main.path(forResource: "de", ofType: "lproj"),
+              let bundle = Bundle(path: path) else {
+            XCTFail("Missing de.lproj bundle")
+            return
+        }
+        XCTAssertEqual(bundle.localizedString(forKey: "onboarding.tagline", value: nil, table: nil),
+                         "Versorgung, die zu deiner Einheit passt.")
+    }
 }

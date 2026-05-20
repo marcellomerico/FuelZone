@@ -1,0 +1,210 @@
+/* App */
+"app.name" = "FuelZone";
+"app.building_placeholder" = "FuelZone is being built…";
+
+/* Tabs */
+"tab.plan" = "Plan";
+"tab.history" = "History";
+"tab.settings" = "Settings";
+
+/* Onboarding */
+"onboarding.welcome.title" = "Welcome to FuelZone";
+"onboarding.tagline" = "Fuel that fits your session.";
+"onboarding.sport.title" = "Your main sport";
+"onboarding.sport.subtitle" = "We'll tailor defaults to how you train.";
+"onboarding.stomach.title" = "Stomach sensitivity";
+"onboarding.stomach.subtitle" = "How well do you tolerate carbs while exercising?";
+"onboarding.stomach.tooltip" = "Conservative lowers carb targets to reduce GI stress. Tolerant allows slightly higher intake.";
+"onboarding.sweat.title" = "Sweat rate";
+"onboarding.sweat.subtitle" = "How much do you typically sweat?";
+"onboarding.sweat.tooltip" = "Low: light sweat. Moderate: typical training. High: heavy sweating or heat.";
+"onboarding.saltiness.title" = "Sweat saltiness";
+"onboarding.saltiness.subtitle" = "How salty is your sweat?";
+"onboarding.saltiness.tooltip" = "Check salt stains on kit or cap. Higher saltiness needs more sodium per liter.";
+"onboarding.profile.title" = "About you";
+"onboarding.profile.name" = "Name (optional)";
+"onboarding.profile.weight" = "Weight (kg)";
+"onboarding.ready.title" = "You're ready!";
+"onboarding.ready.message" = "Plan your next session and get a fueling timeline.";
+"onboarding.button.next" = "Continue";
+"onboarding.button.back" = "Back";
+"onboarding.button.start" = "Get started";
+
+/* Session setup */
+"session.title" = "Plan session";
+"session.sport" = "Sport";
+"session.duration.mode.duration" = "Duration";
+"session.duration.mode.distancePace" = "Distance + pace";
+"session.duration.mode.distanceTime" = "Distance + time";
+"session.duration.minutes" = "Duration (min)";
+"session.distance.km" = "Distance (km)";
+"session.pace.minPerKm" = "Pace (min/km)";
+"session.intensity.title" = "Intensity";
+"session.intensity.simple" = "Simple";
+"session.intensity.zoneBased" = "Heart rate zones";
+"session.intensity.proBadge" = "Pro";
+"session.zone.title" = "Time in each zone";
+"session.zone.maxHR" = "Max heart rate";
+"session.zone.calculate" = "Calculate zones";
+"session.zone.validation" = "Zone percentages must add up to 100%.";
+"session.temperature.title" = "Temperature";
+"session.conditions.title" = "Conditions";
+"session.calculate" = "Calculate plan";
+
+/* Results */
+"results.title" = "Your fueling plan";
+"results.carbs" = "Carbohydrates";
+"results.fluids" = "Fluids";
+"results.sodium" = "Sodium";
+"results.perHour" = "per hour";
+"results.total" = "total";
+"results.timeline" = "Timeline";
+"results.snackPlan" = "Snack plan";
+"results.openLibrary" = "Snack library";
+"results.range.format" = "%@–%@ %@";
+"timeline.step.range" = "Min %@–%@";
+
+/* Snacks */
+"snack.library.title" = "Snack library";
+"snack.library.filter" = "Category";
+"snack.addCustom.title" = "Add custom snack";
+"snack.addCustom.nameEN" = "Name (English)";
+"snack.addCustom.nameDE" = "Name (German)";
+"snack.addCustom.category" = "Category";
+"snack.addCustom.carbs" = "Carbs per serving (g)";
+"snack.addCustom.sodium" = "Sodium per serving (mg)";
+"snack.addCustom.unit" = "Unit label";
+"snack.addCustom.save" = "Save snack";
+"snack.scanBarcode" = "Scan barcode";
+"snack.proRequired" = "Barcode scanning is a Pro feature.";
+
+/* History */
+"history.title" = "History";
+"history.empty" = "No saved sessions yet.";
+"history.detail.title" = "Session details";
+
+/* Settings */
+"settings.title" = "Settings";
+"settings.language" = "Language";
+"settings.language.system" = "System";
+"settings.language.english" = "English";
+"settings.language.german" = "German";
+"settings.appearance" = "Appearance";
+"settings.appearance.system" = "System";
+"settings.appearance.light" = "Light";
+"settings.appearance.dark" = "Dark";
+"settings.onboarding" = "Repeat onboarding";
+"settings.about" = "About FuelZone";
+"settings.disclaimer.title" = "Disclaimer";
+"settings.disclaimer.body" = "FuelZone provides general sports nutrition guidance, not medical advice. Adjust intake to your needs and consult a professional when unsure.";
+"settings.pro.title" = "FuelZone Pro";
+"settings.pro.subtitle" = "Unlock zones, barcode scan, snack swaps, and unlimited history.";
+
+/* Warnings */
+"warning.session_too_short" = "Sessions under 30 minutes rarely need structured fueling.";
+"warning.stomach_cap_applied" = "Carb target was limited based on your stomach sensitivity.";
+"warning.default_weight_used" = "Using default weight (70 kg) because none was set.";
+
+/* Errors */
+"error.invalidDuration" = "Please enter a valid session duration.";
+"error.invalidZoneDistribution" = "Zone percentages must total 100%.";
+"error.snacksLoadFailed" = "Could not load the snack database.";
+"error.icloudUnavailable" = "iCloud is not available. Data is stored on this device only.";
+
+/* Sports */
+"sport.running" = "Running";
+"sport.cycling" = "Cycling";
+"sport.triathlon" = "Triathlon";
+"sport.hiking" = "Hiking";
+"sport.other" = "Other";
+
+/* Stomach sensitivity */
+"stomach.conservative" = "Conservative";
+"stomach.moderate" = "Moderate";
+"stomach.tolerant" = "Tolerant";
+
+/* Sweat rate */
+"sweat.low" = "Low";
+"sweat.moderate" = "Moderate";
+"sweat.high" = "High";
+
+/* Sweat saltiness */
+"saltiness.low" = "Low";
+"saltiness.moderate" = "Moderate";
+"saltiness.high" = "High";
+
+/* Simple intensity */
+"intensity.easy" = "Easy";
+"intensity.moderate" = "Moderate";
+"intensity.hard" = "Hard";
+
+/* Temperature */
+"temperature.cool" = "Cool";
+"temperature.mild" = "Mild";
+"temperature.warm" = "Warm";
+"temperature.hot" = "Hot";
+
+/* Weather */
+"weather.dry" = "Dry";
+"weather.humid" = "Humid";
+"weather.windy" = "Windy";
+
+/* Snack categories */
+"category.gel" = "Gels";
+"category.drink" = "Drinks";
+"category.solid" = "Solids";
+"category.electrolyte" = "Electrolytes";
+"category.other" = "Other";
+
+/* HR zones */
+"hrzone.zone1" = "Zone 1";
+"hrzone.zone2" = "Zone 2";
+"hrzone.zone3" = "Zone 3";
+"hrzone.zone4" = "Zone 4";
+"hrzone.zone5" = "Zone 5";
+
+/* Units */
+"unit.gel" = "gel";
+"unit.ml500" = "500 ml";
+"unit.ml330" = "330 ml";
+"unit.ml250" = "250 ml";
+"unit.tablet" = "tablet";
+"unit.piece" = "piece";
+"unit.handful" = "handful";
+"unit.bar" = "bar";
+"unit.waffle" = "waffle";
+"unit.capsule" = "capsule";
+"unit.scoop" = "scoop";
+"unit.pack" = "pack";
+"unit.slice" = "slice";
+"unit.tbsp" = "tbsp";
+
+/* Built-in snacks */
+"snack.gel.standard" = "Energy gel";
+"snack.gel.caffeine" = "Caffeine gel";
+"snack.gel.isotonic" = "Isotonic gel";
+"snack.gel.maple" = "Maple syrup gel";
+"snack.drink.isotonic" = "Isotonic drink";
+"snack.drink.isotonic.light" = "Light isotonic drink";
+"snack.drink.electrolyte" = "Electrolyte drink mix";
+"snack.drink.cola" = "Cola";
+"snack.drink.flat.coke" = "Flat cola";
+"snack.solid.banana" = "Banana";
+"snack.solid.dates" = "Dates";
+"snack.solid.pretzel" = "Pretzels";
+"snack.solid.rice.cake" = "Rice cakes";
+"snack.solid.energy.bar" = "Energy bar";
+"snack.solid.boiled.potato" = "Boiled potato";
+"snack.solid.honey.stinger" = "Honey waffle";
+"snack.electrolyte.salt.tablet" = "Salt tablet";
+"snack.electrolyte.capsule" = "Electrolyte capsule";
+"snack.electrolyte.powder" = "Electrolyte powder";
+"snack.other.chews" = "Chews";
+"snack.other.dried.fruit" = "Dried fruit";
+"snack.other.bread.jam" = "Bread with jam";
+"snack.other.peanut.butter" = "Peanut butter";
+
+/* Units of measure labels */
+"unit.label.grams" = "g";
+"unit.label.milliliters" = "ml";
+"unit.label.milligrams" = "mg";
