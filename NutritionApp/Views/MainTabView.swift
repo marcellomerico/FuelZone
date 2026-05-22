@@ -5,7 +5,7 @@ struct MainTabView: View {
     @State private var showResults = false
 
     var body: some View {
-        TabView {
+        TabView(selection: $appState.selectedTab) {
             NavigationStack {
                 SessionSetupView(
                     viewModel: appState.sessionViewModel,
@@ -18,6 +18,7 @@ struct MainTabView: View {
                     )
                 }
             }
+            .tag(0)
             .tabItem {
                 Label {
                     Text(localized: "tab.plan")
@@ -27,6 +28,7 @@ struct MainTabView: View {
             }
 
             HistoryView(viewModel: appState.historyViewModel)
+                .tag(1)
                 .tabItem {
                     Label {
                         Text(localized: "tab.history")
@@ -36,6 +38,7 @@ struct MainTabView: View {
                 }
 
             SettingsView()
+                .tag(2)
                 .tabItem {
                     Label {
                         Text(localized: "tab.settings")

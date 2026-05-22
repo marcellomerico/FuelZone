@@ -13,14 +13,14 @@ enum HeartRateZone: Int, Codable, CaseIterable, Identifiable, Comparable {
         lhs.rawValue < rhs.rawValue
     }
 
-    /// Carbohydrate need factor (g/kg/h baseline scaled by zone).
-    var carbFactorPerKgPerHour: Double {
+    /// Relative intensity factor (0.65–1.0) applied to duration-based g/h targets.
+    var intensityScale: Double {
         switch self {
-        case .zone1: 0.4
-        case .zone2: 0.6
-        case .zone3: 0.9
-        case .zone4: 1.1
-        case .zone5: 1.3
+        case .zone1: 0.65
+        case .zone2: 0.85
+        case .zone3: 0.95
+        case .zone4: 1.0
+        case .zone5: 1.0
         }
     }
 

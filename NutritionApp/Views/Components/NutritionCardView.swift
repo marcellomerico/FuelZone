@@ -7,23 +7,31 @@ struct NutritionCardView: View {
     let systemImage: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label {
+        HStack(spacing: 16) {
+            Image(systemName: systemImage)
+                .font(.title2)
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 44, height: 44)
+                .background(DesignSystem.accentSoft)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 4) {
                 Text(localized: titleKey)
-                    .font(.subheadline.weight(.semibold))
-            } icon: {
-                Image(systemName: systemImage)
-                    .foregroundStyle(Color.accentColor)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundStyle(.secondary)
+
+                Text(value)
+                    .font(DesignSystem.Typography.metricValue)
+                    .foregroundStyle(.primary)
+                    .minimumScaleFactor(0.8)
+                    .lineLimit(1)
+
+                Text(localized: subtitleKey)
+                    .font(DesignSystem.Typography.metricUnit)
+                    .foregroundStyle(.secondary)
             }
-
-            Text(value)
-                .font(.title2.bold())
-
-            Text(localized: subtitleKey)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .fuelZoneCard()
     }
 }

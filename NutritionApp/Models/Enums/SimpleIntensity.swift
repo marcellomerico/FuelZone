@@ -8,12 +8,12 @@ enum SimpleIntensity: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    /// Maps to an approximate blended zone mix for carb g/kg/h calculations.
-    var carbMultiplier: Double {
+    /// Scales duration-based g/h targets down for easier sessions (Jeukendrup: lower absolute intensity).
+    var intensityScale: Double {
         switch self {
-        case .easy: 0.75
-        case .moderate: 1.0
-        case .hard: 1.25
+        case .easy: 0.70
+        case .moderate: 0.85
+        case .hard: 1.0
         }
     }
 }

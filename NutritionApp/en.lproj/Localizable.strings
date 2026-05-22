@@ -22,6 +22,7 @@
 "onboarding.saltiness.subtitle" = "How salty is your sweat?";
 "onboarding.saltiness.tooltip" = "Check salt stains on kit or cap. Higher saltiness needs more sodium per liter.";
 "onboarding.profile.title" = "About you";
+"onboarding.profile.subtitle" = "Optional — helps personalize fluids and zones.";
 "onboarding.profile.name" = "Name (optional)";
 "onboarding.profile.weight" = "Weight (kg)";
 "onboarding.ready.title" = "You're ready!";
@@ -33,6 +34,11 @@
 /* Session setup */
 "session.title" = "Plan session";
 "session.sport" = "Sport";
+"session.duration.section" = "How long?";
+"session.duration.sectionHint" = "Duration, or distance with pace or time.";
+"session.intensity.hint" = "Affects how many carbs per hour we recommend.";
+"session.environment.title" = "Conditions";
+"session.environment.hint" = "Used for fluid and sodium targets.";
 "session.duration.mode.duration" = "Duration";
 "session.duration.mode.distancePace" = "Distance + pace";
 "session.duration.mode.distanceTime" = "Distance + time";
@@ -46,7 +52,25 @@
 "session.zone.title" = "Time in each zone";
 "session.zone.maxHR" = "Max heart rate";
 "session.zone.calculate" = "Calculate zones";
-"session.zone.validation" = "Zone percentages must add up to 100%.";
+"session.zone.setupInProfile" = "Set max heart rate and zone limits in your profile (Settings).";
+"session.zone.editInProfile" = "Adjust BPM limits per zone";
+"session.zone.validation" = "Zone minutes must add up to your session duration.";
+"session.zone.total" = "Total: %1$@ / %2$@ min";
+"session.zone.minutes" = "%@ min";
+"session.zone.durationRequired" = "Enter session duration above to set time per zone.";
+"session.zone.bpmRange" = "%@–%@ bpm";
+"session.duration.computed" = "Estimated duration: %@ min";
+
+/* Pro paywall */
+"pro.paywall.title" = "FuelZone Pro";
+"pro.paywall.message" = "Unlock advanced planning tools for serious training sessions.";
+"pro.paywall.featuresTitle" = "Included with Pro";
+"pro.paywall.cta" = "View Pro in Settings";
+"pro.paywall.dismiss" = "Not now";
+"pro.paywall.feature.zones" = "Heart rate zone planning";
+"pro.paywall.feature.barcode" = "Barcode scan for custom snacks";
+"pro.paywall.feature.snackSwap" = "Swap snacks in your timeline";
+"pro.paywall.feature.history" = "Unlimited session history";
 "session.temperature.title" = "Temperature";
 "session.conditions.title" = "Conditions";
 "session.calculate" = "Calculate plan";
@@ -59,15 +83,58 @@
 "results.perHour" = "per hour";
 "results.total" = "total";
 "results.timeline" = "Timeline";
+"results.timeline.hint" = "What to take in each block of your session.";
+"results.summary.title" = "Your targets";
+"results.summary.subtitle" = "Ranges account for small day-to-day differences.";
+"results.methodology.link" = "Science & methodology";
 "results.snackPlan" = "Snack plan";
+"results.snackPlan.hint" = "Totals from your timeline suggestions.";
 "results.openLibrary" = "Snack library";
+"results.openLibrary.hint" = "Enable snacks and adjust portions.";
 "results.range.format" = "%@–%@ %@";
 "timeline.step.range" = "Min %@–%@";
 
 /* Snacks */
 "snack.library.title" = "Snack library";
 "snack.library.filter" = "Category";
+"snack.library.filterHint" = "Show snacks for your plan.";
+"snack.library.listTitle" = "Your snacks";
+"snack.library.listHint" = "Enabled snacks appear in your fueling timeline.";
+"snack.library.empty" = "No snacks in this category.";
+"snack.library.all" = "All";
+"snack.swap.title" = "Replace snack";
+"snack.swap.subtitle" = "Choose a snack for this timeline step.";
+"snack.swap.search" = "Search snacks";
+"snack.swap.empty" = "No matching snacks enabled.";
+"error.title" = "Error";
+"error.barcodeNotFound" = "Product not found. Try manual entry.";
+"error.barcodeUnavailable" = "Barcode scanning is not available on this device.";
+
+/* Metrics */
+"metrics.step.targets" = "%@ g · %@ ml · %@ mg";
+"metrics.snack.quantity" = "%@× %@";
+"metrics.snack.macros" = "%@ g · %@ mg";
+"metrics.plan.totals" = "%@ g · %@ mg · %@ ml";
+"history.duration" = "· %@ min";
+"history.carbsPerHour" = "%@ g/h";
+
+/* StoreKit */
+"storekit.subscribe" = "Subscribe to Pro";
+"storekit.restore" = "Restore purchases";
+"storekit.status.active" = "Pro is active";
+"storekit.purchase.success" = "Welcome to FuelZone Pro!";
+"storekit.purchase.pending" = "Purchase pending approval.";
+"storekit.restore.success" = "Purchases restored.";
+"storekit.restore.empty" = "No active subscription found.";
+"storekit.error.products" = "Could not load subscription products.";
+"storekit.error.purchase" = "Purchase failed. Try again.";
+"storekit.error.restore" = "Restore failed. Try again.";
+"settings.pro.debugToggle" = "Debug: simulate Pro";
+"settings.sync.title" = "iCloud sync";
+"settings.sync.now" = "Sync now";
+"settings.sync.description" = "Your profile, history, and snacks sync via iCloud when signed in.";
 "snack.addCustom.title" = "Add custom snack";
+"snack.addCustom.subtitle" = "Add your own gel, bar, or drink.";
 "snack.addCustom.nameEN" = "Name (English)";
 "snack.addCustom.nameDE" = "Name (German)";
 "snack.addCustom.category" = "Category";
@@ -80,7 +147,8 @@
 
 /* History */
 "history.title" = "History";
-"history.empty" = "No saved sessions yet.";
+"history.empty.title" = "No history yet";
+"history.empty" = "Saved plans from the Plan tab will appear here.";
 "history.detail.title" = "Session details";
 
 /* Settings */
@@ -95,7 +163,27 @@
 "settings.appearance.dark" = "Dark";
 "settings.onboarding" = "Repeat onboarding";
 "settings.about" = "About FuelZone";
+"settings.methodology.subtitle" = "How we calculate your plan";
+"settings.profile.subtitle" = "Sport, body data, heart rate zones";
+
+/* Profile */
+"profile.title" = "Your profile";
+"profile.save" = "Save profile";
+"profile.about.title" = "About you";
+"profile.about.subtitle" = "From onboarding — you can update anytime.";
+"profile.sport.title" = "Main sport";
+"profile.sport.subtitle" = "Used as default on the Plan tab.";
+"profile.physiology.title" = "Sweat & stomach";
+"profile.physiology.subtitle" = "Affects fluid, sodium, and carb caps.";
+"profile.hr.title" = "Heart rate zones";
+"profile.hr.subtitle" = "Upper BPM limit per zone. Changing max HR can reset limits via the button below.";
+"profile.hr.resetStandard" = "Apply standard zones from max HR";
+"profile.hr.zoneLimits" = "Upper limit (bpm) per zone";
+"profile.hr.zone5Range" = "Zone 5: %@–%@ bpm (up to max HR)";
+"profile.hr.validation" = "Zone limits must increase from Zone 1 to Zone 5 and stay below max HR.";
+"profile.hr.missingMax" = "Enter a valid max heart rate to edit zones.";
 "settings.disclaimer.title" = "Disclaimer";
+"settings.disclaimer.subtitle" = "Important legal information";
 "settings.disclaimer.body" = "FuelZone provides general sports nutrition guidance, not medical advice. Adjust intake to your needs and consult a professional when unsure.";
 "settings.pro.title" = "FuelZone Pro";
 "settings.pro.subtitle" = "Unlock zones, barcode scan, snack swaps, and unlimited history.";
@@ -104,12 +192,61 @@
 "warning.session_too_short" = "Sessions under 30 minutes rarely need structured fueling.";
 "warning.stomach_cap_applied" = "Carb target was limited based on your stomach sensitivity.";
 "warning.default_weight_used" = "Using default weight (70 kg) because none was set.";
+"warning.multiple_transportable_carbs" = "For long sessions at high carb rates, use a glucose + fructose mix (about 2:1) to improve absorption.";
+
+/* Methodology */
+"methodology.title" = "Science & methodology";
+"methodology.hero.subtitle" = "Here is how FuelZone builds your plan — explained clearly, with the research behind it.";
+"methodology.why.title" = "Why grams per hour?";
+"methodology.why.body" = "During exercise, your gut can only absorb a limited amount of carbohydrate per hour. That limit is similar for most people, which is why sports scientists recommend fixed hourly amounts (such as 30, 60, or 90 grams) instead of calculating from body weight.";
+"methodology.how.title" = "How your plan is built";
+"methodology.how.subtitle" = "Four simple steps in the app.";
+"methodology.step1.title" = "Session length";
+"methodology.step1.body" = "Longer sessions need more carbs per hour. Under 30 minutes we only show a light hint.";
+"methodology.step2.title" = "Planned intensity";
+"methodology.step2.body" = "Easy efforts or lots of time in low heart-rate zones lower the target. Hard sessions keep the full recommendation.";
+"methodology.step3.title" = "Your stomach";
+"methodology.step3.body" = "If you chose a sensitive stomach in onboarding, we cap hourly carbs so the plan stays realistic.";
+"methodology.step4.title" = "A small range";
+"methodology.step4.body" = "You see a band around the value (about ±8%%) because tolerance varies from day to day.";
+"methodology.tiers.title" = "Carb targets by duration";
+"methodology.tiers.subtitle" = "Based on Jeukendrup (2014) and Burke et al. (2011).";
+"methodology.tier.short.duration" = "30–75 minutes";
+"methodology.tier.short.amount" = "~30 g/h";
+"methodology.tier.short.tip" = "Often one gel or drink is enough. A full timeline is optional.";
+"methodology.tier.medium.duration" = "75 min – 2.5 hours";
+"methodology.tier.medium.amount" = "~60 g/h";
+"methodology.tier.medium.tip" = "Gels, sports drinks, or bars with glucose or maltodextrin work well.";
+"methodology.tier.long.duration" = "Over 2.5 hours";
+"methodology.tier.long.amount" = "~90 g/h";
+"methodology.tier.long.tip" = "Use a mix of glucose and fructose (about 2:1) so your gut can absorb more.";
+"methodology.adjustments.title" = "What else we adjust";
+"methodology.adjustment.intensity.body" = "Heart-rate zones: more minutes in easy zones → slightly lower carb target.";
+"methodology.adjustment.stomach.body" = "Stomach sensitivity: conservative setting limits carbs below 90 g/h for comfort.";
+"methodology.fluids.title" = "Fluids & sodium";
+"methodology.fluids.body" = "These use your sweat profile, temperature, and weather — separate from the carbohydrate research above.";
+"methodology.sources.title" = "Scientific sources";
+"methodology.sources.subtitle" = "Tap to open the original publications.";
+"methodology.sources.open" = "Open publication";
+"methodology.ref.jeukendrup.title" = "Jeukendrup (2014)";
+"methodology.ref.jeukendrup.citation" = "A Step Towards Personalized Sports Nutrition: Carbohydrate Intake During Exercise. Sports Medicine.";
+"methodology.ref.burke.title" = "Burke et al. (2011)";
+"methodology.ref.burke.citation" = "Carbohydrates for training and competition. Journal of Sports Sciences.";
+"methodology.ref.oxidation.title" = "Jeukendrup & Jentjens (2000)";
+"methodology.ref.oxidation.citation" = "Oxidation of carbohydrate feedings during prolonged exercise. Sports Medicine.";
+"methodology.ref.mtc.title" = "Jeukendrup – GSSI SSE-108";
+"methodology.ref.mtc.citation" = "Multiple transportable carbohydrates and their benefits.";
+"methodology.ref.issn.title" = "ISSN (2017)";
+"methodology.ref.issn.citation" = "Position stand: nutrient timing.";
+"methodology.disclaimer" = "This information is for educational purposes. Individual tolerance, gut training, and medical conditions vary. Consult a sports dietitian or physician for personalized advice.";
 
 /* Errors */
 "error.invalidDuration" = "Please enter a valid session duration.";
-"error.invalidZoneDistribution" = "Zone percentages must total 100%.";
+"error.invalidZoneDistribution" = "Zone minutes must match your session duration.";
 "error.snacksLoadFailed" = "Could not load the snack database.";
 "error.icloudUnavailable" = "iCloud is not available. Data is stored on this device only.";
+"error.invalidMaxHeartRate" = "Enter a valid max heart rate (100–220 bpm).";
+"error.distanceTimeIncomplete" = "Enter both distance and duration.";
 
 /* Sports */
 "sport.running" = "Running";

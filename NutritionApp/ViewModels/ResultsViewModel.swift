@@ -6,6 +6,8 @@ final class ResultsViewModel: ObservableObject {
     @Published private(set) var result: FuelingResult?
     @Published private(set) var setup: SessionSetup?
     @Published var showSnackLibrary = false
+    @Published var showProPaywall = false
+    @Published var swapContext: SnackSwapContext?
 
     private var settings = AppSettings()
     private weak var snackViewModel: SnackViewModel?
@@ -54,9 +56,18 @@ final class ResultsViewModel: ObservableObject {
         allSnacks.first { $0.id == portion.snackID }
     }
 
+    func requestSwap(stepID: UUID, portionID: UUID) {
+        if canSwapSnacks {
+            swapContext = SnackSwapContext(stepID: stepID, portionID: portionID)
+        } else {
+            showProPaywall = true
+        }
+    }
+
     func swapSnack(stepID: UUID, portionID: UUID, to snack: Snack) {
         guard canSwapSnacks, var result,
               let stepIndex = result.timeline.firstIndex(where: { $0.id == stepID }) else {
+            showProPaywall = true
             return
         }
         guard let pIndex = result.timeline[stepIndex].portions.firstIndex(where: { $0.id == portionID }) else {

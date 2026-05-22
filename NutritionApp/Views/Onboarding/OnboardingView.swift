@@ -6,17 +6,23 @@ struct OnboardingView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: DesignSystem.sectionSpacing) {
+            VStack(spacing: 0) {
                 ProgressView(value: Double(viewModel.stepIndex + 1), total: Double(viewModel.totalSteps))
                     .tint(Color.accentColor)
                     .padding(.horizontal)
+                    .padding(.top, 8)
 
-                stepContent
-                    .frame(maxHeight: .infinity)
+                ScrollView {
+                    stepContent
+                        .padding()
+                        .fuelZoneScreenContent()
+                }
+                .background(DesignSystem.groupedBackground)
 
                 navigationBar
+                    .padding()
+                    .background(DesignSystem.cardBackground)
             }
-            .padding()
             .background(DesignSystem.groupedBackground)
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -42,21 +48,24 @@ struct OnboardingView: View {
     private var navigationBar: some View {
         HStack {
             if viewModel.stepIndex > 0 {
-                Button { viewModel.back() } label: {
-                    Text(localized: "onboarding.button.back")
+                FuelZoneTextButton(titleKey: "onboarding.button.back") {
+                    viewModel.back()
                 }
+                .frame(width: 100, alignment: .leading)
             }
             Spacer()
-            Button {
-                if viewModel.stepIndex < viewModel.totalSteps - 1 {
-                    viewModel.next()
-                } else {
-                    appState.completeOnboarding()
+            if viewModel.stepIndex < viewModel.totalSteps - 1 {
+                Button { viewModel.next() } label: {
+                    Text(localized: "onboarding.button.next")
                 }
-            } label: {
-                Text(localized: viewModel.stepIndex < viewModel.totalSteps - 1
-                     ? "onboarding.button.next" : "onboarding.button.start")
-                    .fontWeight(.semibold)
+                .buttonStyle(PrimaryButtonStyle())
+                .frame(maxWidth: 160)
+            } else {
+                Button { appState.completeOnboarding() } label: {
+                    Text(localized: "onboarding.button.start")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .frame(maxWidth: 200)
             }
         }
     }

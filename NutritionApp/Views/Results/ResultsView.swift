@@ -1,77 +1,112 @@
 import SwiftUI
 
 struct ResultsView: View {
+    @EnvironmentObject private var appState: AppState
     @ObservedObject var viewModel: ResultsViewModel
     @ObservedObject var snackViewModel: SnackViewModel
     @State private var showLibrary = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: DesignSystem.sectionSpacing) {
-                cardsSection
-                warningsSection
-                if let result = viewModel.result {
-                    SnackPlanSummaryView(
-                        result: result,
-                        snacks: snackViewModel.allSnacks()
-                    )
-                }
-                FuelTimelineView(viewModel: viewModel, snacks: snackViewModel.allSnacks())
-                snackPlanLink
+        FuelZoneScreenScroll {
+            summarySection
+            warningsSection
+            if let result = viewModel.result {
+                SnackPlanSummaryView(
+                    result: result,
+                    snacks: snackViewModel.allSnacks()
+                )
             }
-            .padding()
+            timelineSection
+            snackPlanLink
         }
-        .background(DesignSystem.groupedBackground)
         .navigationTitle(Text(localized: "results.title"))
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    FuelingMethodologyView()
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+                .accessibilityLabel(Text(localized: "results.methodology.link"))
+            }
+        }
         .sheet(isPresented: $showLibrary) {
             NavigationStack {
                 SnackLibraryView(viewModel: snackViewModel)
+                    .environmentObject(appState)
             }
+        }
+        .sheet(item: $viewModel.swapContext) { context in
+            SnackSwapSheet(snacks: snackViewModel.enabledSnacks()) { snack in
+                viewModel.swapSnack(stepID: context.stepID, portionID: context.portionID, to: snack)
+            }
+        }
+        .sheet(isPresented: $viewModel.showProPaywall) {
+            ProPaywallSheet { appState.selectedTab = 2 }
         }
     }
 
-    private var cardsSection: some View {
-        VStack(spacing: 12) {
-            NutritionCardView(
-                titleKey: "results.carbs",
-                value: viewModel.carbsPerHourText(),
-                subtitleKey: "results.perHour",
-                systemImage: "flame.fill"
+    private var summarySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            FuelZoneSectionHeader(
+                titleKey: "results.summary.title",
+                subtitleKey: "results.summary.subtitle",
+                systemImage: "chart.bar.fill"
             )
-            NutritionCardView(
-                titleKey: "results.fluids",
-                value: viewModel.fluidsPerHourText(),
-                subtitleKey: "results.perHour",
-                systemImage: "drop.fill"
-            )
-            NutritionCardView(
-                titleKey: "results.sodium",
-                value: viewModel.sodiumPerHourText(),
-                subtitleKey: "results.perHour",
-                systemImage: "bolt.fill"
-            )
+            VStack(spacing: 10) {
+                NutritionCardView(
+                    titleKey: "results.carbs",
+                    value: viewModel.carbsPerHourText(),
+                    subtitleKey: "results.perHour",
+                    systemImage: "flame.fill"
+                )
+                NutritionCardView(
+                    titleKey: "results.fluids",
+                    value: viewModel.fluidsPerHourText(),
+                    subtitleKey: "results.perHour",
+                    systemImage: "drop.fill"
+                )
+                NutritionCardView(
+                    titleKey: "results.sodium",
+                    value: viewModel.sodiumPerHourText(),
+                    subtitleKey: "results.perHour",
+                    systemImage: "bolt.fill"
+                )
+            }
         }
     }
 
     @ViewBuilder
     private var warningsSection: some View {
         ForEach(viewModel.warningMessages(), id: \.self) { message in
-            Label(message, systemImage: "exclamationmark.triangle.fill")
-                .font(.caption)
-                .foregroundStyle(.orange)
-                .fuelZoneCard()
+            FuelZoneInfoBanner(message: message, style: .warning)
+        }
+    }
+
+    private var timelineSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            FuelZoneSectionHeader(
+                titleKey: "results.timeline",
+                subtitleKey: "results.timeline.hint",
+                systemImage: "list.bullet.clipboard"
+            )
+            FuelTimelineView(viewModel: viewModel, snacks: snackViewModel.allSnacks())
         }
     }
 
     private var snackPlanLink: some View {
-        Button { showLibrary = true } label: {
-            Label {
-                Text(localized: "results.openLibrary")
-            } icon: {
-                Image(systemName: "fork.knife")
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+        NavigationLink {
+            SnackLibraryView(viewModel: snackViewModel)
+                .environmentObject(appState)
+        } label: {
+            FuelZoneNavigationRow(
+                titleKey: "results.openLibrary",
+                subtitleKey: "results.openLibrary.hint",
+                systemImage: "fork.knife.circle.fill"
+            )
+            .fuelZoneCard()
         }
-        .fuelZoneCard()
+        .buttonStyle(.plain)
     }
 }

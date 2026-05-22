@@ -13,28 +13,41 @@ struct AddCustomSnackView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                TextField(String(localized: "snack.addCustom.nameEN"), text: $nameEN)
-                TextField(String(localized: "snack.addCustom.nameDE"), text: $nameDE)
-                Picker(String(localized: "snack.addCustom.category"), selection: $category) {
-                    ForEach(SnackCategory.allCases) { cat in
-                        Text(LocalizedEnum.label(for: cat)).tag(cat)
+            FuelZoneScreenScroll {
+                VStack(alignment: .leading, spacing: 14) {
+                    FuelZoneSectionHeader(
+                        titleKey: "snack.addCustom.title",
+                        subtitleKey: "snack.addCustom.subtitle",
+                        systemImage: "plus.circle"
+                    )
+                    FuelZoneLabeledField(labelKey: "snack.addCustom.nameEN", text: $nameEN, keyboardType: .default)
+                    FuelZoneLabeledField(labelKey: "snack.addCustom.nameDE", text: $nameDE, keyboardType: .default)
+                    Text(localized: "snack.addCustom.category")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundStyle(.secondary)
+                    Picker("", selection: $category) {
+                        ForEach(SnackCategory.allCases) { cat in
+                            Text(LocalizedEnum.label(for: cat)).tag(cat)
+                        }
                     }
+                    .pickerStyle(.menu)
+                    FuelZoneLabeledField(labelKey: "snack.addCustom.carbs", text: $carbs)
+                    FuelZoneLabeledField(labelKey: "snack.addCustom.sodium", text: $sodium)
+                    FuelZoneLabeledField(labelKey: "snack.addCustom.unit", text: $unitKey, keyboardType: .default)
                 }
-                TextField(String(localized: "snack.addCustom.carbs"), text: $carbs)
-                    .keyboardType(.decimalPad)
-                TextField(String(localized: "snack.addCustom.sodium"), text: $sodium)
-                    .keyboardType(.decimalPad)
-                TextField(String(localized: "snack.addCustom.unit"), text: $unitKey)
+                .fuelZoneCard()
+
+                Button { save() } label: {
+                    Text(localized: "snack.addCustom.save")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(nameEN.isEmpty || carbs.isEmpty)
             }
             .navigationTitle(Text(localized: "snack.addCustom.title"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button { dismiss() } label: { Text(localized: "onboarding.button.back") }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button { save() } label: { Text(localized: "snack.addCustom.save") }
-                        .disabled(nameEN.isEmpty || carbs.isEmpty)
+                    FuelZoneTextButton(titleKey: "onboarding.button.back") { dismiss() }
                 }
             }
         }

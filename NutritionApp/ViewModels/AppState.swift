@@ -6,7 +6,9 @@ final class AppState: ObservableObject {
     @Published var profile: UserProfile
     @Published var settings: AppSettings
     @Published var showOnboarding: Bool
+    @Published var selectedTab: Int = 0
 
+    let subscriptionManager = SubscriptionManager()
     let sessionViewModel: SessionViewModel
     let resultsViewModel: ResultsViewModel
     let snackViewModel: SnackViewModel
@@ -43,6 +45,28 @@ final class AppState: ObservableObject {
         historyViewModel.configure(settings: loadedSettings)
         snackViewModel.configure(settings: loadedSettings)
 
+        bindSubscriptionStatus()
+        observeCloudSync()
+
+        Task {
+            await store.syncFromCloudKit()
+            await subscriptionManager.loadProducts()
+        }
+    }
+
+    private func bindSubscriptionStatus() {
+        subscriptionManager.$isProActive
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isActive in
+                guard let self, self.settings.isProSubscriber != isActive else { return }
+                self.settings.isProSubscriber = isActive
+                self.applySettingsToViewModels()
+                self.store.save(self.settings, key: PersistenceKeys.appSettings)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func observeCloudSync() {
         NotificationCenter.default.publisher(for: .dataStoreDidSyncFromCloud)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.reloadFromStore() }
@@ -51,7 +75,10 @@ final class AppState: ObservableObject {
 
     func reloadFromStore() {
         if let p = store.load(UserProfile.self, key: PersistenceKeys.userProfile) { profile = p }
-        if let s = store.load(AppSettings.self, key: PersistenceKeys.appSettings) { settings = s }
+        if let s = store.load(AppSettings.self, key: PersistenceKeys.appSettings) {
+            settings = s
+            applySettingsToViewModels()
+        }
         snackViewModel.reload()
         historyViewModel.reload()
     }
@@ -63,9 +90,14 @@ final class AppState: ObservableObject {
 
     func saveSettings() {
         store.save(settings, key: PersistenceKeys.appSettings)
+        applySettingsToViewModels()
+    }
+
+    private func applySettingsToViewModels() {
         sessionViewModel.updateSettings(settings)
         resultsViewModel.updateSettings(settings)
         historyViewModel.updateSettings(settings)
+        snackViewModel.configure(settings: settings)
     }
 
     func completeOnboarding() {
@@ -74,5 +106,9 @@ final class AppState: ObservableObject {
         saveProfile()
         showOnboarding = false
         sessionViewModel.updateProfile(profile)
+    }
+
+    func syncNow() {
+        Task { await store.syncFromCloudKit() }
     }
 }

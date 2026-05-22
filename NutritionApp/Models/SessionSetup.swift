@@ -24,7 +24,7 @@ struct SessionSetup: Codable, Hashable, Identifiable, Sendable {
         paceMinutesPerKm: Double? = nil,
         intensityMode: IntensityMode = .simple,
         simpleIntensity: SimpleIntensity = .moderate,
-        zoneDistribution: HeartRateZoneDistribution = .default,
+        zoneDistribution: HeartRateZoneDistribution = .default(forSessionMinutes: 90),
         temperature: TemperatureLevel = .mild,
         conditions: WeatherCondition = .dry,
         createdAt: Date = .now

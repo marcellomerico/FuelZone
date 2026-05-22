@@ -5,23 +5,36 @@ struct SnackPlanSummaryView: View {
     let snacks: [Snack]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(localized: "results.snackPlan")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 12) {
+            FuelZoneSectionHeader(
+                titleKey: "results.snackPlan",
+                subtitleKey: "results.snackPlan.hint",
+                systemImage: "takeoutbag.and.cup.and.straw"
+            )
 
-            let totals = aggregateTotals()
-            Text("\(Int(totals.carbs)) g · \(Int(totals.sodium)) mg · \(totals.fluids) ml")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Text(NutritionMetricsFormatting.snackPlanTotals(
+                carbs: Int(aggregateTotals().carbs),
+                sodium: Int(aggregateTotals().sodium),
+                fluids: aggregateTotals().fluids
+            ))
+            .font(DesignSystem.Typography.bodySecondary)
+            .foregroundStyle(.secondary)
 
-            ForEach(uniqueSnackIDs(), id: \.self) { id in
-                if let snack = snacks.first(where: { $0.id == id }) {
-                    let qty = totalQuantity(for: id)
-                    HStack {
-                        Image(systemName: snack.category.systemImageName)
-                        Text("\(qty, specifier: "%.1f")× \(snack.localizedName)")
+            VStack(spacing: 0) {
+                ForEach(Array(uniqueSnackIDs().enumerated()), id: \.element) { index, id in
+                    if let snack = snacks.first(where: { $0.id == id }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: snack.category.systemImageName)
+                                .foregroundStyle(Color.accentColor)
+                            Text("\(totalQuantity(for: id), specifier: "%.1f")× \(snack.localizedName)")
+                                .font(DesignSystem.Typography.bodySecondary)
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                        if index < uniqueSnackIDs().count - 1 {
+                            FuelZoneCardDivider()
+                        }
                     }
-                    .font(.caption)
                 }
             }
         }

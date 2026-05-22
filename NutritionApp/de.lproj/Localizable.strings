@@ -22,6 +22,7 @@
 "onboarding.saltiness.subtitle" = "Wie salzig ist dein Schweiß?";
 "onboarding.saltiness.tooltip" = "Weiße Schweißflecken auf Kleidung oder Mütze? Mehr Salz = mehr Natrium pro Liter.";
 "onboarding.profile.title" = "Über dich";
+"onboarding.profile.subtitle" = "Optional — für Flüssigkeit und Zonen.";
 "onboarding.profile.name" = "Name (optional)";
 "onboarding.profile.weight" = "Gewicht (kg)";
 "onboarding.ready.title" = "Du bist startklar!";
@@ -33,6 +34,11 @@
 /* Session setup */
 "session.title" = "Einheit planen";
 "session.sport" = "Sportart";
+"session.duration.section" = "Wie lange?";
+"session.duration.sectionHint" = "Dauer oder Distanz mit Pace bzw. Zeit.";
+"session.intensity.hint" = "Beeinflusst, wie viele Kohlenhydrate pro Stunde empfohlen werden.";
+"session.environment.title" = "Bedingungen";
+"session.environment.hint" = "Für Flüssigkeits- und Natriumziele.";
 "session.duration.mode.duration" = "Dauer";
 "session.duration.mode.distancePace" = "Distanz + Pace";
 "session.duration.mode.distanceTime" = "Distanz + Zeit";
@@ -46,7 +52,26 @@
 "session.zone.title" = "Zeit in jeder Zone";
 "session.zone.maxHR" = "Max. Herzfrequenz";
 "session.zone.calculate" = "Zonen berechnen";
-"session.zone.validation" = "Die Zonen-Prozente müssen zusammen 100 % ergeben.";
+"session.zone.setupInProfile" = "Max. HF und Zonengrenzen im Profil festlegen (Einstellungen).";
+"session.zone.editInProfile" = "BPM-Grenzen pro Zone anpassen";
+"session.zone.validation" = "Die Minuten pro Zone müssen deiner Session-Dauer entsprechen.";
+"session.zone.total" = "Summe: %1$@ / %2$@ Min.";
+"session.zone.minutes" = "%@ Min.";
+"session.zone.durationRequired" = "Gib oben zuerst die Session-Dauer ein, um Minuten pro Zone festzulegen.";
+"session.zone.bpmRange" = "%@–%@ bpm";
+"session.duration.computed" = "Geschätzte Dauer: %@ Min.";
+
+/* Pro paywall */
+"pro.paywall.title" = "FuelZone Pro";
+"pro.paywall.message" = "Schalte erweiterte Planungsfunktionen für ambitionierte Einheiten frei.";
+"pro.paywall.featuresTitle" = "In Pro enthalten";
+"pro.paywall.cta" = "Pro in Einstellungen";
+"pro.paywall.dismiss" = "Nicht jetzt";
+"pro.paywall.feature.zones" = "Herzfrequenz-Zonen-Planung";
+"pro.paywall.feature.barcode" = "Barcode-Scan für eigene Snacks";
+"pro.paywall.feature.snackSwap" = "Snacks in der Timeline tauschen";
+"pro.paywall.feature.history" = "Unbegrenzter Verlauf";
+
 "session.temperature.title" = "Temperatur";
 "session.conditions.title" = "Bedingungen";
 "session.calculate" = "Plan berechnen";
@@ -59,15 +84,58 @@
 "results.perHour" = "pro Stunde";
 "results.total" = "gesamt";
 "results.timeline" = "Zeitplan";
+"results.timeline.hint" = "Was du in jedem Abschnitt der Einheit zu dir nehmen solltest.";
+"results.summary.title" = "Deine Ziele";
+"results.summary.subtitle" = "Bereiche berücksichtigen kleine tägliche Unterschiede.";
+"results.methodology.link" = "Wissenschaft & Methodik";
 "results.snackPlan" = "Snack-Plan";
+"results.snackPlan.hint" = "Summen aus den Timeline-Vorschlägen.";
 "results.openLibrary" = "Snack-Bibliothek";
+"results.openLibrary.hint" = "Snacks aktivieren und Portionen anpassen.";
 "results.range.format" = "%@–%@ %@";
 "timeline.step.range" = "Min. %@–%@";
 
 /* Snacks */
 "snack.library.title" = "Snack-Bibliothek";
 "snack.library.filter" = "Kategorie";
+"snack.library.filterHint" = "Snacks für deinen Plan filtern.";
+"snack.library.listTitle" = "Deine Snacks";
+"snack.library.listHint" = "Aktivierte Snacks erscheinen in der Timeline.";
+"snack.library.empty" = "Keine Snacks in dieser Kategorie.";
+"snack.library.all" = "Alle";
+"snack.swap.title" = "Snack ersetzen";
+"snack.swap.subtitle" = "Wähle einen Snack für diesen Timeline-Schritt.";
+"snack.swap.search" = "Snacks suchen";
+"snack.swap.empty" = "Keine passenden aktivierten Snacks.";
+"error.title" = "Fehler";
+"error.barcodeNotFound" = "Produkt nicht gefunden. Versuche manuelle Eingabe.";
+"error.barcodeUnavailable" = "Barcode-Scan ist auf diesem Gerät nicht verfügbar.";
+
+/* Metrics */
+"metrics.step.targets" = "%@ g · %@ ml · %@ mg";
+"metrics.snack.quantity" = "%@× %@";
+"metrics.snack.macros" = "%@ g · %@ mg";
+"metrics.plan.totals" = "%@ g · %@ mg · %@ ml";
+"history.duration" = "· %@ Min.";
+"history.carbsPerHour" = "%@ g/h";
+
+/* StoreKit */
+"storekit.subscribe" = "Pro abonnieren";
+"storekit.restore" = "Käufe wiederherstellen";
+"storekit.status.active" = "Pro ist aktiv";
+"storekit.purchase.success" = "Willkommen bei FuelZone Pro!";
+"storekit.purchase.pending" = "Kauf wartet auf Bestätigung.";
+"storekit.restore.success" = "Käufe wiederhergestellt.";
+"storekit.restore.empty" = "Kein aktives Abo gefunden.";
+"storekit.error.products" = "Abo-Produkte konnten nicht geladen werden.";
+"storekit.error.purchase" = "Kauf fehlgeschlagen. Bitte erneut versuchen.";
+"storekit.error.restore" = "Wiederherstellung fehlgeschlagen.";
+"settings.pro.debugToggle" = "Debug: Pro simulieren";
+"settings.sync.title" = "iCloud-Sync";
+"settings.sync.now" = "Jetzt synchronisieren";
+"settings.sync.description" = "Profil, Verlauf und Snacks werden per iCloud synchronisiert, wenn du angemeldet bist.";
 "snack.addCustom.title" = "Eigenen Snack hinzufügen";
+"snack.addCustom.subtitle" = "Eigenes Gel, Riegel oder Getränk anlegen.";
 "snack.addCustom.nameEN" = "Name (Englisch)";
 "snack.addCustom.nameDE" = "Name (Deutsch)";
 "snack.addCustom.category" = "Kategorie";
@@ -80,7 +148,8 @@
 
 /* History */
 "history.title" = "Verlauf";
-"history.empty" = "Noch keine gespeicherten Einheiten.";
+"history.empty.title" = "Noch kein Verlauf";
+"history.empty" = "Gespeicherte Pläne aus dem Tab „Plan“ erscheinen hier.";
 "history.detail.title" = "Einheitsdetails";
 
 /* Settings */
@@ -95,7 +164,27 @@
 "settings.appearance.dark" = "Dunkel";
 "settings.onboarding" = "Onboarding wiederholen";
 "settings.about" = "Über FuelZone";
+"settings.methodology.subtitle" = "So berechnen wir deinen Plan";
+"settings.profile.subtitle" = "Sport, Körperdaten, HF-Zonen";
+
+/* Profile */
+"profile.title" = "Dein Profil";
+"profile.save" = "Profil speichern";
+"profile.about.title" = "Über dich";
+"profile.about.subtitle" = "Aus dem Onboarding — jederzeit änderbar.";
+"profile.sport.title" = "Hauptsportart";
+"profile.sport.subtitle" = "Standard im Tab „Plan“.";
+"profile.physiology.title" = "Schweiß & Magen";
+"profile.physiology.subtitle" = "Beeinflusst Flüssigkeit, Natrium und KH-Deckel.";
+"profile.hr.title" = "Herzfrequenz-Zonen";
+"profile.hr.subtitle" = "Obere BPM-Grenze pro Zone. Max. HF ändern und unten Standard-Zonen übernehmen.";
+"profile.hr.resetStandard" = "Standard-Zonen aus max. HF";
+"profile.hr.zoneLimits" = "Obere Grenze (bpm) pro Zone";
+"profile.hr.zone5Range" = "Zone 5: %@–%@ bpm (bis max. HF)";
+"profile.hr.validation" = "Zonengrenzen müssen von Zone 1 bis 5 steigen und unter der max. HF liegen.";
+"profile.hr.missingMax" = "Gültige max. Herzfrequenz eingeben, um Zonen zu bearbeiten.";
 "settings.disclaimer.title" = "Haftungsausschluss";
+"settings.disclaimer.subtitle" = "Wichtige rechtliche Hinweise";
 "settings.disclaimer.body" = "FuelZone bietet allgemeine Sporternährungs-Empfehlungen, keine medizinische Beratung. Passe die Zufuhr an deine Bedürfnisse an und hole dir bei Unsicherheit professionelle Hilfe.";
 "settings.pro.title" = "FuelZone Pro";
 "settings.pro.subtitle" = "Zonen-Modus, Barcode-Scan, Snack-Tausch und unbegrenzter Verlauf.";
@@ -104,12 +193,61 @@
 "warning.session_too_short" = "Einheiten unter 30 Minuten brauchen selten einen strukturierten Versorgungsplan.";
 "warning.stomach_cap_applied" = "Das Kohlenhydrat-Ziel wurde an deine Magenempfindlichkeit angepasst.";
 "warning.default_weight_used" = "Standardgewicht (70 kg) wird verwendet, da keines hinterlegt ist.";
+"warning.multiple_transportable_carbs" = "Bei langen Einheiten mit hoher KH-Rate: Glucose + Fructose (ca. 2:1) verbessert die Aufnahme.";
+
+/* Methodology */
+"methodology.title" = "Wissenschaft & Methodik";
+"methodology.hero.subtitle" = "So entsteht dein FuelZone-Plan — verständlich erklärt, mit der Forschung dahinter.";
+"methodology.why.title" = "Warum Gramm pro Stunde?";
+"methodology.why.body" = "Während der Belastung kann dein Körper nur eine begrenzte Menge Kohlenhydrate pro Stunde aufnehmen. Dieses Limit ist bei den meisten Menschen ähnlich — deshalb empfehlen Sportwissenschaftler feste Stundenwerte (z. B. 30, 60 oder 90 Gramm) statt einer Formel über das Körpergewicht.";
+"methodology.how.title" = "So entsteht dein Plan";
+"methodology.how.subtitle" = "Vier Schritte in der App.";
+"methodology.step1.title" = "Dauer der Einheit";
+"methodology.step1.body" = "Längere Einheiten brauchen mehr Kohlenhydrate pro Stunde. Unter 30 Minuten zeigen wir nur einen leichten Hinweis.";
+"methodology.step2.title" = "Geplante Intensität";
+"methodology.step2.body" = "Leichte Belastung oder viel Zeit in niedrigen HF-Zonen senkt das Ziel. Harte Einheiten behalten die volle Empfehlung.";
+"methodology.step3.title" = "Dein Magen";
+"methodology.step3.body" = "Hast du im Onboarding „empfindlich“ gewählt, begrenzen wir die Stundenmenge auf ein verträgliches Maß.";
+"methodology.step4.title" = "Ein kleiner Bereich";
+"methodology.step4.body" = "Du siehst ein Band um den Wert (ca. ±8 %%), weil die Verträglichkeit von Tag zu Tag schwankt.";
+"methodology.tiers.title" = "Kohlenhydrate nach Dauer";
+"methodology.tiers.subtitle" = "Nach Jeukendrup (2014) und Burke et al. (2011).";
+"methodology.tier.short.duration" = "30–75 Minuten";
+"methodology.tier.short.amount" = "~30 g/h";
+"methodology.tier.short.tip" = "Oft reicht ein Gel oder Getränk. Ein voller Zeitplan ist optional.";
+"methodology.tier.medium.duration" = "75 Min. – 2,5 h";
+"methodology.tier.medium.amount" = "~60 g/h";
+"methodology.tier.medium.tip" = "Gels, Sportgetränke oder Riegel mit Glucose/Maltodextrin passen gut.";
+"methodology.tier.long.duration" = "Über 2,5 h";
+"methodology.tier.long.amount" = "~90 g/h";
+"methodology.tier.long.tip" = "Glucose + Fructose (ca. 2:1) — so kann der Körper mehr aufnehmen.";
+"methodology.adjustments.title" = "Weitere Anpassungen";
+"methodology.adjustment.intensity.body" = "HF-Zonen: mehr Minuten in leichten Zonen → etwas weniger Kohlenhydrate pro Stunde.";
+"methodology.adjustment.stomach.body" = "Magenempfindlichkeit: „konservativ“ begrenzt unter 90 g/h für bessere Verträglichkeit.";
+"methodology.fluids.title" = "Flüssigkeit & Natrium";
+"methodology.fluids.body" = "Basierend auf Schweißprofil, Temperatur und Wetter — getrennt von der Kohlenhydrat-Forschung oben.";
+"methodology.sources.title" = "Wissenschaftliche Quellen";
+"methodology.sources.subtitle" = "Tippen, um die Originalpublikation zu öffnen.";
+"methodology.sources.open" = "Publikation öffnen";
+"methodology.ref.jeukendrup.title" = "Jeukendrup (2014)";
+"methodology.ref.jeukendrup.citation" = "A Step Towards Personalized Sports Nutrition: Carbohydrate Intake During Exercise. Sports Medicine.";
+"methodology.ref.burke.title" = "Burke et al. (2011)";
+"methodology.ref.burke.citation" = "Carbohydrates for training and competition. Journal of Sports Sciences.";
+"methodology.ref.oxidation.title" = "Jeukendrup & Jentjens (2000)";
+"methodology.ref.oxidation.citation" = "Oxidation of carbohydrate feedings during prolonged exercise. Sports Medicine.";
+"methodology.ref.mtc.title" = "Jeukendrup – GSSI SSE-108";
+"methodology.ref.mtc.citation" = "Multiple transportable carbohydrates and their benefits.";
+"methodology.ref.issn.title" = "ISSN (2017)";
+"methodology.ref.issn.citation" = "Position stand: nutrient timing.";
+"methodology.disclaimer" = "Diese Informationen dienen der Orientierung. Verträglichkeit, Darmtraining und gesundheitliche Faktoren sind individuell. Bei Bedarf Sportlerernährung oder Arzt konsultieren.";
 
 /* Errors */
 "error.invalidDuration" = "Bitte gib eine gültige Einheitsdauer ein.";
-"error.invalidZoneDistribution" = "Die Zonen-Prozente müssen 100 % ergeben.";
+"error.invalidZoneDistribution" = "Die Minuten pro Zone müssen deiner Session-Dauer entsprechen.";
 "error.snacksLoadFailed" = "Die Snack-Datenbank konnte nicht geladen werden.";
 "error.icloudUnavailable" = "iCloud ist nicht verfügbar. Daten werden nur auf diesem Gerät gespeichert.";
+"error.invalidMaxHeartRate" = "Bitte gültige max. Herzfrequenz eingeben (100–220 bpm).";
+"error.distanceTimeIncomplete" = "Bitte Distanz und Dauer eingeben.";
 
 /* Sports */
 "sport.running" = "Laufen";

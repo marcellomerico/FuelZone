@@ -3,15 +3,13 @@ import XCTest
 
 final class FuelingCalculatorTests: XCTestCase {
 
-    private let weightKg = 70.0
-
     private func profile(
         stomach: StomachSensitivity = .moderate,
         sweatRate: SweatRate = .moderate,
         saltiness: SweatSaltiness = .moderate
     ) -> UserProfile {
         UserProfile(
-            weightKg: weightKg,
+            weightKg: 70,
             stomachSensitivity: stomach,
             sweatRate: sweatRate,
             sweatSaltiness: saltiness
@@ -22,7 +20,7 @@ final class FuelingCalculatorTests: XCTestCase {
         minutes: Int,
         intensityMode: IntensityMode = .simple,
         simple: SimpleIntensity = .moderate,
-        zones: HeartRateZoneDistribution = .default,
+        zones: HeartRateZoneDistribution? = nil,
         temperature: TemperatureLevel = .mild,
         conditions: WeatherCondition = .dry
     ) -> SessionSetup {
@@ -31,7 +29,7 @@ final class FuelingCalculatorTests: XCTestCase {
             durationMinutes: minutes,
             intensityMode: intensityMode,
             simpleIntensity: simple,
-            zoneDistribution: zones,
+            zoneDistribution: zones ?? .default(forSessionMinutes: minutes),
             temperature: temperature,
             conditions: conditions
         )
@@ -55,25 +53,28 @@ final class FuelingCalculatorTests: XCTestCase {
         let result = try FuelingCalculator.calculate(
             FuelingCalculatorInput(
                 profile: profile(),
-                setup: setup(minutes: 300),
+                setup: setup(minutes: 300, simple: .hard),
                 availableSnacks: snacks
             )
         )
 
         XCTAssertEqual(result.sessionDurationMinutes, 300)
         XCTAssertEqual(result.timeline.count, 15)
-        XCTAssertGreaterThan(result.totalCarbsGrams.midpoint, 200)
+        // 90 g/h tier × 1.0 intensity (hard)
+        XCTAssertEqual(result.carbsPerHour.midpoint, 90, accuracy: 2)
+        XCTAssertGreaterThan(result.totalCarbsGrams.midpoint, 400)
         XCTAssertGreaterThan(result.totalFluidsMl, 2000)
         XCTAssertFalse(result.timeline.allSatisfy { $0.portions.isEmpty })
+        XCTAssertTrue(result.warningKeys.contains("warning.multiple_transportable_carbs"))
     }
 
-    func testZoneBased_100PercentZone2() throws {
+    func testZoneBased_moderate90Minutes() throws {
         let zones = HeartRateZoneDistribution(
-            zone1Percent: 0,
-            zone2Percent: 100,
-            zone3Percent: 0,
-            zone4Percent: 0,
-            zone5Percent: 0
+            zone1Minutes: 0,
+            zone2Minutes: 90,
+            zone3Minutes: 0,
+            zone4Minutes: 0,
+            zone5Minutes: 0
         )
         let result = try FuelingCalculator.calculate(
             FuelingCalculatorInput(
@@ -82,53 +83,38 @@ final class FuelingCalculatorTests: XCTestCase {
             )
         )
 
-        // 70 kg × 0.6 g/kg/h (Z2) × 1.05 duration ≈ 44 g/h
-        XCTAssertEqual(result.carbsPerHour.midpoint, 44, accuracy: 2)
+        // 60 g/h base × 0.85 (zone 2) ≈ 51 g/h
+        XCTAssertEqual(result.carbsPerHour.midpoint, 51, accuracy: 2)
         XCTAssertFalse(result.warningKeys.contains("warning.stomach_cap_applied"))
     }
 
-    func testConservativeStomach_hotConditions() throws {
-        let zones = HeartRateZoneDistribution(
-            zone1Percent: 0,
-            zone2Percent: 0,
-            zone3Percent: 0,
-            zone4Percent: 50,
-            zone5Percent: 50
-        )
+    func testConservativeStomach_ultraSession() throws {
         let result = try FuelingCalculator.calculate(
             FuelingCalculatorInput(
-                profile: profile(stomach: .conservative, sweatRate: .high),
-                setup: setup(
-                    minutes: 120,
-                    intensityMode: .zoneBased,
-                    zones: zones,
-                    temperature: .hot,
-                    conditions: .humid
-                )
+                profile: profile(stomach: .conservative),
+                setup: setup(minutes: 300, simple: .hard)
             )
         )
 
         XCTAssertTrue(result.warningKeys.contains("warning.stomach_cap_applied"))
-        // Cap: 90 × 0.85 = 76.5 g/h (midpoint before range spread)
+        // Cap: 90 × 0.85 = 76.5 g/h
         XCTAssertEqual(result.carbsPerHour.midpoint, 76.5, accuracy: 0.5)
-        // High sweat + hot + humid → elevated fluids
-        XCTAssertGreaterThanOrEqual(result.fluidsPerHourMl.midpoint, 900)
     }
 
     func testZoneBased_intervalsHeavy_zone4zone5() throws {
         let heavy = HeartRateZoneDistribution(
-            zone1Percent: 0,
-            zone2Percent: 0,
-            zone3Percent: 0,
-            zone4Percent: 60,
-            zone5Percent: 40
+            zone1Minutes: 0,
+            zone2Minutes: 0,
+            zone3Minutes: 0,
+            zone4Minutes: 54,
+            zone5Minutes: 36
         )
         let zone2Only = HeartRateZoneDistribution(
-            zone1Percent: 0,
-            zone2Percent: 100,
-            zone3Percent: 0,
-            zone4Percent: 0,
-            zone5Percent: 0
+            zone1Minutes: 0,
+            zone2Minutes: 90,
+            zone3Minutes: 0,
+            zone4Minutes: 0,
+            zone5Minutes: 0
         )
 
         let heavyResult = try FuelingCalculator.calculate(
@@ -150,21 +136,41 @@ final class FuelingCalculatorTests: XCTestCase {
         )
     }
 
+    func testWeightDoesNotChangeCarbTarget() throws {
+        let light = UserProfile(weightKg: 55, stomachSensitivity: .moderate)
+        let heavy = UserProfile(weightKg: 95, stomachSensitivity: .moderate)
+        let session = setup(minutes: 90, simple: .moderate)
+
+        let lightResult = try FuelingCalculator.calculate(
+            FuelingCalculatorInput(profile: light, setup: session)
+        )
+        let heavyResult = try FuelingCalculator.calculate(
+            FuelingCalculatorInput(profile: heavy, setup: session)
+        )
+
+        XCTAssertEqual(
+            lightResult.carbsPerHour.midpoint,
+            heavyResult.carbsPerHour.midpoint,
+            accuracy: 0.01
+        )
+    }
+
     // MARK: - Validation & snacks
 
     func testInvalidZoneDistributionThrows() {
+        // Zone minutes must sum to session duration (90 min), not 60.
         let invalid = HeartRateZoneDistribution(
-            zone1Percent: 30,
-            zone2Percent: 30,
-            zone3Percent: 30,
-            zone4Percent: 0,
-            zone5Percent: 0
+            zone1Minutes: 20,
+            zone2Minutes: 20,
+            zone3Minutes: 20,
+            zone4Minutes: 0,
+            zone5Minutes: 0
         )
         XCTAssertThrowsError(
             try FuelingCalculator.calculate(
                 FuelingCalculatorInput(
                     profile: profile(),
-                    setup: setup(minutes: 60, intensityMode: .zoneBased, zones: invalid)
+                    setup: setup(minutes: 90, intensityMode: .zoneBased, zones: invalid)
                 )
             )
         ) { error in

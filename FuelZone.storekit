@@ -1,0 +1,53 @@
+{
+  "identifier" : "FuelZone",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "0",
+    "developerTeamID" : "73W5K48926"
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "fuelzone_pro",
+      "localizations" : [
+
+      ],
+      "name" : "FuelZone Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "fuelzone_pro_monthly",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Zones, barcode scan, snack swaps, unlimited history",
+              "displayName" : "FuelZone Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.mmerico.FuelZone.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pro Monthly",
+          "subscriptionGroupID" : "fuelzone_pro",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

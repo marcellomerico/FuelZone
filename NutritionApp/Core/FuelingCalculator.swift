@@ -18,26 +18,19 @@ struct FuelingCalculatorInput: Sendable {
 
 /// Pure fueling math — no SwiftUI dependencies.
 enum FuelingCalculator {
-    private static let defaultWeightKg = 70.0
-    private static let simpleBaselineCarbsPerKgPerHour = 0.6
-
     static func calculate(_ input: FuelingCalculatorInput) throws -> FuelingResult {
         guard let durationMinutes = input.setup.resolvedDurationMinutes(), durationMinutes > 0 else {
             throw FuelingCalculatorError.invalidDuration
         }
 
-        if input.setup.intensityMode == .zoneBased, !input.setup.zoneDistribution.isValid {
+        if input.setup.intensityMode == .zoneBased,
+           !input.setup.zoneDistribution.isValid(sessionDurationMinutes: durationMinutes) {
             throw FuelingCalculatorError.invalidZoneDistribution
         }
 
         var warningKeys: [String] = []
-        let weightKg = resolvedWeight(from: input.profile, warnings: &warningKeys)
 
-        let rawCarbsPerHour = carbsPerHour(
-            weightKg: weightKg,
-            setup: input.setup,
-            durationMinutes: durationMinutes
-        )
+        let rawCarbsPerHour = carbsPerHour(setup: input.setup, durationMinutes: durationMinutes)
 
         let (carbsPerHour, stomachCapped) = applyStomachCap(
             rawCarbsPerHour: rawCarbsPerHour,
@@ -45,6 +38,13 @@ enum FuelingCalculator {
         )
         if stomachCapped {
             warningKeys.append("warning.stomach_cap_applied")
+        }
+
+        if ExerciseCarbGuidelines.needsMultipleTransportableCarbsWarning(
+            durationMinutes: durationMinutes,
+            carbsPerHour: carbsPerHour
+        ) {
+            warningKeys.append("warning.multiple_transportable_carbs")
         }
 
         let carbsRange: NutritionRange
@@ -104,39 +104,22 @@ enum FuelingCalculator {
 
     // MARK: - Carbohydrates
 
-    private static func carbsPerHour(
-        weightKg: Double,
-        setup: SessionSetup,
-        durationMinutes: Int
-    ) -> Double {
-        let intensityFactor: Double
+    private static func carbsPerHour(setup: SessionSetup, durationMinutes: Int) -> Double {
+        let intensityScale: Double
         switch setup.intensityMode {
         case .simple:
-            intensityFactor = simpleBaselineCarbsPerKgPerHour * setup.simpleIntensity.carbMultiplier
+            intensityScale = ExerciseCarbGuidelines.intensityScale(simpleIntensity: setup.simpleIntensity)
         case .zoneBased:
-            intensityFactor = setup.zoneDistribution.weightedCarbFactorPerKgPerHour
+            intensityScale = ExerciseCarbGuidelines.intensityScale(
+                zoneDistribution: setup.zoneDistribution,
+                sessionDurationMinutes: durationMinutes
+            )
         }
 
-        let base = weightKg * intensityFactor * durationMultiplier(minutes: durationMinutes)
-
-        if durationMinutes < AppConstants.minimumFuelingSessionMinutes {
-            return min(base, 15)
-        }
-
-        return base
-    }
-
-    private static func durationMultiplier(minutes: Int) -> Double {
-        switch minutes {
-        case ..<30:
-            return 0.5
-        case 30..<90:
-            return 1.0
-        case 90..<180:
-            return 1.05
-        default:
-            return 1.1
-        }
+        return ExerciseCarbGuidelines.recommendedCarbsPerHour(
+            durationMinutes: durationMinutes,
+            intensityScale: intensityScale
+        )
     }
 
     private static func applyStomachCap(
@@ -192,16 +175,5 @@ enum FuelingCalculator {
         }
 
         return steps
-    }
-
-    private static func resolvedWeight(
-        from profile: UserProfile,
-        warnings: inout [String]
-    ) -> Double {
-        if let weightKg = profile.weightKg, weightKg > 0 {
-            return weightKg
-        }
-        warnings.append("warning.default_weight_used")
-        return defaultWeightKg
     }
 }

@@ -7,7 +7,7 @@ enum AppConstants {
     /// Timeline steps are generated every N minutes.
     static let timelineStepMinutes = 20
 
-    /// Absolute carbohydrate ceiling in g/h (before stomach sensitivity).
+    /// Absolute carbohydrate ceiling in g/h (Jeukendrup 2014 ultra-endurance tier; before stomach sensitivity).
     static let maxCarbsPerHour = 90.0
 
     /// Minimum session length (minutes) that triggers fueling recommendations.

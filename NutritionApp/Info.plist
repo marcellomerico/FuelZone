@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>FuelZone</string>
+	<key>NSCameraUsageDescription</key>
+	<string>FuelZone needs camera access to scan product barcodes for custom snacks.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

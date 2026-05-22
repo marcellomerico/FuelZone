@@ -7,6 +7,8 @@ final class SnackViewModel: ObservableObject {
     @Published private(set) var libraryState = SnackLibraryState()
     @Published var selectedCategory: SnackCategory?
     @Published var loadError: String?
+    @Published var showProPaywall = false
+    @Published var showBarcodeScanner = false
 
     private var settings = AppSettings()
     private let store = DataStore.shared
@@ -64,8 +66,27 @@ final class SnackViewModel: ObservableObject {
     var canAddCustom: Bool { settings.hasAccess(to: .barcodeScanner) }
     var canScanBarcode: Bool { settings.hasAccess(to: .barcodeScanner) }
 
+    func requestBarcodeScan() {
+        if canScanBarcode {
+            showBarcodeScanner = true
+        } else {
+            showProPaywall = true
+        }
+    }
+
+    func requestAddCustomSnack() {
+        if canAddCustom {
+            // caller presents AddCustomSnack sheet
+        } else {
+            showProPaywall = true
+        }
+    }
+
     func addCustomSnack(_ snack: Snack) {
-        guard canAddCustom else { return }
+        guard canAddCustom else {
+            showProPaywall = true
+            return
+        }
         var custom = snack
         custom.isBuiltIn = false
         libraryState.customSnacks.append(custom)

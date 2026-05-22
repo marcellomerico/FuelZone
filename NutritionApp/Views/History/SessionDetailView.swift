@@ -4,17 +4,25 @@ struct SessionDetailView: View {
     @EnvironmentObject private var appState: AppState
     let record: SessionRecord
 
+    @StateObject private var detailViewModel: SessionDetailViewModel
+
+    init(record: SessionRecord) {
+        self.record = record
+        _detailViewModel = StateObject(wrappedValue: SessionDetailViewModel(
+            record: record,
+            settings: AppSettings(),
+            snacks: []
+        ))
+    }
+
     var body: some View {
-        ResultsView(
-            viewModel: appState.resultsViewModel,
+        SessionDetailResultsView(
+            viewModel: detailViewModel,
             snackViewModel: appState.snackViewModel
         )
         .onAppear {
-            appState.resultsViewModel.setResult(
-                record.result,
-                setup: record.setup,
-                profile: UserProfile(weightKg: record.profileWeightKg)
-            )
+            detailViewModel.updateSettings(appState.settings)
+            detailViewModel.updateSnacks(appState.snackViewModel.allSnacks())
         }
     }
 }

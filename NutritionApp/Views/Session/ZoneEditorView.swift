@@ -2,46 +2,88 @@ import SwiftUI
 
 struct ZoneEditorView: View {
     @Binding var distribution: HeartRateZoneDistribution
-    @Binding var maxHeartRateText: String
-    let onMaxHRChange: (String) -> Void
+    let sessionDurationMinutes: Int?
+    let thresholds: HeartRateZoneThresholds?
+    private var sessionMinutes: Int { max(sessionDurationMinutes ?? 0, 0) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            TextField(String(localized: "session.zone.maxHR"), text: $maxHeartRateText)
-                .onChange(of: maxHeartRateText) { _, value in onMaxHRChange(value) }
-            .keyboardType(.numberPad)
-            .textFieldStyle(.roundedBorder)
+        VStack(alignment: .leading, spacing: 14) {
+            Text(localized: "session.zone.title")
+                .font(DesignSystem.Typography.caption)
+                .foregroundStyle(.secondary)
 
-            zoneSlider(titleKey: "hrzone.zone1", value: $distribution.zone1Percent)
-            zoneSlider(titleKey: "hrzone.zone2", value: $distribution.zone2Percent)
-            zoneSlider(titleKey: "hrzone.zone3", value: $distribution.zone3Percent)
-            zoneSlider(titleKey: "hrzone.zone4", value: $distribution.zone4Percent)
-            zoneSlider(titleKey: "hrzone.zone5", value: $distribution.zone5Percent)
+            if sessionDurationMinutes == nil {
+                FuelZoneInfoBanner(
+                    message: String(localized: "session.zone.durationRequired"),
+                    style: .info
+                )
+            }
 
-            HStack {
-                Text("Total: \(Int(distribution.totalPercent))%")
-                    .font(.caption)
-                Spacer()
-                if !distribution.isValid {
-                    Text(localized: "session.zone.validation")
-                        .font(.caption)
-                        .foregroundStyle(.red)
+            if thresholds == nil {
+                FuelZoneInfoBanner(
+                    message: String(localized: "session.zone.setupInProfile"),
+                    style: .info
+                )
+            }
+
+            if sessionMinutes > 0 {
+                if let thresholds {
+                    zoneStepper(titleKey: "hrzone.zone1", bpm: HeartRateZoneCalculator.bpmLabel(for: .zone1, thresholds: thresholds), value: $distribution.zone1Minutes)
+                    zoneStepper(titleKey: "hrzone.zone2", bpm: HeartRateZoneCalculator.bpmLabel(for: .zone2, thresholds: thresholds), value: $distribution.zone2Minutes)
+                    zoneStepper(titleKey: "hrzone.zone3", bpm: HeartRateZoneCalculator.bpmLabel(for: .zone3, thresholds: thresholds), value: $distribution.zone3Minutes)
+                    zoneStepper(titleKey: "hrzone.zone4", bpm: HeartRateZoneCalculator.bpmLabel(for: .zone4, thresholds: thresholds), value: $distribution.zone4Minutes)
+                    zoneStepper(titleKey: "hrzone.zone5", bpm: HeartRateZoneCalculator.bpmLabel(for: .zone5, thresholds: thresholds), value: $distribution.zone5Minutes)
+                } else {
+                    zoneStepper(titleKey: "hrzone.zone1", bpm: nil, value: $distribution.zone1Minutes)
+                    zoneStepper(titleKey: "hrzone.zone2", bpm: nil, value: $distribution.zone2Minutes)
+                    zoneStepper(titleKey: "hrzone.zone3", bpm: nil, value: $distribution.zone3Minutes)
+                    zoneStepper(titleKey: "hrzone.zone4", bpm: nil, value: $distribution.zone4Minutes)
+                    zoneStepper(titleKey: "hrzone.zone5", bpm: nil, value: $distribution.zone5Minutes)
+                }
+
+                HStack {
+                    Text(L10n.format("session.zone.total", "\(distribution.totalMinutes)", "\(sessionMinutes)"))
+                        .font(DesignSystem.Typography.caption)
+                    Spacer()
+                    if distribution.totalMinutes != sessionMinutes {
+                        Text(localized: "session.zone.validation")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundStyle(.red)
+                    }
                 }
             }
         }
-        .fuelZoneCard()
     }
 
-    private func zoneSlider(titleKey: String, value: Binding<Double>) -> some View {
-        VStack(alignment: .leading) {
+    private func zoneStepper(titleKey: String, bpm: String?, value: Binding<Int>) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(localized: titleKey)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(localized: titleKey)
+                        .font(DesignSystem.Typography.cardTitle)
+                    if let bpm {
+                        Text(bpm)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Spacer()
-                Text("\(Int(value.wrappedValue))%")
+                Stepper(
+                    L10n.format("session.zone.minutes", "\(value.wrappedValue)"),
+                    value: value,
+                    in: 0...sessionMinutes,
+                    step: 1
+                )
+                .labelsHidden()
+                Text(L10n.format("session.zone.minutes", "\(value.wrappedValue)"))
                     .monospacedDigit()
+                    .font(DesignSystem.Typography.bodySecondary.weight(.semibold))
+                    .frame(minWidth: 56, alignment: .trailing)
             }
-            .font(.caption)
-            Slider(value: value, in: 0...100, step: 5)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(Color(.tertiarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
     }
 }
