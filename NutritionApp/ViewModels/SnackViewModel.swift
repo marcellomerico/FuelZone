@@ -9,6 +9,7 @@ final class SnackViewModel: ObservableObject {
     @Published var loadError: String?
     @Published var showProPaywall = false
     @Published var showBarcodeScanner = false
+    @Published var snackBeingEdited: Snack?
 
     private var settings = AppSettings()
     private let store = DataStore.shared
@@ -33,7 +34,20 @@ final class SnackViewModel: ObservableObject {
     }
 
     func allSnacks() -> [Snack] {
-        builtInSnacks.filter { !libraryState.disabledBuiltInIDs.contains($0.id) } + libraryState.customSnacks
+        var snacks = builtInSnacks.filter { !libraryState.disabledBuiltInIDs.contains($0.id) }
+        if canManageCustomSnacks {
+            snacks.append(contentsOf: libraryState.customSnacks)
+        }
+        return sortedSnacks(snacks)
+    }
+
+    private func sortedSnacks(_ snacks: [Snack]) -> [Snack] {
+        snacks.sorted { lhs, rhs in
+            if lhs.category != rhs.category {
+                return lhs.category.sortOrder < rhs.category.sortOrder
+            }
+            return lhs.localizedName.localizedCaseInsensitiveCompare(rhs.localizedName) == .orderedAscending
+        }
     }
 
     func enabledSnacks() -> [Snack] {
@@ -63,7 +77,9 @@ final class SnackViewModel: ObservableObject {
         persist()
     }
 
-    var canAddCustom: Bool { settings.hasAccess(to: .barcodeScanner) }
+    var canManageCustomSnacks: Bool { settings.hasAccess(to: .customSnacks) }
+    var canAddCustom: Bool { canManageCustomSnacks }
+    var canEditCustom: Bool { canManageCustomSnacks }
     var canScanBarcode: Bool { settings.hasAccess(to: .barcodeScanner) }
 
     func requestBarcodeScan() {
@@ -74,22 +90,48 @@ final class SnackViewModel: ObservableObject {
         }
     }
 
-    func requestAddCustomSnack() {
-        if canAddCustom {
-            // caller presents AddCustomSnack sheet
-        } else {
+    @discardableResult
+    func requestAddCustomSnack() -> Bool {
+        guard canAddCustom else {
             showProPaywall = true
+            return false
         }
+        return true
     }
 
     func addCustomSnack(_ snack: Snack) {
-        guard canAddCustom else {
+        guard canManageCustomSnacks else {
             showProPaywall = true
             return
         }
         var custom = snack
         custom.isBuiltIn = false
         libraryState.customSnacks.append(custom)
+        persist()
+        objectWillChange.send()
+    }
+
+    func updateCustomSnack(_ snack: Snack) {
+        guard canEditCustom else {
+            showProPaywall = true
+            return
+        }
+        guard let index = libraryState.customSnacks.firstIndex(where: { $0.id == snack.id }) else { return }
+        var updated = snack
+        updated.isBuiltIn = false
+        libraryState.customSnacks[index] = updated
+        persist()
+        objectWillChange.send()
+    }
+
+    func deleteCustomSnack(_ snack: Snack) {
+        guard canEditCustom else {
+            showProPaywall = true
+            return
+        }
+        guard !snack.isBuiltIn else { return }
+        libraryState.customSnacks.removeAll { $0.id == snack.id }
+        SnackPhotoStore.delete(snackID: snack.id)
         persist()
         objectWillChange.send()
     }

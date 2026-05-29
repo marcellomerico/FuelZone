@@ -13,6 +13,9 @@ struct SessionSetup: Codable, Hashable, Identifiable, Sendable {
     var zoneDistribution: HeartRateZoneDistribution
     var temperature: TemperatureLevel
     var conditions: WeatherCondition
+    var weatherLocationName: String?
+    var weatherLatitude: Double?
+    var weatherLongitude: Double?
     var createdAt: Date
 
     init(
@@ -27,6 +30,9 @@ struct SessionSetup: Codable, Hashable, Identifiable, Sendable {
         zoneDistribution: HeartRateZoneDistribution = .default(forSessionMinutes: 90),
         temperature: TemperatureLevel = .mild,
         conditions: WeatherCondition = .dry,
+        weatherLocationName: String? = nil,
+        weatherLatitude: Double? = nil,
+        weatherLongitude: Double? = nil,
         createdAt: Date = .now
     ) {
         self.id = id
@@ -40,6 +46,9 @@ struct SessionSetup: Codable, Hashable, Identifiable, Sendable {
         self.zoneDistribution = zoneDistribution
         self.temperature = temperature
         self.conditions = conditions
+        self.weatherLocationName = weatherLocationName
+        self.weatherLatitude = weatherLatitude
+        self.weatherLongitude = weatherLongitude
         self.createdAt = createdAt
     }
 

@@ -6,8 +6,10 @@ struct RootView: View {
     var body: some View {
         MainTabView()
             .environmentObject(appState)
+            .tint(DesignSystem.accent)
             .preferredColorScheme(colorScheme)
             .environment(\.locale, appLocale)
+            .id(appState.settings.language.rawValue + appLocale.identifier)
             .sheet(isPresented: $appState.showOnboarding) {
                 OnboardingView(viewModel: appState.onboardingViewModel)
                     .environmentObject(appState)

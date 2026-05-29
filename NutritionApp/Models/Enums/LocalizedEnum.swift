@@ -19,28 +19,28 @@ enum LocalizedEnum {
         }
     }
 
-    static func label(for sport: SportType) -> String { String(localized: key(for: sport)) }
-    static func label(for stomach: StomachSensitivity) -> String { String(localized: key(for: stomach)) }
-    static func label(for sweat: SweatRate) -> String { String(localized: key(for: sweat)) }
-    static func label(for saltiness: SweatSaltiness) -> String { String(localized: key(for: saltiness)) }
-    static func label(for intensity: SimpleIntensity) -> String { String(localized: key(for: intensity)) }
-    static func label(for temperature: TemperatureLevel) -> String { String(localized: key(for: temperature)) }
-    static func label(for weather: WeatherCondition) -> String { String(localized: key(for: weather)) }
-    static func label(for category: SnackCategory) -> String { String(localized: key(for: category)) }
-    static func label(for zone: HeartRateZone) -> String { String(localized: key(for: zone)) }
-    static func label(for mode: DurationInputMode) -> String { String(localized: key(for: mode)) }
+    static func label(for sport: SportType) -> String { L10n.string(key(for: sport)) }
+    static func label(for stomach: StomachSensitivity) -> String { L10n.string(key(for: stomach)) }
+    static func label(for sweat: SweatRate) -> String { L10n.string(key(for: sweat)) }
+    static func label(for saltiness: SweatSaltiness) -> String { L10n.string(key(for: saltiness)) }
+    static func label(for intensity: SimpleIntensity) -> String { L10n.string(key(for: intensity)) }
+    static func label(for temperature: TemperatureLevel) -> String { L10n.string(key(for: temperature)) }
+    static func label(for weather: WeatherCondition) -> String { L10n.string(key(for: weather)) }
+    static func label(for category: SnackCategory) -> String { L10n.string(key(for: category)) }
+    static func label(for zone: HeartRateZone) -> String { L10n.string(key(for: zone)) }
+    static func label(for mode: DurationInputMode) -> String { L10n.string(key(for: mode)) }
 }
 
 extension Snack {
     var localizedName: String {
-        if let nameKey { return String(localized: nameKey) }
-        let language = Bundle.main.preferredLocalizations.first ?? "en"
-        if language.hasPrefix("de"), let nameDE, !nameDE.isEmpty { return nameDE }
+        if let nameKey { return L10n.string(nameKey) }
+        let code = L10n.bundle.preferredLocalizations.first ?? "en"
+        if code.hasPrefix("de"), let nameDE, !nameDE.isEmpty { return nameDE }
         return nameEN ?? nameKey ?? id.uuidString
     }
 
     var localizedUnit: String {
-        String(localized: unitKey)
+        L10n.string(unitKey)
     }
 }
 
@@ -53,6 +53,6 @@ extension FuelingCalculatorError {
     }
 
     var localizedMessage: String {
-        String(localized: localizationKey)
+        L10n.string(localizationKey)
     }
 }

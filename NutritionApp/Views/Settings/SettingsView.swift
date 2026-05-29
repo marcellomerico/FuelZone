@@ -5,21 +5,25 @@ struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
-        NavigationStack {
-            FuelZoneScreenScroll {
-                profileSection
-                languageSection
-                appearanceSection
-                proSection
-                syncSection
-                aboutSection
-                onboardingSection
-            }
-            .navigationTitle(Text(localized: "settings.title"))
-            .navigationBarTitleDisplayMode(.large)
-            .task {
-                await appState.subscriptionManager.loadProducts()
-            }
+        FuelZoneScreenScroll {
+            profileSection
+            languageSection
+            appearanceSection
+            proSection
+            #if DEBUG
+            debugProSection
+            #endif
+            syncSection
+            aboutSection
+            onboardingSection
+        }
+        .navigationTitle(Text(localized: "settings.title"))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .task {
+            await appState.subscriptionManager.loadProducts()
         }
     }
 
@@ -27,25 +31,33 @@ struct SettingsView: View {
         NavigationLink {
             ProfileView()
         } label: {
-            FuelZoneNavigationRow(
+            FuelZoneProfileCard(
                 titleKey: "profile.title",
                 subtitleKey: "settings.profile.subtitle",
-                systemImage: "person.crop.circle.fill"
+                initials: profileInitials
             )
-            .fuelZoneCard()
         }
         .buttonStyle(.plain)
     }
 
+    private var profileInitials: String {
+        let name = appState.profile.displayName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let parts = name.split(separator: " ").prefix(2)
+        if parts.isEmpty { return "FZ" }
+        return parts.map { String($0.prefix(1)).uppercased() }.joined()
+    }
+
     private var languageSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            FuelZoneSectionHeader(titleKey: "settings.language", systemImage: "globe")
-            Picker("", selection: $appState.settings.language) {
-                Text(localized: "settings.language.system").tag(AppLanguage.system)
-                Text(localized: "settings.language.english").tag(AppLanguage.english)
-                Text(localized: "settings.language.german").tag(AppLanguage.german)
-            }
-            .pickerStyle(.segmented)
+            FuelZoneSettingsLabel(titleKey: "settings.language")
+            FuelZoneSegmentedPicker(
+                options: [
+                    (.system, "settings.language.system"),
+                    (.english, "settings.language.english"),
+                    (.german, "settings.language.german")
+                ],
+                selection: $appState.settings.language
+            )
             .onChange(of: appState.settings.language) { _, _ in appState.saveSettings() }
         }
         .fuelZoneCard()
@@ -53,85 +65,96 @@ struct SettingsView: View {
 
     private var appearanceSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            FuelZoneSectionHeader(titleKey: "settings.appearance", systemImage: "circle.lefthalf.filled")
-            Picker("", selection: $appState.settings.appearance) {
-                Text(localized: "settings.appearance.system").tag(AppAppearance.system)
-                Text(localized: "settings.appearance.light").tag(AppAppearance.light)
-                Text(localized: "settings.appearance.dark").tag(AppAppearance.dark)
-            }
-            .pickerStyle(.segmented)
+            FuelZoneSettingsLabel(titleKey: "settings.appearance")
+            FuelZoneSegmentedPicker(
+                options: [
+                    (.system, "settings.appearance.system"),
+                    (.light, "settings.appearance.light"),
+                    (.dark, "settings.appearance.dark")
+                ],
+                selection: $appState.settings.appearance
+            )
             .onChange(of: appState.settings.appearance) { _, _ in appState.saveSettings() }
         }
         .fuelZoneCard()
     }
 
     private var proSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            FuelZoneSectionHeader(
-                titleKey: "settings.pro.title",
-                subtitleKey: "settings.pro.subtitle",
-                systemImage: "star.fill"
-            )
-
-            if appState.settings.isProSubscriber {
-                FuelZoneInfoBanner(message: String(localized: "storekit.status.active"), style: .success)
-            } else if let product = appState.subscriptionManager.monthlyProduct {
-                Text(product.displayPrice)
-                    .font(DesignSystem.Typography.metricValue)
-                    .foregroundStyle(Color.accentColor)
-                Button {
+        VStack(alignment: .leading, spacing: 10) {
+            FuelZoneProCard(
+                isProActive: appState.settings.isProSubscriber,
+                priceText: appState.subscriptionManager.monthlyProduct?.displayPrice,
+                isLoading: appState.subscriptionManager.isLoading,
+                onSubscribe: {
                     Task { await appState.subscriptionManager.purchaseMonthly() }
-                } label: {
-                    Text(localized: "storekit.subscribe")
+                },
+                onRestore: {
+                    Task { await appState.subscriptionManager.restorePurchases() }
                 }
-                .buttonStyle(PrimaryButtonStyle())
-                .disabled(appState.subscriptionManager.isLoading)
-            }
-
-            FuelZoneTextButton(titleKey: "storekit.restore") {
-                Task { await appState.subscriptionManager.restorePurchases() }
-            }
+            )
 
             if let message = appState.subscriptionManager.statusMessage {
                 Text(message)
                     .font(DesignSystem.Typography.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignSystem.textSecondary)
             }
-
-            #if DEBUG
-            Toggle(isOn: $appState.settings.isProSubscriber) {
-                Text(localized: "settings.pro.debugToggle")
-                    .font(DesignSystem.Typography.bodySecondary)
-            }
-            .onChange(of: appState.settings.isProSubscriber) { _, _ in
-                appState.saveSettings()
-            }
-            #endif
         }
-        .fuelZoneCard()
     }
 
-    private var syncSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            FuelZoneSectionHeader(
-                titleKey: "settings.sync.title",
-                subtitleKey: "settings.sync.description",
-                systemImage: "icloud"
-            )
-            Button {
-                appState.syncNow()
-            } label: {
-                Text(localized: "settings.sync.now")
-            }
-            .buttonStyle(PrimaryButtonStyle())
+    #if DEBUG
+    private var debugProSection: some View {
+        HStack {
+            Text(localized: "settings.pro.debugToggle")
+                .font(DesignSystem.Typography.bodySecondary)
+                .foregroundStyle(DesignSystem.textPrimary)
+            Spacer()
+            Toggle("", isOn: $appState.settings.isProSubscriber)
+                .labelsHidden()
+                .tint(DesignSystem.accent)
         }
         .fuelZoneCard()
+        .onChange(of: appState.settings.isProSubscriber) { _, _ in
+            appState.saveSettings()
+        }
+    }
+    #endif
+
+    private var syncSection: some View {
+        NavigationLink {
+            FuelZoneScreenScroll {
+                FuelZoneSectionHeader(
+                    titleKey: "settings.sync.title",
+                    subtitleKey: "settings.sync.description"
+                )
+                Button {
+                    appState.syncNow()
+                } label: {
+                    Text(localized: "settings.sync.now")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+            }
+            .navigationTitle(Text(localized: "settings.sync.title"))
+            .navigationBarTitleDisplayMode(.inline)
+        } label: {
+            HStack(spacing: 11) {
+                Image(systemName: "icloud.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(DesignSystem.sodiumAccent)
+                Text(localized: "settings.sync.title")
+                    .font(DesignSystem.Typography.cardTitle)
+                    .foregroundStyle(DesignSystem.textPrimary)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(DesignSystem.textTertiary)
+            }
+            .fuelZoneCard()
+        }
+        .buttonStyle(.plain)
     }
 
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FuelZoneSectionHeader(titleKey: "settings.about", systemImage: "info.circle")
-
             NavigationLink {
                 FuelingMethodologyView()
             } label: {
@@ -156,7 +179,7 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
         }
-        .fuelZoneCard()
+        .fuelZoneCard(padding: 6)
     }
 
     private var onboardingSection: some View {
@@ -180,5 +203,7 @@ struct FuelZoneDisclaimerView: View {
         }
         .navigationTitle(Text(localized: "settings.disclaimer.title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 }

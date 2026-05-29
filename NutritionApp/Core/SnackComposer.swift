@@ -46,8 +46,8 @@ enum SnackComposer {
 
         func add(_ snack: Snack, quantity: Double = 1) {
             portions.append(SnackPortion(snackID: snack.id, quantity: quantity))
-            carbs += snack.carbsPerServing * quantity
-            sodium += snack.sodiumMgPerServing * quantity
+            carbs += snack.carbs(forQuantity: quantity)
+            sodium += snack.sodiumMg(forQuantity: quantity)
             fluids += fluidMl(for: snack) * Int(quantity.rounded())
         }
 
@@ -83,8 +83,8 @@ enum SnackComposer {
 
     private static func bestCarbSnack(snacks: [Snack], portions: [SnackPortion]) -> Snack? {
         snacks
-            .filter { $0.carbsPerServing > 0 }
-            .sorted { $0.carbsPerServing > $1.carbsPerServing }
+            .filter { $0.carbsPerDefaultPortion > 0 }
+            .sorted { $0.carbsPerDefaultPortion > $1.carbsPerDefaultPortion }
             .first { snack in
                 !portions.contains { $0.snackID == snack.id && $0.quantity >= 2 }
             }
@@ -92,8 +92,8 @@ enum SnackComposer {
 
     private static func bestSodiumSnack(snacks: [Snack], portions: [SnackPortion]) -> Snack? {
         snacks
-            .filter { $0.sodiumMgPerServing > 0 }
-            .sorted { $0.sodiumMgPerServing > $1.sodiumMgPerServing }
+            .filter { $0.sodiumMgPerDefaultPortion > 0 }
+            .sorted { $0.sodiumMgPerDefaultPortion > $1.sodiumMgPerDefaultPortion }
             .first { snack in
                 portions.filter { $0.snackID == snack.id }.count < 2
             }

@@ -6,6 +6,10 @@
 	<string>FuelZone</string>
 	<key>NSCameraUsageDescription</key>
 	<string>FuelZone needs camera access to scan product barcodes for custom snacks.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>FuelZone uses your location to fetch local weather for fluid and sodium calculations.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>FuelZone can attach photos to your custom snacks.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

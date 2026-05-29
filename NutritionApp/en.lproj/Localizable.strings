@@ -5,6 +5,7 @@
 /* Tabs */
 "tab.plan" = "Plan";
 "tab.history" = "History";
+"tab.snacks" = "Snacks";
 "tab.settings" = "Settings";
 
 /* Onboarding */
@@ -68,11 +69,21 @@
 "pro.paywall.cta" = "View Pro in Settings";
 "pro.paywall.dismiss" = "Not now";
 "pro.paywall.feature.zones" = "Heart rate zone planning";
+"pro.paywall.feature.customSnacks" = "Add and edit your own snacks";
 "pro.paywall.feature.barcode" = "Barcode scan for custom snacks";
 "pro.paywall.feature.snackSwap" = "Swap snacks in your timeline";
 "pro.paywall.feature.history" = "Unlimited session history";
 "session.temperature.title" = "Temperature";
 "session.conditions.title" = "Conditions";
+"session.weather.locationTitle" = "Location for automatic weather";
+"session.weather.locationPlaceholder" = "City or place";
+"session.weather.applyLocation" = "Apply weather";
+"session.weather.useGPS" = "Use current location";
+"session.weather.currentLocation" = "Current location";
+"session.weather.locationRequired" = "Enter a city or place first.";
+"session.weather.locationDenied" = "Location access denied. Enter a place manually.";
+"session.weather.failed" = "Could not load weather. Try again or set values manually.";
+"session.weather.applied" = "Applied: %@°C → %@, %@";
 "session.calculate" = "Calculate plan";
 
 /* Results */
@@ -96,6 +107,8 @@
 
 /* Snacks */
 "snack.library.title" = "Snack library";
+"snack.library.intro" = "Manage your snacks anytime — add custom entries, photos, and barcodes (Pro) before or after planning.";
+"snack.library.intro.free" = "Enable or disable built-in snacks for your plan. Custom snacks and barcode scan require FuelZone Pro.";
 "snack.library.filter" = "Category";
 "snack.library.filterHint" = "Show snacks for your plan.";
 "snack.library.listTitle" = "Your snacks";
@@ -139,9 +152,26 @@
 "snack.addCustom.nameDE" = "Name (German)";
 "snack.addCustom.category" = "Category";
 "snack.addCustom.carbs" = "Carbs per serving (g)";
+"snack.addCustom.carbsPer100g" = "Carbs per 100 g";
+"snack.addCustom.carbsPerPortion" = "Carbs per portion (g)";
 "snack.addCustom.sodium" = "Sodium per serving (mg)";
+"snack.addCustom.sodiumPer100g" = "Sodium per 100 g (mg)";
+"snack.addCustom.sodiumPerPortion" = "Sodium per portion (mg)";
+"snack.addCustom.portionGrams" = "Typical portion (g)";
+"snack.nutrition.basisTitle" = "Nutrition basis";
+"snack.nutrition.per100g" = "Per 100 g";
+"snack.nutrition.perServing" = "Per portion";
+"snack.nutrition.summary.per100g" = "%@ g KH / 100 g · %@ mg Na / 100 g → ~%@ g portion: %@ g KH · %@ mg Na";
+"snack.nutrition.summary.perServing" = "%@ g KH · %@ mg Na per %@";
 "snack.addCustom.unit" = "Unit label";
 "snack.addCustom.save" = "Save snack";
+"snack.edit.title" = "Edit snack";
+"snack.edit.subtitle" = "Update values and photo for this snack.";
+"snack.edit.save" = "Save changes";
+"snack.edit.delete" = "Delete snack";
+"snack.photo.title" = "Photo";
+"snack.photo.choose" = "Choose photo";
+"snack.photo.remove" = "Remove photo";
 "snack.scanBarcode" = "Scan barcode";
 "snack.proRequired" = "Barcode scanning is a Pro feature.";
 
@@ -182,11 +212,13 @@
 "profile.hr.zone5Range" = "Zone 5: %@–%@ bpm (up to max HR)";
 "profile.hr.validation" = "Zone limits must increase from Zone 1 to Zone 5 and stay below max HR.";
 "profile.hr.missingMax" = "Enter a valid max heart rate to edit zones.";
+"profile.hr.proRequired" = "Custom heart rate zone limits are part of FuelZone Pro.";
+"profile.hr.unlockPro" = "Unlock Pro to edit zones";
 "settings.disclaimer.title" = "Disclaimer";
 "settings.disclaimer.subtitle" = "Important legal information";
 "settings.disclaimer.body" = "FuelZone provides general sports nutrition guidance, not medical advice. Adjust intake to your needs and consult a professional when unsure.";
 "settings.pro.title" = "FuelZone Pro";
-"settings.pro.subtitle" = "Unlock zones, barcode scan, snack swaps, and unlimited history.";
+"settings.pro.subtitle" = "Unlock zones, custom snacks, barcode scan, snack swaps, and unlimited history.";
 
 /* Warnings */
 "warning.session_too_short" = "Sessions under 30 minutes rarely need structured fueling.";
@@ -317,10 +349,15 @@
 "unit.tbsp" = "tbsp";
 
 /* Built-in snacks */
-"snack.gel.standard" = "Energy gel";
-"snack.gel.caffeine" = "Caffeine gel";
-"snack.gel.isotonic" = "Isotonic gel";
-"snack.gel.maple" = "Maple syrup gel";
+"snack.gel.maurten100" = "Maurten Gel 100";
+"snack.gel.maurten160" = "Maurten Gel 160";
+"snack.gel.maurten320" = "Maurten Gel 320";
+"snack.gel.gu" = "GU Energy Gel";
+"snack.gel.gu.roctane" = "GU Roctane Gel";
+"snack.gel.sis.go" = "SiS GO Isotonic Gel";
+"snack.gel.sis.beta" = "SiS Beta Fuel Gel";
+"snack.gel.powerbar" = "PowerBar Gel";
+"snack.gel.pf30" = "Precision Fuel PF 30 Gel";
 "snack.drink.isotonic" = "Isotonic drink";
 "snack.drink.isotonic.light" = "Light isotonic drink";
 "snack.drink.electrolyte" = "Electrolyte drink mix";

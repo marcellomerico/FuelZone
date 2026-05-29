@@ -5,6 +5,7 @@
 /* Tabs */
 "tab.plan" = "Plan";
 "tab.history" = "Verlauf";
+"tab.snacks" = "Snacks";
 "tab.settings" = "Einstellungen";
 
 /* Onboarding */
@@ -68,12 +69,22 @@
 "pro.paywall.cta" = "Pro in Einstellungen";
 "pro.paywall.dismiss" = "Nicht jetzt";
 "pro.paywall.feature.zones" = "Herzfrequenz-Zonen-Planung";
+"pro.paywall.feature.customSnacks" = "Eigene Snacks anlegen und bearbeiten";
 "pro.paywall.feature.barcode" = "Barcode-Scan für eigene Snacks";
 "pro.paywall.feature.snackSwap" = "Snacks in der Timeline tauschen";
 "pro.paywall.feature.history" = "Unbegrenzter Verlauf";
 
 "session.temperature.title" = "Temperatur";
 "session.conditions.title" = "Bedingungen";
+"session.weather.locationTitle" = "Standort für automatisches Wetter";
+"session.weather.locationPlaceholder" = "Stadt oder Ort";
+"session.weather.applyLocation" = "Wetter übernehmen";
+"session.weather.useGPS" = "Aktuellen Standort nutzen";
+"session.weather.currentLocation" = "Aktueller Standort";
+"session.weather.locationRequired" = "Bitte zuerst Stadt oder Ort eingeben.";
+"session.weather.locationDenied" = "Standortzugriff verweigert. Ort manuell eingeben.";
+"session.weather.failed" = "Wetter konnte nicht geladen werden. Manuell einstellen oder erneut versuchen.";
+"session.weather.applied" = "Übernommen: %@°C → %@, %@";
 "session.calculate" = "Plan berechnen";
 
 /* Results */
@@ -97,6 +108,8 @@
 
 /* Snacks */
 "snack.library.title" = "Snack-Bibliothek";
+"snack.library.intro" = "Snacks jederzeit verwalten — eigene Snacks, Fotos und Barcode (Pro) vor oder nach dem Plan.";
+"snack.library.intro.free" = "Standard-Snacks für deinen Plan aktivieren oder deaktivieren. Eigene Snacks und Barcode-Scan sind FuelZone Pro.";
 "snack.library.filter" = "Kategorie";
 "snack.library.filterHint" = "Snacks für deinen Plan filtern.";
 "snack.library.listTitle" = "Deine Snacks";
@@ -140,9 +153,26 @@
 "snack.addCustom.nameDE" = "Name (Deutsch)";
 "snack.addCustom.category" = "Kategorie";
 "snack.addCustom.carbs" = "Kohlenhydrate pro Portion (g)";
+"snack.addCustom.carbsPer100g" = "KH pro 100 g";
+"snack.addCustom.carbsPerPortion" = "KH pro Portion (g)";
 "snack.addCustom.sodium" = "Natrium pro Portion (mg)";
+"snack.addCustom.sodiumPer100g" = "Natrium pro 100 g (mg)";
+"snack.addCustom.sodiumPerPortion" = "Natrium pro Portion (mg)";
+"snack.addCustom.portionGrams" = "Typische Portion (g)";
+"snack.nutrition.basisTitle" = "Nährwert-Bezug";
+"snack.nutrition.per100g" = "Pro 100 g";
+"snack.nutrition.perServing" = "Pro Portion";
+"snack.nutrition.summary.per100g" = "%@ g KH / 100 g · %@ mg Na / 100 g → Portion ~%@ g: %@ g KH · %@ mg Na";
+"snack.nutrition.summary.perServing" = "%@ g KH · %@ mg Na pro %@";
 "snack.addCustom.unit" = "Einheiten-Label";
 "snack.addCustom.save" = "Snack speichern";
+"snack.edit.title" = "Snack bearbeiten";
+"snack.edit.subtitle" = "Werte und Foto für diesen Snack anpassen.";
+"snack.edit.save" = "Änderungen speichern";
+"snack.edit.delete" = "Snack löschen";
+"snack.photo.title" = "Foto";
+"snack.photo.choose" = "Foto wählen";
+"snack.photo.remove" = "Foto entfernen";
 "snack.scanBarcode" = "Barcode scannen";
 "snack.proRequired" = "Barcode-Scan ist eine Pro-Funktion.";
 
@@ -183,11 +213,13 @@
 "profile.hr.zone5Range" = "Zone 5: %@–%@ bpm (bis max. HF)";
 "profile.hr.validation" = "Zonengrenzen müssen von Zone 1 bis 5 steigen und unter der max. HF liegen.";
 "profile.hr.missingMax" = "Gültige max. Herzfrequenz eingeben, um Zonen zu bearbeiten.";
+"profile.hr.proRequired" = "Individuelle HF-Zonengrenzen sind Teil von FuelZone Pro.";
+"profile.hr.unlockPro" = "Pro freischalten, um Zonen zu bearbeiten";
 "settings.disclaimer.title" = "Haftungsausschluss";
 "settings.disclaimer.subtitle" = "Wichtige rechtliche Hinweise";
 "settings.disclaimer.body" = "FuelZone bietet allgemeine Sporternährungs-Empfehlungen, keine medizinische Beratung. Passe die Zufuhr an deine Bedürfnisse an und hole dir bei Unsicherheit professionelle Hilfe.";
 "settings.pro.title" = "FuelZone Pro";
-"settings.pro.subtitle" = "Zonen-Modus, Barcode-Scan, Snack-Tausch und unbegrenzter Verlauf.";
+"settings.pro.subtitle" = "Zonen-Modus, eigene Snacks, Barcode-Scan, Snack-Tausch und unbegrenzter Verlauf.";
 
 /* Warnings */
 "warning.session_too_short" = "Einheiten unter 30 Minuten brauchen selten einen strukturierten Versorgungsplan.";
@@ -318,10 +350,15 @@
 "unit.tbsp" = "EL";
 
 /* Built-in snacks */
-"snack.gel.standard" = "Energiegel";
-"snack.gel.caffeine" = "Koffein-Gel";
-"snack.gel.isotonic" = "Isotonisches Gel";
-"snack.gel.maple" = "Ahornsirup-Gel";
+"snack.gel.maurten100" = "Maurten Gel 100";
+"snack.gel.maurten160" = "Maurten Gel 160";
+"snack.gel.maurten320" = "Maurten Gel 320";
+"snack.gel.gu" = "GU Energy Gel";
+"snack.gel.gu.roctane" = "GU Roctane Gel";
+"snack.gel.sis.go" = "SiS GO Isotonic Gel";
+"snack.gel.sis.beta" = "SiS Beta Fuel Gel";
+"snack.gel.powerbar" = "PowerBar Gel";
+"snack.gel.pf30" = "Precision Fuel PF 30 Gel";
 "snack.drink.isotonic" = "Isotonisches Getränk";
 "snack.drink.isotonic.light" = "Leichtes isotonisches Getränk";
 "snack.drink.electrolyte" = "Elektrolyt-Getränk";

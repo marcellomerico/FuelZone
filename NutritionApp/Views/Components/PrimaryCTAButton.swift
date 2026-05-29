@@ -10,7 +10,7 @@ struct PrimaryCTAButton: View {
             Group {
                 if isLoading {
                     ProgressView()
-                        .tint(.white)
+                        .tint(DesignSystem.accentOnAmber)
                 } else {
                     Text(localized: titleKey)
                 }
