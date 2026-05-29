@@ -5,48 +5,64 @@ struct MainTabView: View {
     @State private var showResults = false
 
     var body: some View {
-        TabView(selection: $appState.selectedTab) {
-            NavigationStack {
-                SessionSetupView(
-                    viewModel: appState.sessionViewModel,
-                    showResults: $showResults
-                )
-                .navigationDestination(isPresented: $showResults) {
-                    ResultsView(
-                        viewModel: appState.resultsViewModel,
-                        snackViewModel: appState.snackViewModel
-                    )
-                }
-            }
-            .tag(0)
-            .tabItem {
-                Label {
-                    Text(localized: "tab.plan")
-                } icon: {
-                    Image(systemName: "flame.fill")
-                }
+        ZStack(alignment: .bottom) {
+            ZStack {
+                planTab
+                    .opacity(appState.selectedTab == 0 ? 1 : 0)
+                    .allowsHitTesting(appState.selectedTab == 0)
+                    .accessibilityHidden(appState.selectedTab != 0)
+
+                historyTab
+                    .opacity(appState.selectedTab == 1 ? 1 : 0)
+                    .allowsHitTesting(appState.selectedTab == 1)
+                    .accessibilityHidden(appState.selectedTab != 1)
+
+                snacksTab
+                    .opacity(appState.selectedTab == 2 ? 1 : 0)
+                    .allowsHitTesting(appState.selectedTab == 2)
+                    .accessibilityHidden(appState.selectedTab != 2)
+
+                settingsTab
+                    .opacity(appState.selectedTab == 3 ? 1 : 0)
+                    .allowsHitTesting(appState.selectedTab == 3)
+                    .accessibilityHidden(appState.selectedTab != 3)
             }
 
-            HistoryView(viewModel: appState.historyViewModel)
-                .tag(1)
-                .tabItem {
-                    Label {
-                        Text(localized: "tab.history")
-                    } icon: {
-                        Image(systemName: "clock.fill")
-                    }
-                }
-
-            SettingsView()
-                .tag(2)
-                .tabItem {
-                    Label {
-                        Text(localized: "tab.settings")
-                    } icon: {
-                        Image(systemName: "gearshape.fill")
-                    }
-                }
+            FuelZoneFloatingTabBar(selection: $appState.selectedTab)
         }
-        .tint(Color.accentColor)
+        .background(DesignSystem.appBackground)
+    }
+
+    private var planTab: some View {
+        NavigationStack {
+            SessionSetupView(
+                viewModel: appState.sessionViewModel,
+                showResults: $showResults
+            )
+            .navigationDestination(isPresented: $showResults) {
+                ResultsView(
+                    viewModel: appState.resultsViewModel,
+                    snackViewModel: appState.snackViewModel
+                )
+            }
+        }
+    }
+
+    private var historyTab: some View {
+        NavigationStack {
+            HistoryView(viewModel: appState.historyViewModel)
+        }
+    }
+
+    private var snacksTab: some View {
+        NavigationStack {
+            SnackLibraryView(viewModel: appState.snackViewModel)
+        }
+    }
+
+    private var settingsTab: some View {
+        NavigationStack {
+            SettingsView()
+        }
     }
 }

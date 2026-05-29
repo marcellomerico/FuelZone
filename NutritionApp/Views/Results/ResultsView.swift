@@ -43,7 +43,8 @@ struct ResultsView: View {
             }
         }
         .sheet(isPresented: $viewModel.showProPaywall) {
-            ProPaywallSheet { appState.selectedTab = 2 }
+            ProPaywallSheet { appState.selectedTab = 3 }
+                .environmentObject(appState)
         }
     }
 

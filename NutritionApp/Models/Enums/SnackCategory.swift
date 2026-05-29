@@ -18,4 +18,15 @@ enum SnackCategory: String, Codable, CaseIterable, Identifiable {
         case .other: "takeoutbag.and.cup.and.straw.fill"
         }
     }
+
+    /// Display order in the snack library.
+    var sortOrder: Int {
+        switch self {
+        case .gel: 0
+        case .drink: 1
+        case .solid: 2
+        case .electrolyte: 3
+        case .other: 4
+        }
+    }
 }

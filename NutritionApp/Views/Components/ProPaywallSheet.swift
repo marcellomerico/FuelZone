@@ -21,6 +21,7 @@ struct ProPaywallSheet: View {
                         systemImage: "checkmark.seal"
                     )
                     FuelZoneBulletRow(textKey: "pro.paywall.feature.zones", systemImage: "heart.fill")
+                    FuelZoneBulletRow(textKey: "pro.paywall.feature.customSnacks", systemImage: "plus.circle.fill")
                     FuelZoneBulletRow(textKey: "pro.paywall.feature.barcode", systemImage: "barcode.viewfinder")
                     FuelZoneBulletRow(textKey: "pro.paywall.feature.snackSwap", systemImage: "arrow.triangle.swap")
                     FuelZoneBulletRow(textKey: "pro.paywall.feature.history", systemImage: "clock.fill")

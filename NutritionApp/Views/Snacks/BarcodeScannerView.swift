@@ -117,11 +117,14 @@ struct BarcodeScannerScreen: View {
                 category: .other,
                 carbsPerServing: nutrition.carbsPerServing,
                 sodiumMgPerServing: nutrition.sodiumMgPerServing,
+                nutritionBasis: nutrition.nutritionBasis,
+                defaultPortionGrams: nutrition.defaultPortionGrams,
                 unitKey: "unit.piece",
                 isBuiltIn: false,
                 barcode: nutrition.barcode
             )
             snackViewModel.addCustomSnack(snack)
+            snackViewModel.snackBeingEdited = snack
             dismiss()
         } catch {
             errorMessage = String(localized: "error.barcodeNotFound")

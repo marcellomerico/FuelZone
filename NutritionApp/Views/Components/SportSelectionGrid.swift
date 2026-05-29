@@ -11,23 +11,31 @@ struct SportSelectionGrid: View {
     ]
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
+        LazyVGrid(columns: columns, spacing: 8) {
             ForEach(SportType.allCases) { sport in
                 Button { selection = sport } label: {
                     VStack(spacing: 8) {
                         Image(systemName: sport.systemImageName)
                             .font(.title3)
-                            .foregroundStyle(selection == sport ? Color.accentColor : .secondary)
-                        Text(LocalizedEnum.label(for: sport))
+                            .foregroundStyle(selection == sport ? DesignSystem.accent : DesignSystem.textSecondary)
+                        Text(localized: LocalizedEnum.key(for: sport))
                             .font(DesignSystem.Typography.caption.weight(.medium))
                             .multilineTextAlignment(.center)
                             .lineLimit(2)
                             .minimumScaleFactor(0.85)
+                            .foregroundStyle(selection == sport ? DesignSystem.accentLight : DesignSystem.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(selection == sport ? DesignSystem.accentSoft : Color(.tertiarySystemGroupedBackground))
-                    .foregroundStyle(selection == sport ? Color.accentColor : .primary)
+                    .background(
+                        selection == sport
+                            ? DesignSystem.accent.opacity(0.16)
+                            : DesignSystem.inactiveSegment
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(selection == sport ? DesignSystem.accent : .clear, lineWidth: 1.5)
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
                 .buttonStyle(.plain)

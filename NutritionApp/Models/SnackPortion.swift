@@ -13,10 +13,10 @@ struct SnackPortion: Codable, Hashable, Identifiable, Sendable {
     }
 
     func totalCarbs(for snack: Snack) -> Double {
-        snack.carbsPerServing * quantity
+        snack.carbs(forQuantity: quantity)
     }
 
     func totalSodiumMg(for snack: Snack) -> Double {
-        snack.sodiumMgPerServing * quantity
+        snack.sodiumMg(forQuantity: quantity)
     }
 }

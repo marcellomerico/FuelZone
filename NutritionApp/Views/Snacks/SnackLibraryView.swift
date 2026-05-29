@@ -4,39 +4,53 @@ import VisionKit
 struct SnackLibraryView: View {
     @EnvironmentObject private var appState: AppState
     @ObservedObject var viewModel: SnackViewModel
-    @State private var showAddCustom = false
+    @State private var showAddSnack = false
 
     private var snacks: [Snack] { viewModel.filteredSnacks() }
 
     var body: some View {
         FuelZoneScreenScroll {
-            if let error = viewModel.loadError {
-                FuelZoneInfoBanner(message: error, style: .warning)
-            }
+            FuelZoneSnackFilterChips(selectedCategory: $viewModel.selectedCategory)
 
-            filterSection
+            Text(localized: "snack.library.listHint")
+                .font(DesignSystem.Typography.caption)
+                .foregroundStyle(DesignSystem.textSecondary)
+                .padding(.horizontal, 2)
+
             snackListSection
         }
         .navigationTitle(Text(localized: "snack.library.title"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { viewModel.requestBarcodeScan() } label: {
                     Image(systemName: "barcode.viewfinder")
+                        .foregroundStyle(DesignSystem.accent)
                 }
+                .accessibilityLabel(Text(localized: "snack.scanBarcode"))
+
                 Button {
-                    if viewModel.canAddCustom {
-                        showAddCustom = true
-                    } else {
-                        viewModel.showProPaywall = true
+                    if viewModel.requestAddCustomSnack() {
+                        showAddSnack = true
                     }
                 } label: {
                     Image(systemName: "plus")
+                        .foregroundStyle(DesignSystem.accentOnAmber)
+                        .frame(width: 34, height: 34)
+                        .background(DesignSystem.accent)
+                        .clipShape(Circle())
                 }
+                .accessibilityLabel(Text(localized: "snack.addCustom.title"))
             }
         }
-        .sheet(isPresented: $showAddCustom) {
-            AddCustomSnackView(viewModel: viewModel)
+        .sheet(isPresented: $showAddSnack) {
+            EditSnackView(viewModel: viewModel, existingSnack: nil)
+        }
+        .sheet(item: $viewModel.snackBeingEdited) { snack in
+            EditSnackView(viewModel: viewModel, existingSnack: snack)
         }
         .sheet(isPresented: $viewModel.showBarcodeScanner) {
             if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
@@ -47,49 +61,27 @@ struct SnackLibraryView: View {
             }
         }
         .sheet(isPresented: $viewModel.showProPaywall) {
-            ProPaywallSheet { appState.selectedTab = 2 }
+            ProPaywallSheet { appState.selectedTab = 3 }
+                .environmentObject(appState)
         }
-    }
-
-    private var filterSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            FuelZoneSectionHeader(
-                titleKey: "snack.library.filter",
-                subtitleKey: "snack.library.filterHint",
-                systemImage: "line.3.horizontal.decrease.circle"
-            )
-            Picker("", selection: $viewModel.selectedCategory) {
-                Text(localized: "snack.library.all").tag(SnackCategory?.none)
-                ForEach(SnackCategory.allCases) { cat in
-                    Text(LocalizedEnum.label(for: cat)).tag(SnackCategory?.some(cat))
-                }
-            }
-            .pickerStyle(.menu)
-        }
-        .fuelZoneCard()
     }
 
     private var snackListSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            FuelZoneSectionHeader(
-                titleKey: "snack.library.listTitle",
-                subtitleKey: "snack.library.listHint",
-                systemImage: "fork.knife"
-            )
-            .padding(.bottom, 12)
-
+        VStack(spacing: 0) {
             if snacks.isEmpty {
                 Text(localized: "snack.library.empty")
                     .font(DesignSystem.Typography.bodySecondary)
-                    .foregroundStyle(.secondary)
-                    .padding(.vertical, 8)
+                    .foregroundStyle(DesignSystem.textSecondary)
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity)
             } else {
                 ForEach(Array(snacks.enumerated()), id: \.element.id) { index, snack in
-                    FuelZoneSnackRow(
+                    FuelZoneSnackRowStyled(
                         snack: snack,
-                        showsToggle: true,
+                        photo: SnackPhotoStore.load(snackID: snack.id),
                         isEnabled: viewModel.isEnabled(snack),
-                        onToggle: { viewModel.setEnabled(snack, enabled: $0) }
+                        onToggle: { viewModel.setEnabled(snack, enabled: $0) },
+                        onTap: { openEditor(for: snack) }
                     )
                     if index < snacks.count - 1 {
                         FuelZoneCardDivider()
@@ -97,6 +89,15 @@ struct SnackLibraryView: View {
                 }
             }
         }
-        .fuelZoneCard()
+        .fuelZoneCard(padding: 6)
+    }
+
+    private func openEditor(for snack: Snack) {
+        guard !snack.isBuiltIn else { return }
+        guard viewModel.canEditCustom else {
+            viewModel.showProPaywall = true
+            return
+        }
+        viewModel.snackBeingEdited = snack
     }
 }

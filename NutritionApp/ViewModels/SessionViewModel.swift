@@ -1,4 +1,5 @@
 import Combine
+import CoreLocation
 import Foundation
 
 @MainActor
@@ -7,9 +8,12 @@ final class SessionViewModel: ObservableObject {
     @Published var isCalculating = false
     @Published var errorMessage: String?
     @Published var showProPaywall = false
+    @Published var isFetchingWeather = false
+    @Published var weatherStatusMessage: String?
     @Published private(set) var zoneThresholds: HeartRateZoneThresholds?
     @Published private(set) var lastResult: FuelingResult?
 
+    private let locationAccess = LocationAccessService()
     private var profile = UserProfile()
     private var settings = AppSettings()
     private weak var snackViewModel: SnackViewModel?
@@ -65,6 +69,53 @@ final class SessionViewModel: ObservableObject {
     }
 
     /// Keeps zone minutes aligned when the user changes session duration.
+    func applyWeather(fromLocationName name: String) async {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            weatherStatusMessage = String(localized: "session.weather.locationRequired")
+            return
+        }
+        await fetchAndApplyWeather(
+            coordinateProvider: { try await WeatherService.geocode(locationName: trimmed) },
+            locationLabel: trimmed
+        )
+    }
+
+    func applyWeatherFromCurrentLocation() async {
+        await fetchAndApplyWeather(
+            coordinateProvider: { try await locationAccess.requestCurrentCoordinate() },
+            locationLabel: String(localized: "session.weather.currentLocation")
+        )
+    }
+
+    private func fetchAndApplyWeather(
+        coordinateProvider: () async throws -> CLLocationCoordinate2D,
+        locationLabel: String
+    ) async {
+        weatherStatusMessage = nil
+        isFetchingWeather = true
+        defer { isFetchingWeather = false }
+        do {
+            let coordinate = try await coordinateProvider()
+            let snapshot = try await WeatherService.fetchCurrent(at: coordinate, locationLabel: locationLabel)
+            setup.weatherLocationName = snapshot.locationLabel
+            setup.weatherLatitude = coordinate.latitude
+            setup.weatherLongitude = coordinate.longitude
+            setup.temperature = WeatherService.mapToTemperature(snapshot)
+            setup.conditions = WeatherService.mapToConditions(snapshot)
+            weatherStatusMessage = L10n.format(
+                "session.weather.applied",
+                String(format: "%.0f", snapshot.temperatureCelsius),
+                LocalizedEnum.label(for: setup.temperature),
+                LocalizedEnum.label(for: setup.conditions)
+            )
+        } catch WeatherServiceError.locationDenied {
+            weatherStatusMessage = String(localized: "session.weather.locationDenied")
+        } catch {
+            weatherStatusMessage = String(localized: "session.weather.failed")
+        }
+    }
+
     func syncZoneDistributionToSessionDuration() {
         guard setup.intensityMode == .zoneBased,
               let total = setup.resolvedDurationMinutes(), total > 0 else { return }

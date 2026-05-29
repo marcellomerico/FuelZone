@@ -7,6 +7,11 @@ struct ProfileView: View {
     @State private var maxHRText = ""
     @State private var zoneThresholds: HeartRateZoneThresholds?
     @State private var profileError: String?
+    @State private var showProPaywall = false
+
+    private var canEditHeartRateZones: Bool {
+        appState.settings.hasAccess(to: .zoneBasedIntensity)
+    }
 
     var body: some View {
         FuelZoneScreenScroll {
@@ -25,6 +30,10 @@ struct ProfileView: View {
         .navigationTitle(Text(localized: "profile.title"))
         .navigationBarTitleDisplayMode(.large)
         .onAppear { loadFromProfile() }
+        .sheet(isPresented: $showProPaywall) {
+            ProPaywallSheet { appState.selectedTab = 3 }
+                .environmentObject(appState)
+        }
     }
 
     private func loadFromProfile() {
@@ -98,29 +107,67 @@ struct ProfileView: View {
                 subtitleKey: "profile.hr.subtitle",
                 systemImage: "heart.fill"
             )
-            FuelZoneLabeledField(labelKey: "session.zone.maxHR", text: $maxHRText, keyboardType: .numberPad)
 
-            Button { applyStandardZonesFromMaxHR() } label: {
-                Label {
-                    Text(localized: "profile.hr.resetStandard")
-                } icon: {
-                    Image(systemName: "arrow.counterclockwise")
+            if !canEditHeartRateZones {
+                FuelZoneInfoBanner(message: String(localized: "profile.hr.proRequired"), style: .info)
+                Button { showProPaywall = true } label: {
+                    Text(localized: "profile.hr.unlockPro")
                 }
-                .font(DesignSystem.Typography.cardTitle)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(DesignSystem.accentSoft)
-                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.buttonCornerRadius, style: .continuous))
+                .buttonStyle(PrimaryButtonStyle())
             }
-            .buttonStyle(.plain)
 
-            if let thresholds = zoneThresholds {
-                zoneLimitsEditor(thresholds)
-            } else {
-                FuelZoneInfoBanner(message: String(localized: "profile.hr.missingMax"), style: .info)
+            if canEditHeartRateZones {
+                FuelZoneLabeledField(labelKey: "session.zone.maxHR", text: $maxHRText, keyboardType: .numberPad)
+
+                Button { applyStandardZonesFromMaxHR() } label: {
+                    Label {
+                        Text(localized: "profile.hr.resetStandard")
+                    } icon: {
+                        Image(systemName: "arrow.counterclockwise")
+                    }
+                    .font(DesignSystem.Typography.cardTitle)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(DesignSystem.accentSoft)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.buttonCornerRadius, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                if let thresholds = zoneThresholds {
+                    zoneLimitsEditor(thresholds)
+                } else {
+                    FuelZoneInfoBanner(message: String(localized: "profile.hr.missingMax"), style: .info)
+                }
+            } else if let thresholds = zoneThresholds ?? appState.profile.zoneThresholds {
+                zoneLimitsReadOnly(thresholds)
             }
         }
         .fuelZoneCard()
+    }
+
+    @ViewBuilder
+    private func zoneLimitsReadOnly(_ thresholds: HeartRateZoneThresholds) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localized: "profile.hr.zoneLimits")
+                .font(DesignSystem.Typography.caption)
+                .foregroundStyle(.secondary)
+            ForEach(HeartRateZone.allCases) { zone in
+                Text("\(LocalizedEnum.label(for: zone)): \(zoneBpmRangeLabel(zone: zone, thresholds: thresholds))")
+                    .font(DesignSystem.Typography.bodySecondary)
+            }
+        }
+    }
+
+    private func zoneBpmRangeLabel(zone: HeartRateZone, thresholds: HeartRateZoneThresholds) -> String {
+        let lower = thresholds.lowerBound(for: zone)
+        let upper: Int = switch zone {
+        case .zone1: thresholds.zone1Upper
+        case .zone2: thresholds.zone2Upper
+        case .zone3: thresholds.zone3Upper
+        case .zone4: thresholds.zone4Upper
+        case .zone5: thresholds.maxHeartRate
+        }
+        return "\(lower)–\(upper) bpm"
     }
 
     @ViewBuilder
@@ -226,6 +273,10 @@ struct ProfileView: View {
     }
 
     private func applyStandardZonesFromMaxHR() {
+        guard canEditHeartRateZones else {
+            showProPaywall = true
+            return
+        }
         profileError = nil
         guard let maxHR = Int(maxHRText.trimmingCharacters(in: .whitespaces)),
               HeartRateZoneCalculator.validMaxHRRange.contains(maxHR) else {
@@ -242,30 +293,32 @@ struct ProfileView: View {
         profile.displayName = displayName.isEmpty ? nil : displayName
         profile.weightKg = Double(weightText.replacingOccurrences(of: ",", with: "."))
 
-        let trimmedHR = maxHRText.trimmingCharacters(in: .whitespaces)
-        if trimmedHR.isEmpty {
-            profile.maxHeartRate = nil
-            profile.zoneThresholds = nil
-        } else if let maxHR = Int(trimmedHR),
-                  HeartRateZoneCalculator.validMaxHRRange.contains(maxHR) {
-            profile.maxHeartRate = maxHR
-            if var thresholds = zoneThresholds {
-                thresholds.maxHeartRate = maxHR
-                if thresholds.isValid() {
-                    profile.zoneThresholds = thresholds
+        if canEditHeartRateZones {
+            let trimmedHR = maxHRText.trimmingCharacters(in: .whitespaces)
+            if trimmedHR.isEmpty {
+                profile.maxHeartRate = nil
+                profile.zoneThresholds = nil
+            } else if let maxHR = Int(trimmedHR),
+                      HeartRateZoneCalculator.validMaxHRRange.contains(maxHR) {
+                profile.maxHeartRate = maxHR
+                if var thresholds = zoneThresholds {
+                    thresholds.maxHeartRate = maxHR
+                    if thresholds.isValid() {
+                        profile.zoneThresholds = thresholds
+                    } else {
+                        profile.refreshZoneThresholdsFromMaxHR()
+                        zoneThresholds = profile.zoneThresholds
+                        profileError = String(localized: "profile.hr.validation")
+                        return
+                    }
                 } else {
                     profile.refreshZoneThresholdsFromMaxHR()
                     zoneThresholds = profile.zoneThresholds
-                    profileError = String(localized: "profile.hr.validation")
-                    return
                 }
             } else {
-                profile.refreshZoneThresholdsFromMaxHR()
-                zoneThresholds = profile.zoneThresholds
+                profileError = String(localized: "error.invalidMaxHeartRate")
+                return
             }
-        } else {
-            profileError = String(localized: "error.invalidMaxHeartRate")
-            return
         }
 
         profile.updatedAt = .now

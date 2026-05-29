@@ -45,6 +45,7 @@ final class AppState: ObservableObject {
         historyViewModel.configure(settings: loadedSettings)
         snackViewModel.configure(settings: loadedSettings)
 
+        L10n.updateBundle(for: loadedSettings.language)
         bindSubscriptionStatus()
         observeCloudSync()
 
@@ -77,6 +78,7 @@ final class AppState: ObservableObject {
         if let p = store.load(UserProfile.self, key: PersistenceKeys.userProfile) { profile = p }
         if let s = store.load(AppSettings.self, key: PersistenceKeys.appSettings) {
             settings = s
+            L10n.updateBundle(for: s.language)
             applySettingsToViewModels()
         }
         snackViewModel.reload()
@@ -89,6 +91,7 @@ final class AppState: ObservableObject {
     }
 
     func saveSettings() {
+        L10n.updateBundle(for: settings.language)
         store.save(settings, key: PersistenceKeys.appSettings)
         applySettingsToViewModels()
     }

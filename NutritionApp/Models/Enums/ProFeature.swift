@@ -3,6 +3,7 @@ import Foundation
 /// Features gated behind FuelZone Pro subscription.
 enum ProFeature: String, Codable, CaseIterable, Identifiable {
     case zoneBasedIntensity
+    case customSnacks
     case barcodeScanner
     case snackTimelineSwap
     case unlimitedHistory
