@@ -14,13 +14,17 @@ struct SessionDetailResultsView: View {
             timelineSection
         }
         .navigationTitle(Text(localized: "history.detail.title"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
                     FuelingMethodologyView()
                 } label: {
                     Image(systemName: "info.circle")
+                        .foregroundStyle(DesignSystem.accent)
                 }
             }
         }
@@ -85,8 +89,8 @@ private struct SessionDetailTimelineView: View {
     private func sessionStepRow(_ step: TimelineStep) -> some View {
         HStack(alignment: .top, spacing: 12) {
             VStack {
-                Circle().fill(Color.accentColor).frame(width: 10, height: 10)
-                Rectangle().fill(Color.accentColor.opacity(0.25)).frame(width: 2)
+                Circle().fill(DesignSystem.accent).frame(width: 10, height: 10)
+                Rectangle().fill(DesignSystem.accent.opacity(0.25)).frame(width: 2)
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -98,7 +102,7 @@ private struct SessionDetailTimelineView: View {
                     sodiumMg: step.targetSodiumMg
                 ))
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
 
                 ForEach(step.portions) { portion in
                     if let snack = viewModel.snack(for: portion) {
@@ -111,20 +115,20 @@ private struct SessionDetailTimelineView: View {
                         } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: snack.category.systemImageName)
-                                    .foregroundStyle(Color.accentColor)
+                                    .foregroundStyle(DesignSystem.accent)
                                 Text(NutritionMetricsFormatting.snackQuantityLine(quantity: portion.quantity, name: snack.localizedName))
                                     .font(DesignSystem.Typography.caption)
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(DesignSystem.textPrimary)
                                 Spacer()
                                 if viewModel.canSwapSnacks {
                                     Image(systemName: "arrow.triangle.swap")
                                         .font(.caption2)
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(DesignSystem.textTertiary)
                                 }
                             }
                             .padding(.vertical, 8)
                             .padding(.horizontal, 10)
-                            .background(Color(.tertiarySystemGroupedBackground))
+                            .background(DesignSystem.embeddedTrack)
                             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                         .buttonStyle(.plain)

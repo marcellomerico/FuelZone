@@ -23,6 +23,9 @@ struct SessionDetailView: View {
         .onAppear {
             detailViewModel.updateSettings(appState.settings)
             detailViewModel.updateSnacks(appState.snackViewModel.allSnacks())
+            detailViewModel.onResultUpdated = { updated in
+                appState.historyViewModel.updateResult(recordID: record.id, result: updated)
+            }
         }
     }
 }

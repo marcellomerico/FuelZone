@@ -47,6 +47,7 @@ final class AppState: ObservableObject {
 
         L10n.updateBundle(for: loadedSettings.language)
         bindSubscriptionStatus()
+        bindSubscriptionManagerUpdates()
         observeCloudSync()
 
         Task {
@@ -64,6 +65,13 @@ final class AppState: ObservableObject {
                 self.applySettingsToViewModels()
                 self.store.save(self.settings, key: PersistenceKeys.appSettings)
             }
+            .store(in: &cancellables)
+    }
+
+    private func bindSubscriptionManagerUpdates() {
+        subscriptionManager.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
     }
 

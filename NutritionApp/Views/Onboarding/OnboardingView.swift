@@ -8,24 +8,28 @@ struct OnboardingView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ProgressView(value: Double(viewModel.stepIndex + 1), total: Double(viewModel.totalSteps))
-                    .tint(Color.accentColor)
-                    .padding(.horizontal)
+                    .tint(DesignSystem.accent)
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
 
                 ScrollView {
                     stepContent
-                        .padding()
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 16)
                         .fuelZoneScreenContent()
                 }
-                .background(DesignSystem.groupedBackground)
 
                 navigationBar
-                    .padding()
-                    .background(DesignSystem.cardBackground)
+                    .padding(16)
+                    .background(DesignSystem.cardSurface)
             }
-            .background(DesignSystem.groupedBackground)
+            .background(DesignSystem.appBackground)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
+        .preferredColorScheme(.dark)
     }
 
     @ViewBuilder

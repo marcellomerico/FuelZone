@@ -133,6 +133,13 @@
 
 /* StoreKit */
 "storekit.subscribe" = "Subscribe to Pro";
+"storekit.plan.monthly" = "Monthly";
+"storekit.plan.monthly.period" = "Billed every month";
+"storekit.plan.yearly" = "Yearly";
+"storekit.plan.yearly.period" = "Billed once per year";
+"storekit.plan.yearly.savings" = "Save %@%% vs. monthly";
+"storekit.plan.recommended" = "Best value";
+"storekit.subscription.legal" = "Payment is charged to your Apple ID. Subscriptions renew automatically unless you cancel at least 24 hours before the end of the current period. Manage or cancel in Settings → Apple ID → Subscriptions.";
 "storekit.restore" = "Restore purchases";
 "storekit.status.active" = "Pro is active";
 "storekit.purchase.success" = "Welcome to FuelZone Pro!";
@@ -140,6 +147,9 @@
 "storekit.restore.success" = "Purchases restored.";
 "storekit.restore.empty" = "No active subscription found.";
 "storekit.error.products" = "Could not load subscription products.";
+"storekit.error.products.unavailable" = "Subscription plans are not available right now. Check your connection or try again later.";
+"storekit.error.products.hint.debug" = "For local testing: Xcode → Product → Scheme → Edit Scheme → Run → Options → StoreKit Configuration = FuelZone.storekit";
+"storekit.retry" = "Load plans again";
 "storekit.error.purchase" = "Purchase failed. Try again.";
 "storekit.error.restore" = "Restore failed. Try again.";
 "settings.pro.debugToggle" = "Debug: simulate Pro";
@@ -214,6 +224,11 @@
 "profile.hr.missingMax" = "Enter a valid max heart rate to edit zones.";
 "profile.hr.proRequired" = "Custom heart rate zone limits are part of FuelZone Pro.";
 "profile.hr.unlockPro" = "Unlock Pro to edit zones";
+"settings.legal.privacy" = "Privacy Policy";
+"settings.legal.terms" = "Terms of Use";
+"settings.legal.support" = "Contact support";
+"snack.pill.carbs" = "%@ g carbs";
+"snack.pill.sodium" = "%@ mg Na";
 "settings.disclaimer.title" = "Disclaimer";
 "settings.disclaimer.subtitle" = "Important legal information";
 "settings.disclaimer.body" = "FuelZone provides general sports nutrition guidance, not medical advice. Adjust intake to your needs and consult a professional when unsure.";

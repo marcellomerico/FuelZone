@@ -20,13 +20,17 @@ struct ResultsView: View {
             snackPlanLink
         }
         .navigationTitle(Text(localized: "results.title"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
                     FuelingMethodologyView()
                 } label: {
                     Image(systemName: "info.circle")
+                        .foregroundStyle(DesignSystem.accent)
                 }
                 .accessibilityLabel(Text(localized: "results.methodology.link"))
             }

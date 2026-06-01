@@ -200,12 +200,12 @@ struct FuelZoneSnackRowStyled: View {
 
                 HStack(spacing: 6) {
                     FuelZonePill(
-                        text: "\(carbGrams) g KH",
+                        text: L10n.format("snack.pill.carbs", "\(carbGrams)"),
                         background: carbColors.background,
                         foreground: carbColors.foreground
                     )
                     FuelZonePill(
-                        text: "\(sodiumMg) mg Na",
+                        text: L10n.format("snack.pill.sodium", "\(sodiumMg)"),
                         background: DesignSystem.sodiumPillBackground,
                         foreground: DesignSystem.sodiumAccent
                     )
@@ -376,11 +376,8 @@ struct FuelZoneProfileCard: View {
 // MARK: - Pro marketing card
 
 struct FuelZoneProCard: View {
+    @ObservedObject var subscriptionManager: SubscriptionManager
     let isProActive: Bool
-    let priceText: String?
-    let isLoading: Bool
-    let onSubscribe: () -> Void
-    let onRestore: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 13) {
@@ -405,37 +402,10 @@ struct FuelZoneProCard: View {
             if isProActive {
                 FuelZoneInfoBanner(message: String(localized: "storekit.status.active"), style: .success)
             } else {
-                if let priceText {
-                    Text(priceText)
-                        .font(DesignSystem.Typography.metricValue)
-                        .foregroundStyle(DesignSystem.accentLight)
-                }
-
-                Button(action: onSubscribe) {
-                    Group {
-                        if isLoading {
-                            ProgressView().tint(DesignSystem.accentOnAmber)
-                        } else {
-                            Text(localized: "storekit.subscribe")
-                        }
-                    }
-                    .font(DesignSystem.Typography.cardTitle)
-                    .foregroundStyle(DesignSystem.accentOnAmber)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                }
-                .buttonStyle(.plain)
-                .background(DesignSystem.accent)
-                .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
-                .disabled(isLoading)
-
-                Button(action: onRestore) {
-                    Text(localized: "storekit.restore")
-                        .font(DesignSystem.Typography.micro)
-                        .foregroundStyle(DesignSystem.accentLight.opacity(0.85))
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.plain)
+                FuelZoneSubscriptionOptions(
+                    subscriptionManager: subscriptionManager,
+                    showsLegalDisclaimer: true
+                )
             }
         }
         .padding(15)
