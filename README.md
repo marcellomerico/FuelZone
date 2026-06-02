@@ -34,6 +34,32 @@ Abo-Kauf und Wiederherstellen unter **Einstellungen → FuelZone Pro** (StoreKit
 
 ---
 
+## UI-Vergleich (Vorher/Nachher)
+
+### Vorher (2026-05-29)
+
+| Plan | Verlauf |
+|------|---------|
+| ![Plan vorher](docs/screenshots/before/plan_old.png) | ![Verlauf vorher](docs/screenshots/before/history_old.png) |
+
+| Snacks | Einstellungen |
+|--------|---------------|
+| ![Snacks vorher](docs/screenshots/before/snacks_old.png) | ![Einstellungen vorher](docs/screenshots/before/settings_old.png) |
+
+### Nachher (2026-06-02)
+
+| Plan | Plan (Bedingungen + Vorschau) |
+|------|-------------------------------|
+| ![Plan nachher](docs/screenshots/after/plan_new.png) | ![Plan Vorschau nachher](docs/screenshots/after/plan_preview_new.png) |
+
+| Snacks | Einstellungen |
+|--------|---------------|
+| ![Snacks nachher](docs/screenshots/after/snacks_new.png) | ![Einstellungen nachher](docs/screenshots/after/settings_new.png) |
+
+> Hinweis: Die Screenshots stammen vom iPhone 17 Pro Simulator und dokumentieren den Schritt von der alten dunklen UI zur Amber-Redesign-Version.
+
+---
+
 ## Anforderungen
 
 - **Xcode** 15+ (empfohlen: aktuelle Version mit iOS 17 SDK)
