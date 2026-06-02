@@ -18,7 +18,7 @@ struct SnackPlanSummaryView: View {
                 fluids: aggregateTotals().fluids
             ))
             .font(DesignSystem.Typography.bodySecondary)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(DesignSystem.textSecondary)
 
             VStack(spacing: 0) {
                 ForEach(Array(uniqueSnackIDs().enumerated()), id: \.element) { index, id in

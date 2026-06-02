@@ -27,9 +27,7 @@ struct OnboardingView: View {
             .background(DesignSystem.appBackground)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
         }
-        .preferredColorScheme(.dark)
     }
 
     @ViewBuilder

@@ -10,7 +10,7 @@ struct ZoneEditorView: View {
         VStack(alignment: .leading, spacing: 14) {
             Text(localized: "session.zone.title")
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
 
             if sessionDurationMinutes == nil {
                 FuelZoneInfoBanner(
@@ -64,7 +64,7 @@ struct ZoneEditorView: View {
                     if let bpm {
                         Text(bpm)
                             .font(DesignSystem.Typography.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(DesignSystem.textSecondary)
                     }
                 }
                 Spacer()
@@ -82,7 +82,7 @@ struct ZoneEditorView: View {
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 12)
-            .background(Color(.tertiarySystemGroupedBackground))
+            .background(DesignSystem.embeddedTrack)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
     }

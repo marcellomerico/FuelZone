@@ -27,7 +27,7 @@ struct SnackSwapSheet: View {
                     if filtered.isEmpty {
                         Text(localized: "snack.swap.empty")
                             .font(DesignSystem.Typography.bodySecondary)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(DesignSystem.textSecondary)
                     } else {
                         ForEach(Array(filtered.enumerated()), id: \.element.id) { index, snack in
                             Button {

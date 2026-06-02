@@ -18,17 +18,17 @@ struct NutritionCardView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(localized: titleKey)
                     .font(DesignSystem.Typography.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignSystem.textSecondary)
 
                 Text(value)
                     .font(DesignSystem.Typography.metricValue)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(DesignSystem.textPrimary)
                     .minimumScaleFactor(0.8)
                     .lineLimit(1)
 
                 Text(localized: subtitleKey)
                     .font(DesignSystem.Typography.metricUnit)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignSystem.textSecondary)
             }
             Spacer(minLength: 0)
         }

@@ -26,7 +26,6 @@ struct SessionSetupView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .sheet(isPresented: $viewModel.showProPaywall) {
             ProPaywallSheet {
                 appState.selectedTab = 3

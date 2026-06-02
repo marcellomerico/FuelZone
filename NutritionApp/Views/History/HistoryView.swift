@@ -28,7 +28,6 @@ struct HistoryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear { viewModel.reload() }
     }
 }

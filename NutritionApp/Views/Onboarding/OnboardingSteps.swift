@@ -111,7 +111,7 @@ private func stepShell<Content: View>(
         if let tooltipKey {
             Text(localized: tooltipKey)
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
         }
         content()
     }
