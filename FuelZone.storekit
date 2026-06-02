@@ -25,7 +25,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "2.99",
+          "displayPrice" : "3.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "fuelzone_pro_monthly",
@@ -35,11 +35,46 @@
               "description" : "Zones, barcode scan, snack swaps, unlimited history",
               "displayName" : "FuelZone Pro Monthly",
               "locale" : "en_US"
+            },
+            {
+              "description" : "Zonen, Barcode, Snack-Tausch, unbegrenzter Verlauf",
+              "displayName" : "FuelZone Pro Monatlich",
+              "locale" : "de_DE"
             }
           ],
           "productID" : "com.mmerico.FuelZone.pro.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Pro Monthly",
+          "subscriptionGroupID" : "fuelzone_pro",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "24.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "fuelzone_pro_yearly",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Zones, barcode scan, snack swaps, unlimited history",
+              "displayName" : "FuelZone Pro Yearly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Zonen, Barcode, Snack-Tausch, unbegrenzter Verlauf",
+              "displayName" : "FuelZone Pro Jährlich",
+              "locale" : "de_DE"
+            }
+          ],
+          "productID" : "com.mmerico.FuelZone.pro.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pro Yearly",
           "subscriptionGroupID" : "fuelzone_pro",
           "type" : "RecurringSubscription"
         }

@@ -3,14 +3,19 @@ import Foundation
 
 @MainActor
 final class SessionDetailViewModel: ObservableObject {
+    let recordID: UUID
+
     @Published private(set) var result: FuelingResult
     @Published private(set) var setup: SessionSetup
     @Published var showProPaywall = false
+
+    var onResultUpdated: ((FuelingResult) -> Void)?
 
     private var settings: AppSettings
     private var allSnacks: [Snack] = []
 
     init(record: SessionRecord, settings: AppSettings, snacks: [Snack]) {
+        recordID = record.id
         result = record.result
         setup = record.setup
         self.settings = settings
@@ -36,6 +41,7 @@ final class SessionDetailViewModel: ObservableObject {
         }
         result.timeline[stepIndex].portions[pIndex].snackID = snack.id
         result.timeline[stepIndex].isUserModified = true
+        onResultUpdated?(result)
     }
 
     func carbsPerHourText() -> String {

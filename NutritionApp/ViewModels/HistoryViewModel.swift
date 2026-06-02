@@ -42,4 +42,11 @@ final class HistoryViewModel: ObservableObject {
         records = list
         store.save(list, key: PersistenceKeys.sessionHistory)
     }
+
+    /// Persists timeline edits (e.g. snack swaps) on a saved session.
+    func updateResult(recordID: UUID, result: FuelingResult) {
+        guard let index = records.firstIndex(where: { $0.id == recordID }) else { return }
+        records[index].result = result
+        store.save(records, key: PersistenceKeys.sessionHistory)
+    }
 }

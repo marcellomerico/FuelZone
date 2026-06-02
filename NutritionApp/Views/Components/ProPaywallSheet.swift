@@ -1,5 +1,4 @@
 import SwiftUI
-import StoreKit
 
 struct ProPaywallSheet: View {
     @EnvironmentObject private var appState: AppState
@@ -16,10 +15,7 @@ struct ProPaywallSheet: View {
                 )
 
                 VStack(alignment: .leading, spacing: 12) {
-                    FuelZoneSectionHeader(
-                        titleKey: "pro.paywall.featuresTitle",
-                        systemImage: "checkmark.seal"
-                    )
+                    FuelZoneSectionHeader(titleKey: "pro.paywall.featuresTitle")
                     FuelZoneBulletRow(textKey: "pro.paywall.feature.zones", systemImage: "heart.fill")
                     FuelZoneBulletRow(textKey: "pro.paywall.feature.customSnacks", systemImage: "plus.circle.fill")
                     FuelZoneBulletRow(textKey: "pro.paywall.feature.barcode", systemImage: "barcode.viewfinder")
@@ -31,29 +27,17 @@ struct ProPaywallSheet: View {
                 if appState.settings.isProSubscriber {
                     FuelZoneInfoBanner(message: String(localized: "storekit.status.active"), style: .success)
                 } else {
-                    if let product = appState.subscriptionManager.monthlyProduct {
-                        Text(product.displayPrice)
-                            .font(DesignSystem.Typography.metricValue)
-                            .foregroundStyle(Color.accentColor)
-                    }
-                    Button {
-                        Task { await appState.subscriptionManager.purchaseMonthly() }
-                    } label: {
-                        Text(localized: "storekit.subscribe")
-                    }
-                    .buttonStyle(PrimaryButtonStyle())
-                    .disabled(appState.subscriptionManager.isLoading)
-
-                    FuelZoneTextButton(titleKey: "storekit.restore") {
-                        Task { await appState.subscriptionManager.restorePurchases() }
-                    }
-                    .disabled(appState.subscriptionManager.isLoading)
+                    FuelZoneSubscriptionOptions(
+                        subscriptionManager: appState.subscriptionManager,
+                        showsLegalDisclaimer: true
+                    )
+                    .fuelZoneCard()
                 }
 
                 if let status = appState.subscriptionManager.statusMessage {
                     Text(status)
                         .font(DesignSystem.Typography.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignSystem.textSecondary)
                 }
 
                 FuelZoneTextButton(titleKey: "pro.paywall.cta") {
@@ -66,12 +50,14 @@ struct ProPaywallSheet: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button { dismiss() } label: {
                         Image(systemName: "xmark.circle.fill")
                             .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(DesignSystem.textTertiary)
                     }
                 }
             }

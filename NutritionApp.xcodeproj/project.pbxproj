@@ -27,6 +27,7 @@
 		AD1EC9FE2FBE4BB800FC0C7A /* NutritionApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NutritionApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD1ECA0F2FBE4BBA00FC0C7A /* NutritionAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NutritionAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD1ECA192FBE4BBA00FC0C7A /* NutritionAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NutritionAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD1ECA302FBE4BBA00FC0C7A /* FuelZone.storekit */ = {isa = PBXFileReference; lastKnownFileType = file.storekit; path = FuelZone.storekit; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -91,6 +92,7 @@
 				AD1ECA002FBE4BB800FC0C7A /* NutritionApp */,
 				AD1ECA122FBE4BBA00FC0C7A /* NutritionAppTests */,
 				AD1ECA1C2FBE4BBA00FC0C7A /* NutritionAppUITests */,
+				AD1ECA302FBE4BBA00FC0C7A /* FuelZone.storekit */,
 				AD1EC9FF2FBE4BB800FC0C7A /* Products */,
 			);
 			sourceTree = "<group>";

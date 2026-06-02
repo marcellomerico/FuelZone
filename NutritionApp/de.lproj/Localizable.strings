@@ -134,6 +134,13 @@
 
 /* StoreKit */
 "storekit.subscribe" = "Pro abonnieren";
+"storekit.plan.monthly" = "Monatlich";
+"storekit.plan.monthly.period" = "Abrechnung jeden Monat";
+"storekit.plan.yearly" = "Jährlich";
+"storekit.plan.yearly.period" = "Einmal pro Jahr";
+"storekit.plan.yearly.savings" = "%@ %% sparen vs. Monat";
+"storekit.plan.recommended" = "Empfohlen";
+"storekit.subscription.legal" = "Die Zahlung erfolgt über deine Apple-ID. Das Abo verlängert sich automatisch, sofern du nicht mindestens 24 Stunden vor Periodenende kündigst. Verwalten unter Einstellungen → Apple-ID → Abonnements.";
 "storekit.restore" = "Käufe wiederherstellen";
 "storekit.status.active" = "Pro ist aktiv";
 "storekit.purchase.success" = "Willkommen bei FuelZone Pro!";
@@ -141,6 +148,9 @@
 "storekit.restore.success" = "Käufe wiederhergestellt.";
 "storekit.restore.empty" = "Kein aktives Abo gefunden.";
 "storekit.error.products" = "Abo-Produkte konnten nicht geladen werden.";
+"storekit.error.products.unavailable" = "Abo-Pläne sind gerade nicht verfügbar. Verbindung prüfen oder später erneut versuchen.";
+"storekit.error.products.hint.debug" = "Lokaler Test: Xcode → Product → Scheme → Edit Scheme → Run → Options → StoreKit Configuration = FuelZone.storekit";
+"storekit.retry" = "Pläne erneut laden";
 "storekit.error.purchase" = "Kauf fehlgeschlagen. Bitte erneut versuchen.";
 "storekit.error.restore" = "Wiederherstellung fehlgeschlagen.";
 "settings.pro.debugToggle" = "Debug: Pro simulieren";
@@ -215,6 +225,11 @@
 "profile.hr.missingMax" = "Gültige max. Herzfrequenz eingeben, um Zonen zu bearbeiten.";
 "profile.hr.proRequired" = "Individuelle HF-Zonengrenzen sind Teil von FuelZone Pro.";
 "profile.hr.unlockPro" = "Pro freischalten, um Zonen zu bearbeiten";
+"settings.legal.privacy" = "Datenschutz";
+"settings.legal.terms" = "Nutzungsbedingungen";
+"settings.legal.support" = "Support kontaktieren";
+"snack.pill.carbs" = "%@ g KH";
+"snack.pill.sodium" = "%@ mg Na";
 "settings.disclaimer.title" = "Haftungsausschluss";
 "settings.disclaimer.subtitle" = "Wichtige rechtliche Hinweise";
 "settings.disclaimer.body" = "FuelZone bietet allgemeine Sporternährungs-Empfehlungen, keine medizinische Beratung. Passe die Zufuhr an deine Bedürfnisse an und hole dir bei Unsicherheit professionelle Hilfe.";

@@ -13,6 +13,7 @@ struct SettingsView: View {
             #if DEBUG
             debugProSection
             #endif
+            legalSection
             syncSection
             aboutSection
             onboardingSection
@@ -82,18 +83,12 @@ struct SettingsView: View {
     private var proSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             FuelZoneProCard(
-                isProActive: appState.settings.isProSubscriber,
-                priceText: appState.subscriptionManager.monthlyProduct?.displayPrice,
-                isLoading: appState.subscriptionManager.isLoading,
-                onSubscribe: {
-                    Task { await appState.subscriptionManager.purchaseMonthly() }
-                },
-                onRestore: {
-                    Task { await appState.subscriptionManager.restorePurchases() }
-                }
+                subscriptionManager: appState.subscriptionManager,
+                isProActive: appState.settings.isProSubscriber
             )
 
-            if let message = appState.subscriptionManager.statusMessage {
+            if let message = appState.subscriptionManager.statusMessage,
+               appState.subscriptionManager.productsLoadState != .unavailable {
                 Text(message)
                     .font(DesignSystem.Typography.caption)
                     .foregroundStyle(DesignSystem.textSecondary)
@@ -118,6 +113,35 @@ struct SettingsView: View {
         }
     }
     #endif
+
+    private var legalSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            legalLinkRow(titleKey: "settings.legal.privacy", url: AppLegalLinks.privacyPolicy)
+            FuelZoneCardDivider()
+            legalLinkRow(titleKey: "settings.legal.terms", url: AppLegalLinks.termsOfUse)
+            FuelZoneCardDivider()
+            if let mailURL = URL(string: "mailto:\(AppLegalLinks.supportEmail)") {
+                legalLinkRow(titleKey: "settings.legal.support", url: mailURL)
+            }
+        }
+        .fuelZoneCard(padding: 6)
+    }
+
+    private func legalLinkRow(titleKey: String, url: URL) -> some View {
+        Link(destination: url) {
+            HStack(spacing: 11) {
+                Text(localized: titleKey)
+                    .font(DesignSystem.Typography.cardTitle)
+                    .foregroundStyle(DesignSystem.textPrimary)
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(DesignSystem.textTertiary)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 8)
+        }
+    }
 
     private var syncSection: some View {
         NavigationLink {
