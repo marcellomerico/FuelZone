@@ -51,6 +51,8 @@ struct FuelZonePill: View {
 // MARK: - Fuel preview (Plan tab)
 
 struct FuelZonePlanPreviewCard: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let carbsPerHour: Int
     let gelCount: Int
     let sodiumPerHour: Int
@@ -97,7 +99,9 @@ struct FuelZonePlanPreviewCard: View {
         .padding(15)
         .background(
             LinearGradient(
-                colors: [Color(red: 31 / 255, green: 20 / 255, blue: 7 / 255), Color(red: 42 / 255, green: 26 / 255, blue: 8 / 255)],
+                colors: colorScheme == .dark
+                    ? [Color(red: 31 / 255, green: 20 / 255, blue: 7 / 255), Color(red: 42 / 255, green: 26 / 255, blue: 8 / 255)]
+                    : [Color(red: 255 / 255, green: 245 / 255, blue: 224 / 255), Color(red: 255 / 255, green: 236 / 255, blue: 204 / 255)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -115,7 +119,7 @@ struct FuelZonePlanPreviewCard: View {
 
     private var previewDivider: some View {
         Rectangle()
-            .fill(Color.white.opacity(0.1))
+            .fill(DesignSystem.divider)
             .frame(width: 1)
             .padding(.vertical, 4)
     }
@@ -376,6 +380,8 @@ struct FuelZoneProfileCard: View {
 // MARK: - Pro marketing card
 
 struct FuelZoneProCard: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     @ObservedObject var subscriptionManager: SubscriptionManager
     let isProActive: Bool
 
@@ -396,7 +402,7 @@ struct FuelZoneProCard: View {
 
             Text(localized: "settings.pro.subtitle")
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(DesignSystem.accentLight.opacity(0.85))
+                .foregroundStyle(colorScheme == .dark ? DesignSystem.accentLight.opacity(0.85) : DesignSystem.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if isProActive {
@@ -411,7 +417,9 @@ struct FuelZoneProCard: View {
         .padding(15)
         .background(
             LinearGradient(
-                colors: [Color(red: 42 / 255, green: 26 / 255, blue: 8 / 255), Color(red: 28 / 255, green: 18 / 255, blue: 6 / 255)],
+                colors: colorScheme == .dark
+                    ? [Color(red: 42 / 255, green: 26 / 255, blue: 8 / 255), Color(red: 28 / 255, green: 18 / 255, blue: 6 / 255)]
+                    : [Color(red: 255 / 255, green: 246 / 255, blue: 228 / 255), Color(red: 255 / 255, green: 238 / 255, blue: 210 / 255)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

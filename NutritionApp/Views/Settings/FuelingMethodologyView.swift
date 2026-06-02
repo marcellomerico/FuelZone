@@ -31,7 +31,7 @@ struct FuelingMethodologyView: View {
             )
             Text(localized: "methodology.why.body")
                 .font(DesignSystem.Typography.bodySecondary)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .fuelZoneCard()
@@ -100,7 +100,7 @@ struct FuelingMethodologyView: View {
             )
             Text(localized: "methodology.fluids.body")
                 .font(DesignSystem.Typography.bodySecondary)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .fuelZoneCard()
@@ -125,7 +125,7 @@ struct FuelingMethodologyView: View {
                 .font(DesignSystem.Typography.cardTitle)
             Text(localized: reference.citationKey)
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
             Link(destination: reference.url) {
                 Label {
                     Text(localized: "methodology.sources.open")

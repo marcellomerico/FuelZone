@@ -150,7 +150,7 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(localized: "profile.hr.zoneLimits")
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
             ForEach(HeartRateZone.allCases) { zone in
                 Text("\(LocalizedEnum.label(for: zone)): \(zoneBpmRangeLabel(zone: zone, thresholds: thresholds))")
                     .font(DesignSystem.Typography.bodySecondary)
@@ -175,7 +175,7 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(localized: "profile.hr.zoneLimits")
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
 
             zoneUpperRow(zone: .zone1, titleKey: "hrzone.zone1", keyPath: \.zone1Upper, thresholds: thresholds)
             zoneUpperRow(zone: .zone2, titleKey: "hrzone.zone2", keyPath: \.zone2Upper, thresholds: thresholds)
@@ -188,7 +188,7 @@ struct ProfileView: View {
                 "\(thresholds.maxHeartRate)"
             ))
             .font(DesignSystem.Typography.caption)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(DesignSystem.textSecondary)
 
             if !thresholds.isValid() {
                 Text(localized: "profile.hr.validation")
@@ -223,7 +223,7 @@ struct ProfileView: View {
                         .font(DesignSystem.Typography.cardTitle)
                     Text(L10n.format("session.zone.bpmRange", "\(lower)", "\(binding.wrappedValue)"))
                         .font(DesignSystem.Typography.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignSystem.textSecondary)
                 }
                 Spacer()
                 Stepper("", value: binding, in: lower...max(lower, upperMax))
@@ -234,7 +234,7 @@ struct ProfileView: View {
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 12)
-            .background(Color(.tertiarySystemGroupedBackground))
+            .background(DesignSystem.embeddedTrack)
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
     }
@@ -248,7 +248,7 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(localized: titleKey)
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
             VStack(spacing: 8) {
                 ForEach(cases) { item in
                     FuelZoneSelectionRow(

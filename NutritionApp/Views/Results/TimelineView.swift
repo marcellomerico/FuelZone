@@ -43,7 +43,7 @@ private struct TimelineStepRow: View {
                     sodiumMg: step.targetSodiumMg
                 ))
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
 
                 ForEach(step.portions) { portion in
                     if let snack = viewModel.snack(for: portion) {

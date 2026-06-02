@@ -24,7 +24,7 @@ struct AddCustomSnackView: View {
                     FuelZoneLabeledField(labelKey: "snack.addCustom.nameDE", text: $nameDE, keyboardType: .default)
                     Text(localized: "snack.addCustom.category")
                         .font(DesignSystem.Typography.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignSystem.textSecondary)
                     Picker("", selection: $category) {
                         ForEach(SnackCategory.allCases) { cat in
                             Text(LocalizedEnum.label(for: cat)).tag(cat)

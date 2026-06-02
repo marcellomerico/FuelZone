@@ -45,7 +45,7 @@ struct EditSnackView: View {
                     FuelZoneLabeledField(labelKey: "snack.addCustom.nameDE", text: $nameDE, keyboardType: .default)
                     Text(localized: "snack.addCustom.category")
                         .font(DesignSystem.Typography.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignSystem.textSecondary)
                     Picker("", selection: $category) {
                         ForEach(SnackCategory.allCases) { cat in
                             Text(localized: LocalizedEnum.key(for: cat)).tag(cat)
@@ -55,7 +55,7 @@ struct EditSnackView: View {
 
                     Text(localized: "snack.nutrition.basisTitle")
                         .font(DesignSystem.Typography.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignSystem.textSecondary)
                     Picker("", selection: $nutritionBasis) {
                         ForEach(SnackNutritionBasis.allCases) { basis in
                             Text(localized: basis.localizationKey).tag(basis)
@@ -110,7 +110,7 @@ struct EditSnackView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(localized: "snack.photo.title")
                 .font(DesignSystem.Typography.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignSystem.textSecondary)
 
             HStack(spacing: 14) {
                 Group {
@@ -121,11 +121,11 @@ struct EditSnackView: View {
                     } else {
                         Image(systemName: "photo")
                             .font(.title2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(DesignSystem.textSecondary)
                     }
                 }
                 .frame(width: 72, height: 72)
-                .background(Color(.tertiarySystemGroupedBackground))
+                .background(DesignSystem.embeddedTrack)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 8) {
