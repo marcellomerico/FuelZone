@@ -2,13 +2,18 @@ import Combine
 import CoreLocation
 import Foundation
 
+/// One-shot location lookup for weather. Waits for the permission answer instead of polling.
 @MainActor
 final class LocationAccessService: NSObject, ObservableObject, CLLocationManagerDelegate {
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
     @Published private(set) var authorizationStatus: CLAuthorizationStatus
-    @Published var lastError: WeatherServiceError?
 
     private let manager = CLLocationManager()
-    private var continuation: CheckedContinuation<CLLocationCoordinate2D, Error>?
+    private var authorizationContinuation: CheckedContinuation<CLAuthorizationStatus, Never>?
+    private var locationContinuation: CheckedContinuation<CLLocationCoordinate2D, Error>?
 
     override init() {
         authorizationStatus = manager.authorizationStatus
@@ -18,46 +23,62 @@ final class LocationAccessService: NSObject, ObservableObject, CLLocationManager
     }
 
     func requestCurrentCoordinate() async throws -> CLLocationCoordinate2D {
-        lastError = nil
-        switch manager.authorizationStatus {
-        case .notDetermined:
-            manager.requestWhenInUseAuthorization()
-            try await Task.sleep(nanoseconds: 400_000_000)
-            return try await requestCurrentCoordinate()
+        // Only one lookup at a time; a second tap while waiting is rejected.
+        guard locationContinuation == nil, authorizationContinuation == nil else {
+            throw WeatherServiceError.locationUnavailable
+        }
+
+        var status = manager.authorizationStatus
+        if status == .notDetermined {
+            status = await withCheckedContinuation { continuation in
+                authorizationContinuation = continuation
+                manager.requestWhenInUseAuthorization()
+            }
+        }
+
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+            break
         case .restricted, .denied:
             throw WeatherServiceError.locationDenied
         default:
-            break
+            throw WeatherServiceError.locationUnavailable
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            self.continuation = continuation
+            locationContinuation = continuation
             manager.requestLocation()
         }
     }
 
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let status = manager.authorizationStatus
         Task { @MainActor in
-            authorizationStatus = manager.authorizationStatus
+            authorizationStatus = status
+            guard status != .notDetermined, let continuation = authorizationContinuation else { return }
+            authorizationContinuation = nil
+            continuation.resume(returning: status)
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let coordinate = locations.last?.coordinate
         Task { @MainActor in
-            guard let coordinate = locations.last?.coordinate else {
-                continuation?.resume(throwing: WeatherServiceError.locationUnavailable)
-                continuation = nil
-                return
+            guard let continuation = locationContinuation else { return }
+            locationContinuation = nil
+            if let coordinate {
+                continuation.resume(returning: coordinate)
+            } else {
+                continuation.resume(throwing: WeatherServiceError.locationUnavailable)
             }
-            continuation?.resume(returning: coordinate)
-            continuation = nil
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
-            continuation?.resume(throwing: WeatherServiceError.locationUnavailable)
-            continuation = nil
+            guard let continuation = locationContinuation else { return }
+            locationContinuation = nil
+            continuation.resume(throwing: WeatherServiceError.locationUnavailable)
         }
     }
 }

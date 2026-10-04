@@ -1,125 +1,148 @@
 import Combine
 import SwiftUI
 
+enum AppTab: Hashable {
+    case plan, history, snacks, settings
+}
+
+/// App-wide coordinator: owns the data store, StoreKit and the screen view models.
 @MainActor
 final class AppState: ObservableObject {
-    @Published var profile: UserProfile
-    @Published var settings: AppSettings
-    @Published var showOnboarding: Bool
-    @Published var selectedTab: Int = 0
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
 
-    let subscriptionManager = SubscriptionManager()
+    @Published var showOnboarding: Bool
+    @Published var selectedTab: AppTab = .plan
+    /// Debug-only override to try Pro features without a purchase. Never synced, never in release builds.
+    @Published var debugSimulatePro: Bool {
+        didSet { UserDefaults.standard.set(debugSimulatePro, forKey: Self.debugProKey) }
+    }
+
+    let store: UserDataStore
+    let subscriptionManager: SubscriptionManager
     let sessionViewModel: SessionViewModel
-    let resultsViewModel: ResultsViewModel
     let snackViewModel: SnackViewModel
-    let historyViewModel: HistoryViewModel
     let onboardingViewModel: OnboardingViewModel
 
-    private let store = DataStore.shared
+    private static let debugProKey = "fuelzone.debug.simulatePro"
+    /// Bump when the onboarding changes enough that existing users should see it once more on this device.
+    static let currentOnboardingVersion = 2
+    static let onboardingVersionKey = "fuelzone.onboardingVersionSeen"
+
+    /// Whether the onboarding must be shown: new users, or users who have not seen the current version.
+    static func needsOnboarding(profile: UserProfile, defaults: UserDefaults = .standard) -> Bool {
+        !profile.hasCompletedOnboarding || defaults.integer(forKey: onboardingVersionKey) < currentOnboardingVersion
+    }
     private var cancellables = Set<AnyCancellable>()
 
-    init() {
-        let loadedProfile = DataStore.shared.load(UserProfile.self, key: PersistenceKeys.userProfile)
-            ?? UserProfile()
-        let loadedSettings = DataStore.shared.load(AppSettings.self, key: PersistenceKeys.appSettings)
-            ?? AppSettings()
+    /// Pro access is always derived from current StoreKit entitlements.
+    var isPro: Bool {
+        #if DEBUG
+        subscriptionManager.isProActive || debugSimulatePro
+        #else
+        subscriptionManager.isProActive
+        #endif
+    }
 
-        profile = loadedProfile
-        settings = loadedSettings
-        showOnboarding = !loadedProfile.hasCompletedOnboarding
-
-        snackViewModel = SnackViewModel()
-        historyViewModel = HistoryViewModel()
-        sessionViewModel = SessionViewModel()
-        resultsViewModel = ResultsViewModel()
-        onboardingViewModel = OnboardingViewModel()
-
-        onboardingViewModel.configure(profile: loadedProfile)
-        sessionViewModel.configure(
-            profile: loadedProfile,
-            settings: loadedSettings,
-            snacks: snackViewModel,
-            results: resultsViewModel
-        )
-        resultsViewModel.configure(settings: loadedSettings, snacks: snackViewModel)
-        historyViewModel.configure(settings: loadedSettings)
-        snackViewModel.configure(settings: loadedSettings)
-
-        L10n.updateBundle(for: loadedSettings.language)
-        bindSubscriptionStatus()
-        bindSubscriptionManagerUpdates()
-        observeCloudSync()
-
-        Task {
-            await store.syncFromCloudKit()
-            await subscriptionManager.loadProducts()
+    init(store: UserDataStore? = nil, subscriptionManager: SubscriptionManager? = nil) {
+        #if DEBUG
+        // UI tests: `-FZResetData YES` starts from a clean install.
+        if store == nil, UserDefaults.standard.bool(forKey: "FZResetData") {
+            FileStore.applicationSupport().removeAll()
+            UserDefaults.standard.removeObject(forKey: LegacyStoreMigration.migratedFlag)
+            LegacyStoreMigration.legacyKeys.values.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+            UserDefaults.standard.removeObject(forKey: Self.debugProKey)
+            UserDefaults.standard.removeObject(forKey: Self.onboardingVersionKey)
         }
-    }
+        let store = store ?? UserDataStore(syncService: UserDefaults.standard.bool(forKey: "FZResetData") ? nil : CloudSyncService())
+        #else
+        let store = store ?? UserDataStore()
+        #endif
+        let subscriptions = subscriptionManager ?? SubscriptionManager()
+        self.store = store
+        self.subscriptionManager = subscriptions
+        #if DEBUG
+        debugSimulatePro = UserDefaults.standard.bool(forKey: Self.debugProKey)
+        #else
+        debugSimulatePro = false
+        #endif
+        showOnboarding = Self.needsOnboarding(profile: store.profile)
 
-    private func bindSubscriptionStatus() {
-        subscriptionManager.$isProActive
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isActive in
-                guard let self, self.settings.isProSubscriber != isActive else { return }
-                self.settings.isProSubscriber = isActive
-                self.applySettingsToViewModels()
-                self.store.save(self.settings, key: PersistenceKeys.appSettings)
-            }
-            .store(in: &cancellables)
-    }
+        let onboarding = OnboardingViewModel()
+        onboarding.reset(from: store.profile)
+        onboardingViewModel = onboarding
 
-    private func bindSubscriptionManagerUpdates() {
-        subscriptionManager.objectWillChange
-            .receive(on: DispatchQueue.main)
+        sessionViewModel = SessionViewModel(store: store)
+        snackViewModel = SnackViewModel(store: store)
+        let proProvider: () -> Bool = { [weak self] in self?.isPro ?? false }
+        sessionViewModel.isProProvider = proProvider
+        snackViewModel.isProProvider = proProvider
+
+        L10n.updateBundle(for: store.settings.language)
+
+        store.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
-    }
-
-    private func observeCloudSync() {
-        NotificationCenter.default.publisher(for: .dataStoreDidSyncFromCloud)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.reloadFromStore() }
+        subscriptions.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
-    }
+        store.$settings
+            .map(\.language)
+            .removeDuplicates()
+            .sink { L10n.updateBundle(for: $0) }
+            .store(in: &cancellables)
+        store.$profile
+            .map(\.hasCompletedOnboarding)
+            .removeDuplicates()
+            .sink { [weak self] completed in
+                // Completed on another device (iCloud): hide it only if this device has seen the current version.
+                if completed, let self, !Self.needsOnboarding(profile: self.store.profile) { self.showOnboarding = false }
+            }
+            .store(in: &cancellables)
 
-    func reloadFromStore() {
-        if let p = store.load(UserProfile.self, key: PersistenceKeys.userProfile) { profile = p }
-        if let s = store.load(AppSettings.self, key: PersistenceKeys.appSettings) {
-            settings = s
-            L10n.updateBundle(for: s.language)
-            applySettingsToViewModels()
+        Task {
+            await store.syncNow()
+            await subscriptions.loadProducts()
         }
-        snackViewModel.reload()
-        historyViewModel.reload()
     }
 
-    func saveProfile() {
-        store.save(profile, key: PersistenceKeys.userProfile)
-        sessionViewModel.updateProfile(profile)
+    /// Two-way binding to a profile field that saves immediately.
+    func profileBinding<Value>(_ keyPath: WritableKeyPath<UserProfile, Value>) -> Binding<Value> {
+        Binding(
+            get: { self.store.profile[keyPath: keyPath] },
+            set: { newValue in self.store.updateProfile { $0[keyPath: keyPath] = newValue } }
+        )
     }
 
-    func saveSettings() {
-        L10n.updateBundle(for: settings.language)
-        store.save(settings, key: PersistenceKeys.appSettings)
-        applySettingsToViewModels()
+    /// Two-way binding to a settings field that saves immediately.
+    func settingsBinding<Value: Equatable>(_ keyPath: WritableKeyPath<AppSettings, Value>) -> Binding<Value> {
+        Binding(
+            get: { self.store.settings[keyPath: keyPath] },
+            set: { newValue in self.store.updateSettings { $0[keyPath: keyPath] = newValue } }
+        )
     }
 
-    private func applySettingsToViewModels() {
-        sessionViewModel.updateSettings(settings)
-        resultsViewModel.updateSettings(settings)
-        historyViewModel.updateSettings(settings)
-        snackViewModel.configure(settings: settings)
+    func startOnboarding() {
+        onboardingViewModel.reset(from: store.profile)
+        showOnboarding = true
     }
 
     func completeOnboarding() {
-        profile = onboardingViewModel.buildProfile()
-        profile.hasCompletedOnboarding = true
-        saveProfile()
+        let onboarding = onboardingViewModel
+        store.updateProfile { profile in
+            onboarding.apply(to: &profile)
+            profile.hasCompletedOnboarding = true
+        }
+        UserDefaults.standard.set(Self.currentOnboardingVersion, forKey: Self.onboardingVersionKey)
+        sessionViewModel.setup.sport = store.profile.primarySport
         showOnboarding = false
-        sessionViewModel.updateProfile(profile)
     }
 
-    func syncNow() {
-        Task { await store.syncFromCloudKit() }
+    func appDidBecomeActive() {
+        Task {
+            await store.syncNow()
+            await subscriptionManager.refreshEntitlements()
+        }
     }
 }

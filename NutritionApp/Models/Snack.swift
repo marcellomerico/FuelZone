@@ -76,11 +76,6 @@ struct Snack: Codable, Hashable, Identifiable, Sendable {
         barcode = try c.decodeIfPresent(String.self, forKey: .barcode)
         isEnabled = try c.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
     }
-
-    var displayNameKey: String? {
-        if let nameKey { return nameKey }
-        return nil
-    }
 }
 
 /// JSON container for bundled default snacks.

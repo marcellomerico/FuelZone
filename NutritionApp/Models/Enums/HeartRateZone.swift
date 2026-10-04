@@ -23,15 +23,4 @@ enum HeartRateZone: Int, Codable, CaseIterable, Identifiable, Comparable {
         case .zone5: 1.0
         }
     }
-
-    /// Default percentage of max HR (lower, upper) for zone calculator.
-    var defaultPercentRange: ClosedRange<Double> {
-        switch self {
-        case .zone1: 0.50...0.60
-        case .zone2: 0.60...0.70
-        case .zone3: 0.70...0.80
-        case .zone4: 0.80...0.90
-        case .zone5: 0.90...1.00
-        }
-    }
 }

@@ -15,8 +15,4 @@ struct SnackPortion: Codable, Hashable, Identifiable, Sendable {
     func totalCarbs(for snack: Snack) -> Double {
         snack.carbs(forQuantity: quantity)
     }
-
-    func totalSodiumMg(for snack: Snack) -> Double {
-        snack.sodiumMg(forQuantity: quantity)
-    }
 }

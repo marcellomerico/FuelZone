@@ -40,6 +40,17 @@
                ReferencedContainer = "container:NutritionApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AD1ECA182FBE4BBA00FC0C7A"
+               BuildableName = "NutritionAppUITests.xctest"
+               BlueprintName = "NutritionAppUITests"
+               ReferencedContainer = "container:NutritionApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

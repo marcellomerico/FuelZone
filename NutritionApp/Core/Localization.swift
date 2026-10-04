@@ -4,9 +4,16 @@ import SwiftUI
 /// Resolves `Localizable.strings` for the app language chosen in Settings.
 enum L10n {
     private(set) static var bundle: Bundle = .main
+    /// Locale matching the in-app language (numbers and dates in formatted strings).
+    private(set) static var locale: Locale = .current
 
     static func updateBundle(for language: AppLanguage) {
         bundle = bundle(for: language)
+        switch language {
+        case .system: locale = .current
+        case .english: locale = Locale(identifier: "en")
+        case .german: locale = Locale(identifier: "de")
+        }
     }
 
     static func bundle(for language: AppLanguage) -> Bundle {
@@ -31,7 +38,7 @@ enum L10n {
     }
 
     static func format(_ key: String, _ arguments: CVarArg...) -> String {
-        String(format: string(key), locale: Locale.current, arguments: arguments)
+        String(format: string(key), locale: locale, arguments: arguments)
     }
 }
 

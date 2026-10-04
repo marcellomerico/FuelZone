@@ -1,0 +1,4 @@
+"CFBundleDisplayName" = "FuelZone";
+"NSCameraUsageDescription" = "FuelZone uses the camera to scan product barcodes for your own snacks.";
+"NSLocationWhenInUseUsageDescription" = "FuelZone uses your approximate location once to fetch the current weather for fluid and sodium targets. The location is not stored.";
+"NSPhotoLibraryUsageDescription" = "FuelZone lets you add a photo to your own snacks.";

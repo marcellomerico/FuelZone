@@ -44,7 +44,8 @@ final class SubscriptionManager: ObservableObject {
         Task { await refreshEntitlements() }
     }
 
-    deinit {
+    // Nonisolated: see UserDataStore (isolated-deinit back-deployment crash on iOS < 26).
+    nonisolated deinit {
         updatesTask?.cancel()
     }
 
@@ -127,10 +128,13 @@ final class SubscriptionManager: ObservableObject {
             let result = try await product.purchase()
             switch result {
             case .success(let verification):
-                if case .verified(let transaction) = verification {
+                switch verification {
+                case .verified(let transaction):
                     await transaction.finish()
                     await refreshEntitlements()
                     statusMessage = String(localized: "storekit.purchase.success")
+                case .unverified:
+                    statusMessage = String(localized: "storekit.error.unverified")
                 }
             case .userCancelled:
                 break

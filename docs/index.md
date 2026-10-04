@@ -1,6 +1,11 @@
+---
+title: FuelZone
+---
+
 # FuelZone
 
-Landing page for GitHub Pages. Enable **Settings → Pages → /docs** on the `main` branch.
+**Versorgung, die zu deiner Einheit passt.** · *Fuel that fits your session.*
 
-- [Datenschutz / Privacy](legal/privacy.md)
-- [Nutzungsbedingungen / Terms](legal/terms.md)
+- [Datenschutz / Privacy](privacy/)
+- [Nutzungsbedingungen / Terms of Use](terms/)
+- Support: [support@fuelzone.app](mailto:support@fuelzone.app)

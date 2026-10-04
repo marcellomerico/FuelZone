@@ -19,7 +19,8 @@ struct FuelingCalculatorInput: Sendable {
 /// Pure fueling math — no SwiftUI dependencies.
 enum FuelingCalculator {
     static func calculate(_ input: FuelingCalculatorInput) throws -> FuelingResult {
-        guard let durationMinutes = input.setup.resolvedDurationMinutes(), durationMinutes > 0 else {
+        guard let durationMinutes = input.setup.resolvedDurationMinutes(),
+              AppConstants.sessionMinutesRange.contains(durationMinutes) else {
             throw FuelingCalculatorError.invalidDuration
         }
 
@@ -30,7 +31,10 @@ enum FuelingCalculator {
 
         var warningKeys: [String] = []
 
-        let rawCarbsPerHour = carbsPerHour(setup: input.setup, durationMinutes: durationMinutes)
+        var rawCarbsPerHour = carbsPerHour(setup: input.setup, durationMinutes: durationMinutes)
+        if durationMinutes >= ExerciseCarbGuidelines.mediumSessionUpperMinutes {
+            rawCarbsPerHour *= input.profile.stomachSensitivity.longSessionBoost
+        }
 
         let (carbsPerHour, stomachCapped) = applyStomachCap(
             rawCarbsPerHour: rawCarbsPerHour,
@@ -62,11 +66,11 @@ enum FuelingCalculator {
             .centered(value: carbsPerHour * hours, spreadFraction: AppConstants.carbRangeSpread)
             .rounded(toPlaces: 0)
 
-        let fluidsPerHour = fluidsPerHourMl(
-            sweatRate: input.profile.sweatRate,
-            temperature: input.setup.temperature,
-            conditions: input.setup.conditions
-        )
+        let fluid = FluidGuidelines.estimate(profile: input.profile, setup: input.setup, durationMinutes: durationMinutes)
+        let fluidsPerHour = fluid.mlPerHour
+        if fluid.wasCapped {
+            warningKeys.append("warning.fluid_cap")
+        }
         let fluidsRange = NutritionRange
             .centered(value: Double(fluidsPerHour), spreadFraction: AppConstants.fluidRangeSpread)
             .rounded(toPlaces: 0)
@@ -85,9 +89,11 @@ enum FuelingCalculator {
             fluidsPerHour: fluidsPerHour
         )
 
-        if !input.availableSnacks.isEmpty {
+        if durationMinutes >= AppConstants.minimumFuelingSessionMinutes {
             SnackComposer.compose(steps: &timeline, availableSnacks: input.availableSnacks)
         }
+        let usedIDs = Set(timeline.flatMap(\.portions).map(\.snackID))
+        let usedSnacks = input.availableSnacks.filter { usedIDs.contains($0.id) }
 
         return FuelingResult(
             sessionDurationMinutes: durationMinutes,
@@ -98,7 +104,8 @@ enum FuelingCalculator {
             sodiumPerHourMg: sodiumRange,
             totalSodiumMg: totalSodium,
             timeline: timeline,
-            warningKeys: warningKeys
+            warningKeys: warningKeys,
+            usedSnacks: usedSnacks
         )
     }
 
@@ -131,19 +138,6 @@ enum FuelingCalculator {
             return (ceiling, true)
         }
         return (rawCarbsPerHour, false)
-    }
-
-    // MARK: - Fluids & sodium
-
-    private static func fluidsPerHourMl(
-        sweatRate: SweatRate,
-        temperature: TemperatureLevel,
-        conditions: WeatherCondition
-    ) -> Int {
-        let value = Double(sweatRate.baselineMlPerHour)
-            * temperature.fluidMultiplier
-            * conditions.fluidMultiplier
-        return Int(value.rounded())
     }
 
     // MARK: - Timeline

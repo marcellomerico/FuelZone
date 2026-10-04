@@ -5,15 +5,11 @@
 	<key>CFBundleDisplayName</key>
 	<string>FuelZone</string>
 	<key>NSCameraUsageDescription</key>
-	<string>FuelZone needs camera access to scan product barcodes for custom snacks.</string>
+	<string>FuelZone uses the camera to scan product barcodes for your own snacks.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>FuelZone uses your location to fetch local weather for fluid and sodium calculations.</string>
+	<string>FuelZone uses your approximate location once to fetch the current weather for fluid and sodium targets. The location is not stored.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>FuelZone can attach photos to your custom snacks.</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
+	<string>FuelZone lets you add a photo to your own snacks.</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

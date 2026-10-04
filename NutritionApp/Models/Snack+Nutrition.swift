@@ -3,22 +3,26 @@ import Foundation
 extension Snack {
     /// Grams represented by one “unit” when `nutritionBasis` is `.per100g`.
     var effectivePortionGrams: Double {
-        switch nutritionBasis {
-        case .per100g:
-            defaultPortionGrams ?? inferredPortionGramsFromUnit ?? 100
-        case .perServing:
-            defaultPortionGrams ?? inferredPortionGramsFromUnit ?? 100
-        }
+        defaultPortionGrams ?? Self.millilitersByUnitKey[unitKey] ?? 100
     }
 
     /// Carbs for one default portion (one unit × `defaultServingSize`).
     var carbsPerDefaultPortion: Double {
-        carbs(forQuantity: defaultServingSize)
+        carbs(forQuantity: 1)
     }
 
     /// Sodium (mg) for one default portion.
     var sodiumMgPerDefaultPortion: Double {
-        sodiumMg(forQuantity: defaultServingSize)
+        sodiumMg(forQuantity: 1)
+    }
+
+    /// Fluid volume (ml) of one default portion; `nil` for anything that is not a drink.
+    /// Drinks are assumed to weigh ≈ 1 g per ml.
+    var fluidMlPerDefaultPortion: Double? {
+        guard category == .drink else { return nil }
+        let ml = Self.millilitersByUnitKey[unitKey] ?? defaultPortionGrams
+        guard let ml, ml > 0 else { return nil }
+        return ml * defaultServingSize
     }
 
     func carbs(forQuantity quantity: Double) -> Double {
@@ -27,8 +31,7 @@ extension Snack {
         case .perServing:
             return carbsPerServing * defaultServingSize * amount
         case .per100g:
-            let grams = effectivePortionGrams * amount
-            return carbsPerServing * grams / 100
+            return carbsPerServing * effectivePortionGrams * amount / 100
         }
     }
 
@@ -38,45 +41,17 @@ extension Snack {
         case .perServing:
             return sodiumMgPerServing * defaultServingSize * amount
         case .per100g:
-            let grams = effectivePortionGrams * amount
-            return sodiumMgPerServing * grams / 100
+            return sodiumMgPerServing * effectivePortionGrams * amount / 100
         }
     }
 
-    /// Human-readable nutrition line for lists (includes basis).
-    var nutritionSummaryLine: String {
-        switch nutritionBasis {
-        case .per100g:
-            let portionCarbs = Int(carbsPerDefaultPortion.rounded())
-            let portionSodium = Int(sodiumMgPerDefaultPortion.rounded())
-            return L10n.format(
-                "snack.nutrition.summary.per100g",
-                String(format: "%.1f", carbsPerServing),
-                String(format: "%.1f", sodiumMgPerServing),
-                "\(Int(effectivePortionGrams))",
-                "\(portionCarbs)",
-                "\(portionSodium)"
-            )
-        case .perServing:
-            return L10n.format(
-                "snack.nutrition.summary.perServing",
-                "\(Int(carbsPerDefaultPortion.rounded()))",
-                "\(Int(sodiumMgPerDefaultPortion.rounded()))",
-                localizedUnit
-            )
-        }
+    func fluidMl(forQuantity quantity: Double) -> Double {
+        (fluidMlPerDefaultPortion ?? 0) * max(quantity, 0)
     }
 
-    private var inferredPortionGramsFromUnit: Double? {
-        switch unitKey {
-        case "unit.ml500": 500
-        case "unit.ml330": 330
-        case "unit.ml250": 250
-        case "unit.gel", "unit.bar", "unit.waffle", "unit.tablet", "unit.capsule", "unit.pack",
-             "unit.slice", "unit.scoop", "unit.piece", "unit.handful", "unit.tbsp":
-            nil
-        default:
-            nil
-        }
-    }
+    private static let millilitersByUnitKey: [String: Double] = [
+        "unit.ml500": 500,
+        "unit.ml330": 330,
+        "unit.ml250": 250,
+    ]
 }

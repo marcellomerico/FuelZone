@@ -16,15 +16,6 @@ enum ExerciseCarbGuidelines {
         case short
         case medium
         case long
-
-        var localizationKey: String {
-            switch self {
-            case .underMinimum: "methodology.tier.underMinimum"
-            case .short: "methodology.tier.short"
-            case .medium: "methodology.tier.medium"
-            case .long: "methodology.tier.long"
-            }
-        }
     }
 
     static func durationTier(for minutes: Int) -> DurationTier {

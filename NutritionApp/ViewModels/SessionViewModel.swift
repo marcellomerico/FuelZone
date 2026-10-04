@@ -4,20 +4,39 @@ import Foundation
 
 @MainActor
 final class SessionViewModel: ObservableObject {
-    @Published var setup = SessionSetup()
-    @Published var isCalculating = false
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
+    /// Any change to the setup clears a previous validation error (it may no longer apply).
+    @Published var setup = SessionSetup() {
+        didSet {
+            if errorMessage != nil, oldValue != setup { errorMessage = nil }
+        }
+    }
     @Published var errorMessage: String?
     @Published var showProPaywall = false
     @Published var isFetchingWeather = false
     @Published var weatherStatusMessage: String?
-    @Published private(set) var zoneThresholds: HeartRateZoneThresholds?
+    /// Temperature of the last weather lookup, shown in the conditions row.
+    @Published private(set) var weatherCelsius: Double?
     @Published private(set) var lastResult: FuelingResult?
 
+    let store: UserDataStore
+    var isProProvider: () -> Bool = { false }
     private let locationAccess = LocationAccessService()
-    private var profile = UserProfile()
-    private var settings = AppSettings()
-    private weak var snackViewModel: SnackViewModel?
-    private weak var resultsViewModel: ResultsViewModel?
+
+    init(store: UserDataStore) {
+        self.store = store
+        setup.sport = store.profile.primarySport
+    }
+
+    var profile: UserProfile { store.profile }
+
+    var zoneThresholds: HeartRateZoneThresholds? {
+        profile.zoneThresholds
+            ?? profile.maxHeartRate.flatMap { HeartRateZoneCalculator.thresholds(maxHeartRate: $0) }
+    }
 
     var resolvedSessionMinutes: Int? { setup.resolvedDurationMinutes() }
 
@@ -28,47 +47,27 @@ final class SessionViewModel: ObservableObject {
         return setup.zoneDistribution.isValid(sessionDurationMinutes: minutes)
     }
 
-    func configure(
-        profile: UserProfile,
-        settings: AppSettings,
-        snacks: SnackViewModel,
-        results: ResultsViewModel? = nil
-    ) {
-        self.profile = profile
-        self.settings = settings
-        snackViewModel = snacks
-        resultsViewModel = results
-        setup.sport = profile.primarySport
-        zoneThresholds = profile.zoneThresholds
-            ?? profile.maxHeartRate.flatMap { HeartRateZoneCalculator.thresholds(maxHeartRate: $0) }
+    var canUseZoneMode: Bool { isProProvider() }
+
+    /// Manual temperature/condition changes invalidate the fetched weather.
+    func setManualConditions(temperature: TemperatureLevel? = nil, conditions: WeatherCondition? = nil) {
+        if let temperature { setup.temperature = temperature }
+        if let conditions { setup.conditions = conditions }
+        weatherCelsius = nil
+        setup.weatherLocationName = nil
     }
 
-    func bind(results: ResultsViewModel) {
-        resultsViewModel = results
-    }
-
-    func updateProfile(_ profile: UserProfile) {
-        self.profile = profile
-        zoneThresholds = profile.zoneThresholds
-            ?? profile.maxHeartRate.flatMap { HeartRateZoneCalculator.thresholds(maxHeartRate: $0) }
-    }
-
-    func exportedProfile() -> UserProfile { profile }
-    func updateSettings(_ settings: AppSettings) { self.settings = settings }
-
-    var canUseZoneMode: Bool {
-        settings.hasAccess(to: .zoneBasedIntensity)
-    }
-
-    func selectIntensityMode(_ mode: IntensityMode) {
-        if mode == .zoneBased, !canUseZoneMode {
-            showProPaywall = true
-            return
+    /// Hourly carb preview for a given simple intensity (shown on the intensity tiles).
+    func previewCarbs(for intensity: SimpleIntensity) -> Int? {
+        var copy = setup
+        copy.intensityMode = .simple
+        copy.simpleIntensity = intensity
+        guard let result = try? FuelingCalculator.calculate(FuelingCalculatorInput(profile: profile, setup: copy)) else {
+            return nil
         }
-        setup.intensityMode = mode
+        return Int(result.carbsPerHour.midpoint.rounded())
     }
 
-    /// Keeps zone minutes aligned when the user changes session duration.
     func applyWeather(fromLocationName name: String) async {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
@@ -99,10 +98,9 @@ final class SessionViewModel: ObservableObject {
             let coordinate = try await coordinateProvider()
             let snapshot = try await WeatherService.fetchCurrent(at: coordinate, locationLabel: locationLabel)
             setup.weatherLocationName = snapshot.locationLabel
-            setup.weatherLatitude = coordinate.latitude
-            setup.weatherLongitude = coordinate.longitude
             setup.temperature = WeatherService.mapToTemperature(snapshot)
             setup.conditions = WeatherService.mapToConditions(snapshot)
+            weatherCelsius = snapshot.temperatureCelsius
             weatherStatusMessage = L10n.format(
                 "session.weather.applied",
                 String(format: "%.0f", snapshot.temperatureCelsius),
@@ -116,6 +114,7 @@ final class SessionViewModel: ObservableObject {
         }
     }
 
+    /// Keeps zone minutes aligned when the user changes session duration.
     func syncZoneDistributionToSessionDuration() {
         guard setup.intensityMode == .zoneBased,
               let total = setup.resolvedDurationMinutes(), total > 0 else { return }
@@ -124,61 +123,76 @@ final class SessionViewModel: ObservableObject {
         setup.zoneDistribution = setup.zoneDistribution.scaled(toSessionMinutes: total)
     }
 
-    func calculatePlan() {
+    /// Calculates the plan for the current setup. Returns `nil` (and sets `errorMessage`) when the input is invalid.
+    @discardableResult
+    func calculatePlan() -> FuelingResult? {
         errorMessage = nil
-        isCalculating = true
-        defer { isCalculating = false }
+        lastResult = nil
 
         if setup.intensityMode == .zoneBased, !canUseZoneMode {
             showProPaywall = true
-            return
+            return nil
         }
 
         if let validationError = validateSetupInput() {
             errorMessage = validationError
-            return
+            return nil
         }
 
         if setup.intensityMode == .zoneBased, !isZoneDistributionValid {
             errorMessage = String(localized: "error.invalidZoneDistribution")
-            return
+            return nil
         }
 
-        let snacks = snackViewModel?.enabledSnacks() ?? []
         do {
             let result = try FuelingCalculator.calculate(
-                FuelingCalculatorInput(
-                    profile: profile,
-                    setup: setup,
-                    availableSnacks: snacks
-                )
+                FuelingCalculatorInput(profile: profile, setup: setup, availableSnacks: store.kitSnacks)
             )
             lastResult = result
-            resultsViewModel?.setResult(result, setup: setup, profile: profile)
+            return result
         } catch let error as FuelingCalculatorError {
             errorMessage = error.localizedMessage
         } catch {
             errorMessage = String(localized: "error.invalidDuration")
         }
+        return nil
+    }
+
+    /// Calculates the plan and saves it to the history. Returns the saved session for navigation.
+    func createPlan() -> SessionRecord? {
+        guard let result = calculatePlan() else { return nil }
+        return store.addSession(setup: setup, result: result)
+    }
+
+    /// Loads a saved session's setup to plan it again.
+    func reuse(_ record: SessionRecord) {
+        var copy = record.setup
+        copy.id = UUID()
+        copy.createdAt = .now
+        if copy.intensityMode == .zoneBased, !canUseZoneMode {
+            copy.intensityMode = .simple
+        }
+        setup = copy
     }
 
     private func validateSetupInput() -> String? {
         switch setup.durationInputMode {
         case .duration:
-            guard let minutes = setup.durationMinutes, minutes > 0 else {
-                return String(localized: "error.invalidDuration")
-            }
+            break
         case .distanceAndPace:
-            guard let km = setup.distanceKm, km > 0,
-                  let pace = setup.paceMinutesPerKm, pace > 0,
-                  setup.resolvedDurationMinutes() != nil else {
+            guard let km = setup.distanceKm, InputParsing.distanceKmRange.contains(km),
+                  let pace = setup.paceMinutesPerKm, InputParsing.paceMinutesPerKmRange.contains(pace) else {
                 return String(localized: "error.invalidDuration")
             }
         case .distanceAndTime:
-            guard let km = setup.distanceKm, km > 0,
-                  let minutes = setup.durationMinutes, minutes > 0 else {
+            guard let km = setup.distanceKm, InputParsing.distanceKmRange.contains(km),
+                  setup.durationMinutes != nil else {
                 return String(localized: "error.distanceTimeIncomplete")
             }
+        }
+        guard let minutes = setup.resolvedDurationMinutes(),
+              AppConstants.sessionMinutesRange.contains(minutes) else {
+            return String(localized: "error.invalidDuration")
         }
         return nil
     }

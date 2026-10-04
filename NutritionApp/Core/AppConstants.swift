@@ -1,9 +1,6 @@
 import Foundation
 
 enum AppConstants {
-    static let appName = "FuelZone"
-    static let defaultTaglineKey = "onboarding.tagline"
-
     /// Timeline steps are generated every N minutes.
     static let timelineStepMinutes = 20
 
@@ -13,12 +10,15 @@ enum AppConstants {
     /// Minimum session length (minutes) that triggers fueling recommendations.
     static let minimumFuelingSessionMinutes = 30
 
+    /// Accepted session length range (minutes) for planning.
+    static let sessionMinutesRange = 10...1440
+
     /// Range spread applied to hourly carb recommendations (± fraction).
     static let carbRangeSpread = 0.08
 
     static let fluidRangeSpread = 0.1
     static let sodiumRangeSpread = 0.1
 
-    /// Free tier: number of history sessions kept locally / in iCloud.
+    /// Free tier: number of history sessions shown (older ones stay stored).
     static let freeHistorySessionLimit = 10
 }

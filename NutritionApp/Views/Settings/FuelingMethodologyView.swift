@@ -1,146 +1,122 @@
 import SwiftUI
 
+/// Science & methodology: how the plan is built, with sources.
 struct FuelingMethodologyView: View {
     var body: some View {
-        FuelZoneScreenScroll {
-            heroSection
-            whySection
-            howSection
-            tiersSection
-            adjustmentsSection
-            fluidsSection
-            referencesSection
-            disclaimerSection
-        }
-        .navigationTitle(Text(localized: "methodology.title"))
-        .navigationBarTitleDisplayMode(.large)
-    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.section) {
+                Text(localized: "methodology.hero.subtitle")
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
 
-    private var heroSection: some View {
-        FuelZoneHeroBlock(
-            systemImage: "book.closed.fill",
-            subtitleKey: "methodology.hero.subtitle"
-        )
-    }
+                textCard(titleKey: "methodology.why.title", bodyKey: "methodology.why.body")
 
-    private var whySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            FuelZoneSectionHeader(
-                titleKey: "methodology.why.title",
-                systemImage: "questionmark.circle"
-            )
-            Text(localized: "methodology.why.body")
-                .font(DesignSystem.Typography.bodySecondary)
-                .foregroundStyle(DesignSystem.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .fuelZoneCard()
-    }
-
-    private var howSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            FuelZoneSectionHeader(
-                titleKey: "methodology.how.title",
-                subtitleKey: "methodology.how.subtitle",
-                systemImage: "list.number"
-            )
-            FuelZoneNumberedStep(number: 1, titleKey: "methodology.step1.title", bodyKey: "methodology.step1.body")
-            FuelZoneNumberedStep(number: 2, titleKey: "methodology.step2.title", bodyKey: "methodology.step2.body")
-            FuelZoneNumberedStep(number: 3, titleKey: "methodology.step3.title", bodyKey: "methodology.step3.body")
-            FuelZoneNumberedStep(number: 4, titleKey: "methodology.step4.title", bodyKey: "methodology.step4.body")
-        }
-        .fuelZoneCard()
-    }
-
-    private var tiersSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            FuelZoneSectionHeader(
-                titleKey: "methodology.tiers.title",
-                subtitleKey: "methodology.tiers.subtitle",
-                systemImage: "clock"
-            )
-            FuelZoneDurationTierCard(
-                durationKey: "methodology.tier.short.duration",
-                amountKey: "methodology.tier.short.amount",
-                tipKey: "methodology.tier.short.tip",
-                icon: "hare"
-            )
-            FuelZoneDurationTierCard(
-                durationKey: "methodology.tier.medium.duration",
-                amountKey: "methodology.tier.medium.amount",
-                tipKey: "methodology.tier.medium.tip",
-                icon: "figure.run"
-            )
-            FuelZoneDurationTierCard(
-                durationKey: "methodology.tier.long.duration",
-                amountKey: "methodology.tier.long.amount",
-                tipKey: "methodology.tier.long.tip",
-                icon: "mountain.2"
-            )
-        }
-    }
-
-    private var adjustmentsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            FuelZoneSectionHeader(
-                titleKey: "methodology.adjustments.title",
-                systemImage: "slider.horizontal.3"
-            )
-            FuelZoneBulletRow(textKey: "methodology.adjustment.intensity.body", systemImage: "heart.fill")
-            FuelZoneBulletRow(textKey: "methodology.adjustment.stomach.body", systemImage: "leaf.fill")
-        }
-        .fuelZoneCard()
-    }
-
-    private var fluidsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            FuelZoneSectionHeader(
-                titleKey: "methodology.fluids.title",
-                systemImage: "drop.fill"
-            )
-            Text(localized: "methodology.fluids.body")
-                .font(DesignSystem.Typography.bodySecondary)
-                .foregroundStyle(DesignSystem.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .fuelZoneCard()
-    }
-
-    private var referencesSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            FuelZoneSectionHeader(
-                titleKey: "methodology.sources.title",
-                subtitleKey: "methodology.sources.subtitle",
-                systemImage: "doc.text"
-            )
-            ForEach(MethodologyReference.all) { reference in
-                referenceCard(reference)
-            }
-        }
-    }
-
-    private func referenceCard(_ reference: MethodologyReference) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(localized: reference.titleKey)
-                .font(DesignSystem.Typography.cardTitle)
-            Text(localized: reference.citationKey)
-                .font(DesignSystem.Typography.caption)
-                .foregroundStyle(DesignSystem.textSecondary)
-            Link(destination: reference.url) {
-                Label {
-                    Text(localized: "methodology.sources.open")
-                } icon: {
-                    Image(systemName: "arrow.up.right")
+                VStack(alignment: .leading, spacing: 14) {
+                    Text(localized: "methodology.how.title").font(Theme.Typography.sectionTitle)
+                    ForEach(1...4, id: \.self) { number in
+                        HStack(alignment: .top, spacing: 14) {
+                            Text("\(number)")
+                                .font(.headline.weight(.heavy).width(.compressed))
+                                .foregroundStyle(Theme.Colors.onInk)
+                                .frame(width: 32, height: 32)
+                                .background(Circle().fill(Theme.Colors.ink))
+                                .accessibilityHidden(true)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(localized: "methodology.step\(number).title").font(Theme.Typography.bodyEmphasis)
+                                Text(localized: "methodology.step\(number).body")
+                                    .font(Theme.Typography.subheadline)
+                                    .foregroundStyle(Theme.Colors.ink2)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                    }
                 }
-                .font(DesignSystem.Typography.caption.weight(.medium))
+                .fzCard()
+
+                FZSectionHeader(title: L10n.string("methodology.tiers.title"), trailing: nil)
+                    .padding(.top, 6)
+                tierCard(durationKey: "methodology.tier.short.duration", amount: 30, tipKey: "methodology.tier.short.tip")
+                tierCard(durationKey: "methodology.tier.medium.duration", amount: 60, tipKey: "methodology.tier.medium.tip")
+                tierCard(durationKey: "methodology.tier.long.duration", amount: 90, tipKey: "methodology.tier.long.tip")
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(localized: "methodology.adjustments.title").font(Theme.Typography.sectionTitle)
+                    bullet("methodology.adjustment.intensity.body")
+                    bullet("methodology.adjustment.stomach.body")
+                }
+                .fzCard()
+
+                textCard(titleKey: "methodology.fluids.title", bodyKey: "methodology.fluids.body")
+
+                FZSectionHeader(title: L10n.string("methodology.sources.title"), trailing: nil)
+                    .padding(.top, 6)
+                ForEach(MethodologyReference.all) { reference in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(localized: reference.titleKey).font(Theme.Typography.bodyEmphasis)
+                        Text(localized: reference.citationKey)
+                            .font(Theme.Typography.footnote)
+                            .foregroundStyle(Theme.Colors.ink2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Link(destination: reference.url) {
+                            Label { Text(localized: "methodology.sources.open") } icon: { Image(systemName: "arrow.up.right") }
+                                .font(Theme.Typography.subheadlineEmphasis)
+                                .foregroundStyle(Theme.Colors.accentText)
+                                .frame(minHeight: Theme.minTouch)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fzCard()
+                }
+
+                FZBanner(message: L10n.string("methodology.disclaimer"))
             }
+            .padding(Theme.Spacing.screen)
+        }
+        .fzScreenBackground()
+        .navigationTitle(Text(localized: "methodology.title"))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func textCard(titleKey: String, bodyKey: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localized: titleKey).font(Theme.Typography.sectionTitle)
+            Text(localized: bodyKey)
+                .font(Theme.Typography.body)
+                .foregroundStyle(Theme.Colors.ink2)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .fuelZoneCard()
+        .fzCard()
     }
 
-    private var disclaimerSection: some View {
-        FuelZoneInfoBanner(message: String(localized: "methodology.disclaimer"), style: .info)
+    private func tierCard(durationKey: String, amount: Int, tipKey: String) -> some View {
+        HStack(alignment: .center, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(localized: durationKey).font(Theme.Typography.bodyEmphasis)
+                Text(localized: tipKey)
+                    .font(Theme.Typography.footnote)
+                    .foregroundStyle(Theme.Colors.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 8)
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                MetricText("~\(amount)", size: 40, color: Theme.Nutrient.carbs.color, relativeTo: .title)
+                Text("g/h").font(Theme.Typography.caption.weight(.bold)).foregroundStyle(Theme.Nutrient.carbs.color)
+            }
+        }
+        .fzCard()
+        .accessibilityElement(children: .combine)
+    }
+
+    private func bullet(_ key: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Circle().fill(Theme.Colors.accentFill).frame(width: 7, height: 7).accessibilityHidden(true)
+            Text(localized: key)
+                .font(Theme.Typography.subheadline)
+                .foregroundStyle(Theme.Colors.ink)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 
@@ -180,6 +156,24 @@ private struct MethodologyReference: Identifiable {
             titleKey: "methodology.ref.issn.title",
             citationKey: "methodology.ref.issn.citation",
             url: URL(string: "https://pubmed.ncbi.nlm.nih.gov/28919842/")!
+        ),
+        MethodologyReference(
+            id: "sawka2007",
+            titleKey: "methodology.ref.sawka.title",
+            citationKey: "methodology.ref.sawka.citation",
+            url: URL(string: "https://pubmed.ncbi.nlm.nih.gov/17277604/")!
+        ),
+        MethodologyReference(
+            id: "gagnon2013",
+            titleKey: "methodology.ref.gagnon.title",
+            citationKey: "methodology.ref.gagnon.citation",
+            url: URL(string: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3690695/")!
+        ),
+        MethodologyReference(
+            id: "eah2015",
+            titleKey: "methodology.ref.eah.title",
+            citationKey: "methodology.ref.eah.citation",
+            url: URL(string: "https://bjsm.bmj.com/content/49/22/1432")!
         )
     ]
 }

@@ -188,14 +188,11 @@ final class FuelingCalculatorTests: XCTestCase {
             )
         )
 
-        for step in result.timeline {
-            let stepCarbs = step.portions.compactMap { portion -> Double? in
-                guard let snack = snacks.first(where: { $0.id == portion.snackID }) else { return nil }
-                return portion.totalCarbs(for: snack)
-            }.reduce(0, +)
-
-            XCTAssertGreaterThanOrEqual(stepCarbs, step.targetCarbsGrams * 0.7)
-        }
+        // The composer balances cumulative targets, so single stops may stay empty;
+        // the whole session must land close to the hourly target.
+        let summary = FuelPlanSummary(result: result)
+        XCTAssertGreaterThanOrEqual(summary.carbsPerHour, result.carbsPerHour.min * 0.8)
+        XCTAssertLessThanOrEqual(summary.carbsPerHour, result.carbsPerHour.max * 1.2)
     }
 
     func testSodiumDerivedFromFluidAndSaltiness() throws {
