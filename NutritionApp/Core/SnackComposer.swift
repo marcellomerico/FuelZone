@@ -14,7 +14,7 @@ enum SnackComposer {
     static let lastStopOvershootTolerance = 1.5
     static let sodiumOvershootTolerance = 1.05
     /// Share of a stop's carb target that may come from a carbohydrate drink; the rest comes from gels/solids.
-    static let drinkCarbShare = 0.6
+    static let drinkCarbShare = 0.8
     /// Fluid amounts are rounded to sip-friendly steps.
     static let fluidStepMl = 50.0
     /// Carbohydrates at or below this count as “no carbs” (electrolyte products).

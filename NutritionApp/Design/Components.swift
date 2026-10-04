@@ -120,6 +120,8 @@ struct FZSegmentedControl<Value: Hashable>: View {
                     HStack(spacing: 4) {
                         Text(option.title)
                             .font(isSelected ? Theme.Typography.caption.weight(.heavy) : Theme.Typography.caption)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                         if let badge = option.badge {
                             Text(badge)
                                 .font(.system(size: 9, weight: .heavy))

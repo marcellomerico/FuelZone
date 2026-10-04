@@ -1,57 +1,58 @@
 import SwiftUI
 
+/// Pick a replacement snack for one stop. Kit snacks come first.
 struct SnackSwapSheet: View {
     let snacks: [Snack]
+    let kitIDs: Set<UUID>
     let onSelect: (Snack) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
 
     private var filtered: [Snack] {
-        guard !searchText.isEmpty else { return snacks }
-        return snacks.filter {
-            $0.localizedName.localizedCaseInsensitiveContains(searchText)
-        }
+        let query = searchText.trimmingCharacters(in: .whitespaces)
+        guard !query.isEmpty else { return snacks }
+        return snacks.filter { $0.localizedName.localizedCaseInsensitiveContains(query) }
     }
 
     var body: some View {
         NavigationStack {
-            FuelZoneScreenScroll {
-                VStack(alignment: .leading, spacing: 0) {
-                    FuelZoneSectionHeader(
-                        titleKey: "snack.swap.title",
-                        subtitleKey: "snack.swap.subtitle",
-                        systemImage: "arrow.triangle.swap"
-                    )
-                    .padding(.bottom, 12)
-
-                    if filtered.isEmpty {
-                        Text(localized: "snack.swap.empty")
-                            .font(DesignSystem.Typography.bodySecondary)
-                            .foregroundStyle(DesignSystem.textSecondary)
-                    } else {
-                        ForEach(Array(filtered.enumerated()), id: \.element.id) { index, snack in
-                            Button {
-                                onSelect(snack)
-                                dismiss()
-                            } label: {
-                                FuelZoneSnackRow(snack: snack)
-                            }
-                            .buttonStyle(.plain)
-                            if index < filtered.count - 1 {
-                                FuelZoneCardDivider()
-                            }
-                        }
-                    }
+            List {
+                let kit = filtered.filter { kitIDs.contains($0.id) }
+                let others = filtered.filter { !kitIDs.contains($0.id) }
+                if !kit.isEmpty {
+                    Section { rows(kit) } header: { Text(localized: "snacks.kit") }
                 }
-                .fuelZoneCard()
+                if !others.isEmpty {
+                    Section { rows(others) } header: { Text(localized: "snacks.catalog") }
+                }
+                if filtered.isEmpty {
+                    Text(localized: "snack.swap.empty").foregroundStyle(Theme.Colors.ink2)
+                }
             }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .fzScreenBackground()
             .searchable(text: $searchText, prompt: Text(localized: "snack.swap.search"))
+            .navigationTitle(Text(localized: "snack.swap.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    FuelZoneTextButton(titleKey: "onboarding.button.back") { dismiss() }
+                    Button { dismiss() } label: { Text(localized: "common.cancel") }
                 }
             }
+        }
+    }
+
+    private func rows(_ items: [Snack]) -> some View {
+        ForEach(items) { snack in
+            Button {
+                onSelect(snack)
+                dismiss()
+            } label: {
+                SnackRow(snack: snack)
+            }
+            .buttonStyle(.plain)
+            .listRowBackground(Theme.Colors.surface)
         }
     }
 }

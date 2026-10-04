@@ -9,6 +9,8 @@ final class SessionViewModel: ObservableObject {
     @Published var showProPaywall = false
     @Published var isFetchingWeather = false
     @Published var weatherStatusMessage: String?
+    /// Temperature of the last weather lookup, shown in the conditions row.
+    @Published private(set) var weatherCelsius: Double?
     @Published private(set) var lastResult: FuelingResult?
 
     let store: UserDataStore
@@ -46,6 +48,27 @@ final class SessionViewModel: ObservableObject {
         setup.intensityMode = mode
     }
 
+    /// Manual temperature/condition changes invalidate the fetched weather.
+    func setManualConditions(temperature: TemperatureLevel? = nil, conditions: WeatherCondition? = nil) {
+        if let temperature { setup.temperature = temperature }
+        if let conditions { setup.conditions = conditions }
+        weatherCelsius = nil
+        setup.weatherLocationName = nil
+        setup.weatherLatitude = nil
+        setup.weatherLongitude = nil
+    }
+
+    /// Hourly carb preview for a given simple intensity (shown on the intensity tiles).
+    func previewCarbs(for intensity: SimpleIntensity) -> Int? {
+        var copy = setup
+        copy.intensityMode = .simple
+        copy.simpleIntensity = intensity
+        guard let result = try? FuelingCalculator.calculate(FuelingCalculatorInput(profile: profile, setup: copy)) else {
+            return nil
+        }
+        return Int(result.carbsPerHour.midpoint.rounded())
+    }
+
     func applyWeather(fromLocationName name: String) async {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
@@ -80,6 +103,7 @@ final class SessionViewModel: ObservableObject {
             setup.weatherLongitude = coordinate.longitude
             setup.temperature = WeatherService.mapToTemperature(snapshot)
             setup.conditions = WeatherService.mapToConditions(snapshot)
+            weatherCelsius = snapshot.temperatureCelsius
             weatherStatusMessage = L10n.format(
                 "session.weather.applied",
                 String(format: "%.0f", snapshot.temperatureCelsius),

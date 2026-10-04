@@ -1,21 +1,22 @@
 import XCTest
 
-/// Walks through every screen and attaches screenshots for the UI review.
-/// Appearance via env `UI_MODE` (`light` / `dark`), passed as `TEST_RUNNER_UI_MODE`.
+/// Walks through every screen and attaches screenshots for design reviews.
+/// Opt-in: set `TEST_RUNNER_UI_MODE=light|dark` (and optionally `TEST_RUNNER_UI_LANG=de|en`).
 final class UIReviewScreenshots: XCTestCase {
     private var app: XCUIApplication!
     private var mode = "light"
     private var counter = 0
 
     override func setUpWithError() throws {
-        // Screenshot tool for design reviews, not a regression test: runs only when UI_MODE is set.
         guard let requestedMode = ProcessInfo.processInfo.environment["UI_MODE"] else {
             throw XCTSkip("Set TEST_RUNNER_UI_MODE=light|dark to capture review screenshots.")
         }
         continueAfterFailure = true
         mode = requestedMode
+        let language = ProcessInfo.processInfo.environment["UI_LANG"] ?? "de"
         app = XCUIApplication()
-        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments += ["-AppleLanguages", "(\(language))", "-AppleLocale", language == "de" ? "de_DE" : "en_US"]
+        app.launchArguments += ["-FZForceAppearance", mode]
         app.launch()
     }
 
@@ -27,187 +28,131 @@ final class UIReviewScreenshots: XCTestCase {
         add(attachment)
     }
 
-    private func shotScrolling(_ name: String, pages: Int = 4) {
+    private func shotScrolling(_ name: String, pages: Int) {
         shot("\(name)_1")
+        guard pages > 1 else { return }
         for page in 2...pages {
             app.swipeUp(velocity: .slow)
             shot("\(name)_\(page)")
         }
-        for _ in 1..<pages { app.swipeDown(velocity: .fast) }
     }
 
-    private func tapTab(_ title: String) {
-        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", title)).firstMatch.tap()
+    private func tab(_ index: Int) {
+        app.tabBars.buttons.element(boundBy: index).tap()
+        sleep(1)
     }
 
-    private func tapHittable(_ label: String) {
-        app.buttons.matching(identifier: label).allElementsBoundByIndex
-            .first(where: \.isHittable)?.tap()
-    }
-
-    private func scrollTo(_ element: XCUIElement, maxSwipes: Int = 10) {
-        var swipes = 0
-        while !element.isHittable && swipes < maxSwipes {
-            app.swipeUp()
-            swipes += 1
+    /// Closes the frontmost sheet via its close/done/cancel button.
+    private func closeSheet() {
+        app.swipeDown(velocity: .fast)
+        for label in ["Schließen", "Close", "Fertig", "Done", "Abbrechen", "Cancel"] {
+            let candidate = app.buttons[label]
+            if candidate.exists && candidate.isHittable {
+                candidate.tap()
+                sleep(1)
+                return
+            }
         }
-    }
-
-    private func back() {
-        let backButton = app.navigationBars.buttons.element(boundBy: 0)
-        if backButton.exists { backButton.tap() }
-    }
-
-    private func dismissSheet() {
         app.swipeDown(velocity: .fast)
         sleep(1)
     }
 
-    func testCaptureSettingsTopAndProScreens() {
-        tapTab("Settings")
-        tapHittable(mode == "dark" ? "Dark" : "Light")
-        sleep(1)
-        shot("pro_settings_top_1")
-        app.swipeUp(velocity: .slow)
-        shot("pro_settings_top_2")
-
-        // The debug toggle has no accessibility label; it is the only switch in Settings.
-        let proSwitch = app.switches.firstMatch
-        scrollTo(proSwitch)
-        if (proSwitch.value as? String) != "1" {
-            proSwitch.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
-        }
-        sleep(1)
-        print("[REVIEW] pro switch value: \(String(describing: proSwitch.value))")
-
-        tapTab("Plan")
-        tapHittable("Heart rate zones")
-        sleep(1)
-        shotScrolling("pro_plan_zones", pages: 4)
-        tapHittable("Simple")
-
-        tapTab("Snacks")
-        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Add custom snack")).firstMatch.tap()
-        sleep(1)
-        shotScrolling("pro_snack_editor", pages: 2)
-        dismissSheet()
-
-        tapTab("Settings")
-        for _ in 0..<8 { app.swipeDown(velocity: .fast) }
-        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Your profile")).firstMatch.tap()
-        sleep(1)
-        for _ in 0..<4 { app.swipeUp(velocity: .fast) }
-        shot("pro_profile_hr_1")
-        app.swipeUp(velocity: .slow)
-        shot("pro_profile_hr_2")
-        back()
-
-        tapTab("Settings")
-        scrollTo(proSwitch)
-        if (proSwitch.value as? String) == "1" {
-            proSwitch.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
-        }
+    private func button(containing texts: String...) -> XCUIElement {
+        let predicate = NSCompoundPredicate(orPredicateWithSubpredicates: texts.map { NSPredicate(format: "label CONTAINS[c] %@", $0) })
+        return app.buttons.matching(predicate).firstMatch
     }
 
     func testCaptureAllScreens() {
-        // Onboarding (fresh install)
-        let next = app.buttons["Continue"]
-        if next.waitForExistence(timeout: 3) {
-            var step = 1
-            shot("onboarding_step\(step)")
-            while next.exists {
-                next.tap()
-                step += 1
-                shot("onboarding_step\(step)")
+        let primary = app.buttons["onboarding.primary"]
+        if primary.waitForExistence(timeout: 4) {
+            for step in 1...4 {
+                shot("onboarding_\(step)")
+                primary.tap()
+                sleep(1)
             }
-            tapHittable("Get started")
         }
 
-        // Appearance
-        tapTab("Settings")
-        tapHittable(mode == "dark" ? "Dark" : "Light")
-        sleep(1)
+        tab(0)
+        shotScrolling("plan", pages: 2)
+        app.swipeDown(velocity: .fast)
 
-        // Make sure Pro is off for the free-tier screens
-        let proSwitch = app.switches["Debug: simulate Pro"]
-        func setPro(_ on: Bool) {
-            tapTab("Settings")
-            scrollTo(proSwitch)
-            guard proSwitch.exists else { return }
-            let isOn = (proSwitch.value as? String) == "1"
-            if isOn != on {
-                let inner = proSwitch.switches.firstMatch
-                if inner.exists { inner.tap() } else { proSwitch.tap() }
-            }
-            for _ in 0..<6 { app.swipeDown(velocity: .fast) }
-        }
-        setPro(false)
-        shotScrolling("settings", pages: 5)
-
-        // Plan (free)
-        tapTab("Plan")
-        shotScrolling("plan_free", pages: 4)
-
-        // Paywall via zone mode
-        tapHittable("Heart rate zones")
-        sleep(1)
-        shot("paywall")
-        app.swipeUp(velocity: .slow)
-        shot("paywall_expanded")
-        dismissSheet()
-        dismissSheet()
-
-        // Results
-        tapTab("Plan")
-        let calculate = app.buttons["Calculate plan"]
-        scrollTo(calculate)
-        calculate.tap()
-        sleep(1)
-        shotScrolling("results", pages: 6)
-        back()
-
-        // History
-        tapTab("History")
-        shot("history_list")
-        let firstRecord = app.scrollViews.buttons.firstMatch
-        if firstRecord.exists {
-            firstRecord.tap()
+        let conditions = button(containing: "Trocken", "Dry")
+        if conditions.exists {
+            conditions.tap()
             sleep(1)
-            shotScrolling("history_detail", pages: 4)
-            back()
+            shot("plan_conditions")
+            closeSheet()
         }
 
-        // Snacks (free)
-        tapTab("Snacks")
+        let zones = button(containing: "Zonen", "Zones")
+        if zones.exists {
+            zones.tap()
+            sleep(2)
+            shotScrolling("paywall", pages: 2)
+            closeSheet()
+        }
+
+        app.buttons["plan.create"].tap()
+        sleep(2)
+        shotScrolling("result", pages: 5)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        tab(1)
+        shot("history")
+
+        tab(2)
         shotScrolling("snacks", pages: 3)
 
-        // Pro screens
-        setPro(true)
-        tapTab("Plan")
-        tapHittable("Heart rate zones")
-        sleep(1)
-        shotScrolling("plan_zones", pages: 4)
-        tapHittable("Simple")
+        tab(3)
+        shotScrolling("settings", pages: 2)
 
-        tapTab("Snacks")
-        tapHittable("Add custom snack")
-        sleep(1)
-        shotScrolling("snack_editor", pages: 2)
-        dismissSheet()
+        let debugToggle = app.switches.firstMatch
+        if debugToggle.exists {
+            if (debugToggle.value as? String) != "1" {
+                debugToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            }
+            app.swipeDown(velocity: .fast)
+            let profile = button(containing: "Profil", "profile")
+            if profile.exists {
+                profile.tap()
+                sleep(1)
+                shotScrolling("profile_pro", pages: 3)
+                app.navigationBars.buttons.element(boundBy: 0).tap()
+            }
+            tab(0)
+            let zonesPro = button(containing: "Zonen", "Zones")
+            if zonesPro.exists {
+                zonesPro.tap()
+                sleep(1)
+                shotScrolling("plan_zones", pages: 2)
+                app.swipeDown(velocity: .fast)
+                button(containing: "Einfach", "Simple").tap()
+            }
+            tab(2)
+            button(containing: "eigenen Snack", "custom snack").tap()
+            let manual = button(containing: "Manuell", "manually")
+            if manual.waitForExistence(timeout: 2) {
+                manual.tap()
+                sleep(1)
+                shot("snack_editor")
+                closeSheet()
+            }
+            tab(3)
+            let toggleAgain = app.switches.firstMatch
+            var swipes = 0
+            while !toggleAgain.isHittable && swipes < 4 { app.swipeUp(); swipes += 1 }
+            if toggleAgain.exists, (toggleAgain.value as? String) == "1" {
+                toggleAgain.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            }
+        }
 
-        tapTab("Settings")
-        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Your profile")).firstMatch.tap()
-        sleep(1)
-        shotScrolling("profile", pages: 5)
-        back()
-
-        let methodology = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Science & methodology")).firstMatch
-        scrollTo(methodology)
-        methodology.tap()
-        sleep(1)
-        shotScrolling("methodology", pages: 5)
-        back()
-
-        setPro(false)
+        let methodology = button(containing: "Methodik", "methodology")
+        var swipes = 0
+        while !methodology.isHittable && swipes < 6 { app.swipeUp(); swipes += 1 }
+        if methodology.exists {
+            methodology.tap()
+            sleep(1)
+            shotScrolling("methodology", pages: 2)
+        }
     }
 }

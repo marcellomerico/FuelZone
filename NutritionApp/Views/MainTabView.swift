@@ -1,64 +1,44 @@
 import SwiftUI
 
+/// Native tab bar (Liquid Glass on iOS 26+). Each tab keeps its own navigation stack.
 struct MainTabView: View {
     @EnvironmentObject private var appState: AppState
     @State private var planPath: [UUID] = []
+    @State private var historyPath: [UUID] = []
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            ZStack {
-                planTab
-                    .opacity(appState.selectedTab == .plan ? 1 : 0)
-                    .allowsHitTesting(appState.selectedTab == .plan)
-                    .accessibilityHidden(appState.selectedTab != .plan)
-
-                historyTab
-                    .opacity(appState.selectedTab == .history ? 1 : 0)
-                    .allowsHitTesting(appState.selectedTab == .history)
-                    .accessibilityHidden(appState.selectedTab != .history)
-
-                snacksTab
-                    .opacity(appState.selectedTab == .snacks ? 1 : 0)
-                    .allowsHitTesting(appState.selectedTab == .snacks)
-                    .accessibilityHidden(appState.selectedTab != .snacks)
-
-                settingsTab
-                    .opacity(appState.selectedTab == .settings ? 1 : 0)
-                    .allowsHitTesting(appState.selectedTab == .settings)
-                    .accessibilityHidden(appState.selectedTab != .settings)
+        TabView(selection: $appState.selectedTab) {
+            NavigationStack(path: $planPath) {
+                PlanView(viewModel: appState.sessionViewModel) { recordID in
+                    planPath.append(recordID)
+                }
+                .navigationDestination(for: UUID.self) { PlanResultView(recordID: $0) }
             }
+            .tabItem { Label { Text(localized: "tab.plan") } icon: { Image(systemName: "flame") } }
+            .tag(AppTab.plan)
 
-            FuelZoneFloatingTabBar(selection: $appState.selectedTab)
-        }
-        .background(DesignSystem.appBackground)
-    }
-
-    private var planTab: some View {
-        NavigationStack(path: $planPath) {
-            SessionSetupView(viewModel: appState.sessionViewModel) { recordID in
-                planPath.append(recordID)
+            NavigationStack(path: $historyPath) {
+                HistoryView {
+                    planPath = []
+                    appState.selectedTab = .plan
+                }
+                .navigationDestination(for: UUID.self) { PlanResultView(recordID: $0) }
             }
-            .navigationDestination(for: UUID.self) { recordID in
-                PlanResultView(recordID: recordID)
+            .tabItem { Label { Text(localized: "tab.history") } icon: { Image(systemName: "clock") } }
+            .tag(AppTab.history)
+
+            NavigationStack {
+                SnacksView(viewModel: appState.snackViewModel)
             }
-        }
-    }
+            .tabItem { Label { Text(localized: "tab.snacks") } icon: { Image(systemName: "bag") } }
+            .tag(AppTab.snacks)
 
-    private var historyTab: some View {
-        NavigationStack {
-            HistoryView()
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem { Label { Text(localized: "tab.settings") } icon: { Image(systemName: "gearshape") } }
+            .tag(AppTab.settings)
         }
-    }
-
-    private var snacksTab: some View {
-        NavigationStack {
-            SnackLibraryView(viewModel: appState.snackViewModel)
-        }
-    }
-
-    private var settingsTab: some View {
-        NavigationStack {
-            SettingsView()
-        }
+        .tint(Theme.Colors.accentText)
     }
 }
