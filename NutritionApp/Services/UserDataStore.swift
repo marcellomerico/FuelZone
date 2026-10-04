@@ -40,7 +40,7 @@ final class UserDataStore: ObservableObject {
 
     init(
         files: FileStore = .applicationSupport(),
-        syncService: CloudSyncService? = CloudSyncService(),
+        syncService: CloudSyncService? = UserDataStore.defaultSyncService(),
         defaults: UserDefaults = .standard
     ) {
         self.files = files
@@ -69,6 +69,7 @@ final class UserDataStore: ObservableObject {
             }
             library = SnackLibrary(kitSnackIDs: Set(starter.map(\.id)))
         }
+        if syncService == nil { syncStatus = .unavailable }
     }
 
     // MARK: - Profile & settings
@@ -209,6 +210,16 @@ final class UserDataStore: ObservableObject {
     }
 
     // MARK: - iCloud sync
+
+    /// The "Personal" build (free Apple ID, no iCloud entitlement) runs without sync:
+    /// creating a CKContainer without the entitlement would crash at launch.
+    nonisolated static func defaultSyncService() -> CloudSyncService? {
+        #if NO_ICLOUD
+        return nil
+        #else
+        return CloudSyncService()
+        #endif
+    }
 
     func scheduleSync(after delay: Duration = .seconds(2)) {
         guard syncService != nil else { return }

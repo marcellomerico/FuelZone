@@ -55,7 +55,7 @@ final class AppState: ObservableObject {
             UserDefaults.standard.removeObject(forKey: Self.debugProKey)
             UserDefaults.standard.removeObject(forKey: Self.onboardingVersionKey)
         }
-        let store = store ?? UserDataStore(syncService: UserDefaults.standard.bool(forKey: "FZResetData") ? nil : CloudSyncService())
+        let store = store ?? UserDataStore(syncService: UserDefaults.standard.bool(forKey: "FZResetData") ? nil : UserDataStore.defaultSyncService())
         #else
         let store = store ?? UserDataStore()
         #endif
