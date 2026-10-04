@@ -5,7 +5,6 @@ import Foundation
 @MainActor
 final class SessionViewModel: ObservableObject {
     @Published var setup = SessionSetup()
-    @Published var isCalculating = false
     @Published var errorMessage: String?
     @Published var showProPaywall = false
     @Published var isFetchingWeather = false
@@ -53,7 +52,6 @@ final class SessionViewModel: ObservableObject {
             ?? profile.maxHeartRate.flatMap { HeartRateZoneCalculator.thresholds(maxHeartRate: $0) }
     }
 
-    func exportedProfile() -> UserProfile { profile }
     func updateSettings(_ settings: AppSettings) { self.settings = settings }
 
     var canUseZoneMode: Bool {
@@ -68,7 +66,6 @@ final class SessionViewModel: ObservableObject {
         setup.intensityMode = mode
     }
 
-    /// Keeps zone minutes aligned when the user changes session duration.
     func applyWeather(fromLocationName name: String) async {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
@@ -116,6 +113,7 @@ final class SessionViewModel: ObservableObject {
         }
     }
 
+    /// Keeps zone minutes aligned when the user changes session duration.
     func syncZoneDistributionToSessionDuration() {
         guard setup.intensityMode == .zoneBased,
               let total = setup.resolvedDurationMinutes(), total > 0 else { return }
@@ -124,61 +122,61 @@ final class SessionViewModel: ObservableObject {
         setup.zoneDistribution = setup.zoneDistribution.scaled(toSessionMinutes: total)
     }
 
-    func calculatePlan() {
+    /// Calculates the plan for the current setup. Returns `nil` (and sets `errorMessage`) when the input is invalid.
+    @discardableResult
+    func calculatePlan() -> FuelingResult? {
         errorMessage = nil
-        isCalculating = true
-        defer { isCalculating = false }
+        lastResult = nil
 
         if setup.intensityMode == .zoneBased, !canUseZoneMode {
             showProPaywall = true
-            return
+            return nil
         }
 
         if let validationError = validateSetupInput() {
             errorMessage = validationError
-            return
+            return nil
         }
 
         if setup.intensityMode == .zoneBased, !isZoneDistributionValid {
             errorMessage = String(localized: "error.invalidZoneDistribution")
-            return
+            return nil
         }
 
         let snacks = snackViewModel?.enabledSnacks() ?? []
         do {
             let result = try FuelingCalculator.calculate(
-                FuelingCalculatorInput(
-                    profile: profile,
-                    setup: setup,
-                    availableSnacks: snacks
-                )
+                FuelingCalculatorInput(profile: profile, setup: setup, availableSnacks: snacks)
             )
             lastResult = result
             resultsViewModel?.setResult(result, setup: setup, profile: profile)
+            return result
         } catch let error as FuelingCalculatorError {
             errorMessage = error.localizedMessage
         } catch {
             errorMessage = String(localized: "error.invalidDuration")
         }
+        return nil
     }
 
     private func validateSetupInput() -> String? {
         switch setup.durationInputMode {
         case .duration:
-            guard let minutes = setup.durationMinutes, minutes > 0 else {
-                return String(localized: "error.invalidDuration")
-            }
+            break
         case .distanceAndPace:
-            guard let km = setup.distanceKm, km > 0,
-                  let pace = setup.paceMinutesPerKm, pace > 0,
-                  setup.resolvedDurationMinutes() != nil else {
+            guard let km = setup.distanceKm, InputParsing.distanceKmRange.contains(km),
+                  let pace = setup.paceMinutesPerKm, InputParsing.paceMinutesPerKmRange.contains(pace) else {
                 return String(localized: "error.invalidDuration")
             }
         case .distanceAndTime:
-            guard let km = setup.distanceKm, km > 0,
-                  let minutes = setup.durationMinutes, minutes > 0 else {
+            guard let km = setup.distanceKm, InputParsing.distanceKmRange.contains(km),
+                  setup.durationMinutes != nil else {
                 return String(localized: "error.distanceTimeIncomplete")
             }
+        }
+        guard let minutes = setup.resolvedDurationMinutes(),
+              AppConstants.sessionMinutesRange.contains(minutes) else {
+            return String(localized: "error.invalidDuration")
         }
         return nil
     }

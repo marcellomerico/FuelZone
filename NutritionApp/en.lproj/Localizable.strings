@@ -269,7 +269,7 @@
 "methodology.tier.long.tip" = "Use a mix of glucose and fructose (about 2:1) so your gut can absorb more.";
 "methodology.adjustments.title" = "What else we adjust";
 "methodology.adjustment.intensity.body" = "Heart-rate zones: more minutes in easy zones → slightly lower carb target.";
-"methodology.adjustment.stomach.body" = "Stomach sensitivity: conservative setting limits carbs below 90 g/h for comfort.";
+"methodology.adjustment.stomach.body" = "Stomach sensitivity: conservative caps intake at about 77 g/h. Tolerant allows up to about 100 g/h in sessions of 2.5 h or more – only with a trained gut and glucose–fructose products.";
 "methodology.fluids.title" = "Fluids & sodium";
 "methodology.fluids.body" = "These use your sweat profile, temperature, and weather — separate from the carbohydrate research above.";
 "methodology.sources.title" = "Scientific sources";

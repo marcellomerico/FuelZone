@@ -270,7 +270,7 @@
 "methodology.tier.long.tip" = "Glucose + Fructose (ca. 2:1) — so kann der Körper mehr aufnehmen.";
 "methodology.adjustments.title" = "Weitere Anpassungen";
 "methodology.adjustment.intensity.body" = "HF-Zonen: mehr Minuten in leichten Zonen → etwas weniger Kohlenhydrate pro Stunde.";
-"methodology.adjustment.stomach.body" = "Magenempfindlichkeit: „konservativ“ begrenzt unter 90 g/h für bessere Verträglichkeit.";
+"methodology.adjustment.stomach.body" = "Magenempfindlichkeit: „konservativ“ begrenzt auf rund 77 g/h. „Verträglich“ erlaubt bei Einheiten ab 2,5 Std. bis zu rund 100 g/h – nur mit trainiertem Magen und Glukose-Fruktose-Produkten.";
 "methodology.fluids.title" = "Flüssigkeit & Natrium";
 "methodology.fluids.body" = "Basierend auf Schweißprofil, Temperatur und Wetter — getrennt von der Kohlenhydrat-Forschung oben.";
 "methodology.sources.title" = "Wissenschaftliche Quellen";

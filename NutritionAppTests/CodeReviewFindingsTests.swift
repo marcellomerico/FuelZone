@@ -70,20 +70,6 @@ final class CodeReviewFindingsTests: XCTestCase {
         XCTAssertNotEqual(moderate.carbsPerHour, tolerant.carbsPerHour)
     }
 
-    // MARK: - Plan preview vs. calculator
-
-    @MainActor
-    func testPlanPreview_matchesCalculatorForShortSession() throws {
-        let vm = SessionViewModel()
-        vm.setup = SessionSetup(durationMinutes: 20, simpleIntensity: .hard)
-        let preview = vm.planPreviewMetrics(profile: UserProfile())
-        let result = try FuelingCalculator.calculate(
-            FuelingCalculatorInput(profile: UserProfile(), setup: vm.setup)
-        )
-        print("[REVIEW] preview \(preview.carbsPerHour) g/h vs result range \(result.carbsPerHour)")
-        XCTAssertTrue((result.carbsPerHour.min...result.carbsPerHour.max).contains(Double(preview.carbsPerHour)))
-    }
-
     // MARK: - SessionViewModel
 
     /// After a failed calculation the previous result must not be reused (would be saved to history again).

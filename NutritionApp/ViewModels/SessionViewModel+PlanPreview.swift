@@ -1,42 +1,28 @@
 import Foundation
 
+/// Live numbers shown while the user edits a session (same math as the final plan).
+struct PlanPreview: Equatable, Sendable {
+    var carbsPerHour: Int
+    var fluidsPerHourMl: Int
+    var sodiumPerHourMg: Int
+}
+
 extension SessionViewModel {
-    /// Live preview metrics for the Plan screen (uses existing fueling guidelines).
-    func planPreviewMetrics(profile: UserProfile) -> (carbsPerHour: Int, gelCount: Int, sodiumPerHour: Int) {
-        let minutes = setup.resolvedDurationMinutes() ?? 90
-        let intensityScale: Double
-        if setup.intensityMode == .simple {
-            intensityScale = ExerciseCarbGuidelines.intensityScale(simpleIntensity: setup.simpleIntensity)
-        } else {
-            intensityScale = ExerciseCarbGuidelines.intensityScale(
-                zoneDistribution: setup.zoneDistribution,
-                sessionDurationMinutes: minutes
-            )
+    /// Preview metrics for the Plan screen, computed by `FuelingCalculator` itself; `nil` while the input is invalid.
+    func planPreview(profile: UserProfile) -> PlanPreview? {
+        var previewSetup = setup
+        if previewSetup.intensityMode == .zoneBased,
+           let minutes = previewSetup.resolvedDurationMinutes(),
+           !previewSetup.zoneDistribution.isValid(sessionDurationMinutes: minutes) {
+            previewSetup.zoneDistribution = previewSetup.zoneDistribution.scaled(toSessionMinutes: minutes)
         }
-
-        var carbsPerHour = ExerciseCarbGuidelines.recommendedCarbsPerHour(
-            durationMinutes: minutes,
-            intensityScale: intensityScale
-        )
-
-        let cap = AppConstants.maxCarbsPerHour * profile.stomachSensitivity.stomachCapMultiplier
-        if carbsPerHour > cap { carbsPerHour = cap }
-
-        let fluidsPerHour = Int(
-            (
-                Double(profile.sweatRate.baselineMlPerHour)
-                    * setup.temperature.fluidMultiplier
-                    * setup.conditions.fluidMultiplier
-            ).rounded()
-        )
-        let sodiumPerHour = Double(fluidsPerHour) / 1000.0 * Double(profile.sweatSaltiness.sodiumMgPerLiter)
-
-        let gelCount = carbsPerHour > 0 ? max(1, Int((carbsPerHour / 22.0).rounded())) : 0
-
-        return (
-            carbsPerHour: Int(carbsPerHour.rounded()),
-            gelCount: gelCount,
-            sodiumPerHour: Int(sodiumPerHour.rounded())
+        guard let result = try? FuelingCalculator.calculate(
+            FuelingCalculatorInput(profile: profile, setup: previewSetup)
+        ) else { return nil }
+        return PlanPreview(
+            carbsPerHour: Int(result.carbsPerHour.midpoint.rounded()),
+            fluidsPerHourMl: Int(result.fluidsPerHourMl.midpoint.rounded()),
+            sodiumPerHourMg: Int(result.sodiumPerHourMg.midpoint.rounded())
         )
     }
 }

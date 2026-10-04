@@ -13,6 +13,9 @@ enum AppConstants {
     /// Minimum session length (minutes) that triggers fueling recommendations.
     static let minimumFuelingSessionMinutes = 30
 
+    /// Accepted session length range (minutes) for planning.
+    static let sessionMinutesRange = 10...1440
+
     /// Range spread applied to hourly carb recommendations (± fraction).
     static let carbRangeSpread = 0.08
 

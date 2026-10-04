@@ -28,14 +28,15 @@ final class OnboardingViewModel: ObservableObject {
     func back() { stepIndex = max(stepIndex - 1, 0) }
 
     func buildProfile() -> UserProfile {
+        let trimmedName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         var profile = UserProfile(
-            displayName: displayName.isEmpty ? nil : displayName,
-            weightKg: Double(weightText.replacingOccurrences(of: ",", with: ".")),
+            displayName: trimmedName.isEmpty ? nil : trimmedName,
+            weightKg: InputParsing.weightKg(weightText),
             primarySport: primarySport,
             stomachSensitivity: stomachSensitivity,
             sweatRate: sweatRate,
             sweatSaltiness: sweatSaltiness,
-            maxHeartRate: Int(maxHeartRateText),
+            maxHeartRate: InputParsing.maxHeartRate(maxHeartRateText),
             hasCompletedOnboarding: true
         )
         profile.refreshZoneThresholdsFromMaxHR()

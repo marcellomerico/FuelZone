@@ -5,8 +5,8 @@ struct SessionSetupView: View {
     @ObservedObject var viewModel: SessionViewModel
     @Binding var showResults: Bool
 
-    private var preview: (carbsPerHour: Int, gelCount: Int, sodiumPerHour: Int) {
-        viewModel.planPreviewMetrics(profile: appState.profile)
+    private var preview: PlanPreview? {
+        viewModel.planPreview(profile: appState.profile)
     }
 
     var body: some View {
@@ -37,27 +37,23 @@ struct SessionSetupView: View {
 
     private var fuelPreviewCard: some View {
         FuelZonePlanPreviewCard(
-            carbsPerHour: preview.carbsPerHour,
-            gelCount: preview.gelCount,
-            sodiumPerHour: preview.sodiumPerHour,
-            isLoading: viewModel.isCalculating
+            carbsPerHour: preview?.carbsPerHour ?? 0,
+            gelCount: 0,
+            sodiumPerHour: preview?.sodiumPerHourMg ?? 0,
+            isLoading: false
         ) {
             startPlan()
         }
     }
 
     private func startPlan() {
-        viewModel.calculatePlan()
-        if viewModel.lastResult != nil {
-            appState.profile = viewModel.exportedProfile()
-            appState.saveProfile()
-            appState.historyViewModel.saveSession(
-                setup: viewModel.setup,
-                result: viewModel.lastResult!,
-                profile: appState.profile
-            )
-            showResults = true
-        }
+        guard let result = viewModel.calculatePlan() else { return }
+        appState.historyViewModel.saveSession(
+            setup: viewModel.setup,
+            result: result,
+            profile: appState.profile
+        )
+        showResults = true
     }
 
     private var sportSection: some View {

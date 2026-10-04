@@ -16,4 +16,13 @@ enum StomachSensitivity: String, Codable, CaseIterable, Identifiable {
         case .tolerant: 1.12
         }
     }
+
+    /// Extra intake for long sessions: a trained gut can absorb up to ~100 g/h with
+    /// multiple transportable carbohydrates (glucose + fructose).
+    var longSessionBoost: Double {
+        switch self {
+        case .conservative, .moderate: 1.0
+        case .tolerant: 1.1
+        }
+    }
 }
