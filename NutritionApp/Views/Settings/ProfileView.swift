@@ -14,19 +14,30 @@ struct ProfileView: View {
     }
 
     var body: some View {
-        FuelZoneScreenScroll {
-            aboutSection
-            sportSection
-            physiologySection
-            heartRateSection
-            if let profileError {
-                FuelZoneInfoBanner(message: profileError, style: .warning)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: DesignSystem.sectionSpacing) {
+                aboutSection
+                sportSection
+                physiologySection
+                heartRateSection
+                if let profileError {
+                    FuelZoneInfoBanner(message: profileError, style: .warning)
+                }
+                Button {
+                    saveProfile()
+                } label: {
+                    Text(localized: "profile.save")
+                }
+                .buttonStyle(PrimaryButtonStyle())
             }
-            Button { saveProfile() } label: {
-                Text(localized: "profile.save")
-            }
-            .buttonStyle(PrimaryButtonStyle())
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 100)
+            .fuelZoneScreenContent()
         }
+        .scrollBounceBehavior(.basedOnSize, axes: .vertical)
+        .background(DesignSystem.appBackground)
         .navigationTitle(Text(localized: "profile.title"))
         .navigationBarTitleDisplayMode(.large)
         .onAppear { loadFromProfile() }
@@ -41,7 +52,8 @@ struct ProfileView: View {
         displayName = p.displayName ?? ""
         weightText = p.weightKg.map { String(format: "%.1f", $0) } ?? ""
         maxHRText = p.maxHeartRate.map { "\($0)" } ?? ""
-        zoneThresholds = p.zoneThresholds
+        zoneThresholds =
+            p.zoneThresholds
             ?? p.maxHeartRate.map { HeartRateZoneThresholds.standard(maxHeartRate: $0) }
     }
 
@@ -52,7 +64,8 @@ struct ProfileView: View {
                 subtitleKey: "profile.about.subtitle",
                 systemImage: "person.fill"
             )
-            FuelZoneLabeledField(labelKey: "onboarding.profile.name", text: $displayName, keyboardType: .default)
+            FuelZoneLabeledField(
+                labelKey: "onboarding.profile.name", text: $displayName, keyboardType: .default)
             FuelZoneLabeledField(labelKey: "onboarding.profile.weight", text: $weightText)
         }
         .fuelZoneCard()
@@ -66,6 +79,7 @@ struct ProfileView: View {
                 systemImage: "sportscourt"
             )
             SportSelectionGrid(selection: $appState.profile.primarySport)
+                .frame(maxWidth: .infinity)
         }
         .fuelZoneCard()
     }
@@ -109,17 +123,23 @@ struct ProfileView: View {
             )
 
             if !canEditHeartRateZones {
-                FuelZoneInfoBanner(message: String(localized: "profile.hr.proRequired"), style: .info)
-                Button { showProPaywall = true } label: {
+                FuelZoneInfoBanner(
+                    message: String(localized: "profile.hr.proRequired"), style: .info)
+                Button {
+                    showProPaywall = true
+                } label: {
                     Text(localized: "profile.hr.unlockPro")
                 }
                 .buttonStyle(PrimaryButtonStyle())
             }
 
             if canEditHeartRateZones {
-                FuelZoneLabeledField(labelKey: "session.zone.maxHR", text: $maxHRText, keyboardType: .numberPad)
+                FuelZoneLabeledField(
+                    labelKey: "session.zone.maxHR", text: $maxHRText, keyboardType: .numberPad)
 
-                Button { applyStandardZonesFromMaxHR() } label: {
+                Button {
+                    applyStandardZonesFromMaxHR()
+                } label: {
                     Label {
                         Text(localized: "profile.hr.resetStandard")
                     } icon: {
@@ -129,14 +149,17 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(DesignSystem.accentSoft)
-                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.buttonCornerRadius, style: .continuous))
+                    .clipShape(
+                        RoundedRectangle(
+                            cornerRadius: DesignSystem.buttonCornerRadius, style: .continuous))
                 }
                 .buttonStyle(.plain)
 
                 if let thresholds = zoneThresholds {
                     zoneLimitsEditor(thresholds)
                 } else {
-                    FuelZoneInfoBanner(message: String(localized: "profile.hr.missingMax"), style: .info)
+                    FuelZoneInfoBanner(
+                        message: String(localized: "profile.hr.missingMax"), style: .info)
                 }
             } else if let thresholds = zoneThresholds ?? appState.profile.zoneThresholds {
                 zoneLimitsReadOnly(thresholds)
@@ -152,21 +175,26 @@ struct ProfileView: View {
                 .font(DesignSystem.Typography.caption)
                 .foregroundStyle(DesignSystem.textSecondary)
             ForEach(HeartRateZone.allCases) { zone in
-                Text("\(LocalizedEnum.label(for: zone)): \(zoneBpmRangeLabel(zone: zone, thresholds: thresholds))")
-                    .font(DesignSystem.Typography.bodySecondary)
+                Text(
+                    "\(LocalizedEnum.label(for: zone)): \(zoneBpmRangeLabel(zone: zone, thresholds: thresholds))"
+                )
+                .font(DesignSystem.Typography.bodySecondary)
             }
         }
     }
 
-    private func zoneBpmRangeLabel(zone: HeartRateZone, thresholds: HeartRateZoneThresholds) -> String {
+    private func zoneBpmRangeLabel(zone: HeartRateZone, thresholds: HeartRateZoneThresholds)
+        -> String
+    {
         let lower = thresholds.lowerBound(for: zone)
-        let upper: Int = switch zone {
-        case .zone1: thresholds.zone1Upper
-        case .zone2: thresholds.zone2Upper
-        case .zone3: thresholds.zone3Upper
-        case .zone4: thresholds.zone4Upper
-        case .zone5: thresholds.maxHeartRate
-        }
+        let upper: Int =
+            switch zone {
+            case .zone1: thresholds.zone1Upper
+            case .zone2: thresholds.zone2Upper
+            case .zone3: thresholds.zone3Upper
+            case .zone4: thresholds.zone4Upper
+            case .zone5: thresholds.maxHeartRate
+            }
         return "\(lower)–\(upper) bpm"
     }
 
@@ -177,16 +205,26 @@ struct ProfileView: View {
                 .font(DesignSystem.Typography.caption)
                 .foregroundStyle(DesignSystem.textSecondary)
 
-            zoneUpperRow(zone: .zone1, titleKey: "hrzone.zone1", keyPath: \.zone1Upper, thresholds: thresholds)
-            zoneUpperRow(zone: .zone2, titleKey: "hrzone.zone2", keyPath: \.zone2Upper, thresholds: thresholds)
-            zoneUpperRow(zone: .zone3, titleKey: "hrzone.zone3", keyPath: \.zone3Upper, thresholds: thresholds)
-            zoneUpperRow(zone: .zone4, titleKey: "hrzone.zone4", keyPath: \.zone4Upper, thresholds: thresholds)
+            zoneUpperRow(
+                zone: .zone1, titleKey: "hrzone.zone1", keyPath: \.zone1Upper,
+                thresholds: thresholds)
+            zoneUpperRow(
+                zone: .zone2, titleKey: "hrzone.zone2", keyPath: \.zone2Upper,
+                thresholds: thresholds)
+            zoneUpperRow(
+                zone: .zone3, titleKey: "hrzone.zone3", keyPath: \.zone3Upper,
+                thresholds: thresholds)
+            zoneUpperRow(
+                zone: .zone4, titleKey: "hrzone.zone4", keyPath: \.zone4Upper,
+                thresholds: thresholds)
 
-            Text(L10n.format(
-                "profile.hr.zone5Range",
-                "\(thresholds.lowerBound(for: .zone5))",
-                "\(thresholds.maxHeartRate)"
-            ))
+            Text(
+                L10n.format(
+                    "profile.hr.zone5Range",
+                    "\(thresholds.lowerBound(for: .zone5))",
+                    "\(thresholds.maxHeartRate)"
+                )
+            )
             .font(DesignSystem.Typography.caption)
             .foregroundStyle(DesignSystem.textSecondary)
 
@@ -217,21 +255,31 @@ struct ProfileView: View {
         let upperMax = zoneUpperMaximum(for: zone, thresholds: t)
 
         return VStack(alignment: .leading, spacing: 6) {
-            HStack {
+            HStack(alignment: .center, spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(localized: titleKey)
                         .font(DesignSystem.Typography.cardTitle)
-                    Text(L10n.format("session.zone.bpmRange", "\(lower)", "\(binding.wrappedValue)"))
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundStyle(DesignSystem.textSecondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                    Text(
+                        L10n.format("session.zone.bpmRange", "\(lower)", "\(binding.wrappedValue)")
+                    )
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundStyle(DesignSystem.textSecondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
                 }
-                Spacer()
+                .layoutPriority(1)
+                Spacer(minLength: 4)
                 Stepper("", value: binding, in: lower...max(lower, upperMax))
                     .labelsHidden()
+                    .fixedSize()
                 Text("\(binding.wrappedValue)")
                     .monospacedDigit()
                     .font(DesignSystem.Typography.bodySecondary.weight(.semibold))
+                    .fixedSize()
             }
+            .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .padding(.horizontal, 12)
             .background(DesignSystem.embeddedTrack)
@@ -262,7 +310,9 @@ struct ProfileView: View {
         }
     }
 
-    private func zoneUpperMaximum(for zone: HeartRateZone, thresholds: HeartRateZoneThresholds) -> Int {
+    private func zoneUpperMaximum(for zone: HeartRateZone, thresholds: HeartRateZoneThresholds)
+        -> Int
+    {
         switch zone {
         case .zone1: thresholds.zone2Upper - 1
         case .zone2: thresholds.zone3Upper - 1
@@ -279,7 +329,8 @@ struct ProfileView: View {
         }
         profileError = nil
         guard let maxHR = Int(maxHRText.trimmingCharacters(in: .whitespaces)),
-              HeartRateZoneCalculator.validMaxHRRange.contains(maxHR) else {
+            HeartRateZoneCalculator.validMaxHRRange.contains(maxHR)
+        else {
             profileError = String(localized: "error.invalidMaxHeartRate")
             return
         }
@@ -299,7 +350,8 @@ struct ProfileView: View {
                 profile.maxHeartRate = nil
                 profile.zoneThresholds = nil
             } else if let maxHR = Int(trimmedHR),
-                      HeartRateZoneCalculator.validMaxHRRange.contains(maxHR) {
+                HeartRateZoneCalculator.validMaxHRRange.contains(maxHR)
+            {
                 profile.maxHeartRate = maxHR
                 if var thresholds = zoneThresholds {
                     thresholds.maxHeartRate = maxHR

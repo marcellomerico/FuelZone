@@ -150,7 +150,8 @@ struct FuelZoneInfoBanner: View {
         .padding(DesignSystem.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(style.tint.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.cardCornerRadius, style: .continuous))
+        .clipShape(
+            RoundedRectangle(cornerRadius: DesignSystem.cardCornerRadius, style: .continuous))
     }
 }
 
