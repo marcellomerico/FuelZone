@@ -410,3 +410,14 @@
 "results.water.step" = "%@ ml Wasser";
 "metrics.portion.drink" = "%@ ml %@";
 "error.invalidWeight" = "Bitte gib ein Gewicht zwischen 30 und 250 kg ein.";
+
+/* Phase 3 – design system */
+"tier.short" = "%@ · kurz";
+"tier.medium" = "%@ · mittel";
+"tier.long" = "%@";
+"a11y.carbMeter" = "Geplant %1$@ Gramm pro Stunde, Ziel %2$@ bis %3$@";
+"track.start" = "Start";
+"track.finish" = "Ziel";
+"a11y.swap.hint" = "Doppeltippen, um diesen Snack zu tauschen.";
+"a11y.swap.pro" = "Snacks tauschen ist Teil von FuelZone Pro.";
+"a11y.modified" = "Von dir geändert";

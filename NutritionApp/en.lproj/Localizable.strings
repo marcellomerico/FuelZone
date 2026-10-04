@@ -409,3 +409,14 @@
 "results.water.step" = "%@ ml water";
 "metrics.portion.drink" = "%@ ml %@";
 "error.invalidWeight" = "Please enter a weight between 30 and 250 kg.";
+
+/* Phase 3 – design system */
+"tier.short" = "%@ · short";
+"tier.medium" = "%@ · medium";
+"tier.long" = "%@";
+"a11y.carbMeter" = "Planned %1$@ grams per hour, target %2$@ to %3$@";
+"track.start" = "Start";
+"track.finish" = "Finish";
+"a11y.swap.hint" = "Double-tap to swap this snack.";
+"a11y.swap.pro" = "Swapping snacks is part of FuelZone Pro.";
+"a11y.modified" = "Changed by you";
