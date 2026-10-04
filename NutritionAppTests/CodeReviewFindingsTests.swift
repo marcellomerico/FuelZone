@@ -75,7 +75,7 @@ final class CodeReviewFindingsTests: XCTestCase {
     /// After a failed calculation the previous result must not be reused (would be saved to history again).
     @MainActor
     func testCalculatePlan_failedCalculationClearsLastResult() {
-        let vm = SessionViewModel()
+        let vm = SessionViewModel(store: TestStores.make())
         vm.setup = SessionSetup(durationMinutes: 90)
         vm.calculatePlan()
         XCTAssertNotNil(vm.lastResult)
@@ -100,14 +100,11 @@ final class CodeReviewFindingsTests: XCTestCase {
     /// A disabled built-in snack must stay visible in the library so the user can re-enable it.
     @MainActor
     func testDisabledBuiltInSnack_staysVisibleInLibrary() throws {
-        let vm = SnackViewModel()
-        guard let snack = vm.filteredSnacks().first(where: \.isBuiltIn) else {
-            return XCTFail("No built-in snacks")
-        }
-        vm.setEnabled(snack, enabled: false)
-        let stillVisible = vm.filteredSnacks().contains { $0.id == snack.id }
-        vm.setEnabled(snack, enabled: true) // restore simulator state
-        XCTAssertTrue(stillVisible, "Disabled built-in snack disappears from the library")
+        let vm = SnackViewModel(store: TestStores.make())
+        let snack = try XCTUnwrap(vm.catalogSnacks.first(where: \.isBuiltIn))
+        if vm.isInKit(snack) { vm.toggleKit(snack) }
+        XCTAssertFalse(vm.isInKit(snack))
+        XCTAssertTrue(vm.catalogSnacks.contains { $0.id == snack.id }, "Snack outside the kit disappears from the catalog")
     }
 
     // MARK: - Onboarding

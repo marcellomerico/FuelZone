@@ -35,15 +35,18 @@ struct OnboardingView: View {
         switch viewModel.stepIndex {
         case 0: OnboardingWelcomeStep()
         case 1: OnboardingSportStep(sport: $viewModel.primarySport)
-        case 2: OnboardingStomachStep(sensitivity: $viewModel.stomachSensitivity)
-        case 3: OnboardingSweatStep(sweatRate: $viewModel.sweatRate)
-        case 4: OnboardingSaltinessStep(saltiness: $viewModel.sweatSaltiness)
-        case 5: OnboardingProfileStep(
-            name: $viewModel.displayName,
-            weight: $viewModel.weightText,
-            maxHR: $viewModel.maxHeartRateText
-        )
-        default: OnboardingReadyStep()
+        case 2:
+            VStack(spacing: DesignSystem.sectionSpacing) {
+                OnboardingStomachStep(sensitivity: $viewModel.stomachSensitivity)
+                OnboardingSweatStep(sweatRate: $viewModel.sweatRate)
+                OnboardingSaltinessStep(saltiness: $viewModel.sweatSaltiness)
+            }
+        default:
+            OnboardingProfileStep(
+                name: $viewModel.displayName,
+                weight: $viewModel.weightText,
+                maxHR: $viewModel.maxHeartRateText
+            )
         }
     }
 

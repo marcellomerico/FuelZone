@@ -435,19 +435,19 @@ struct FuelZoneProCard: View {
 // MARK: - Floating tab bar
 
 struct FuelZoneFloatingTabBar: View {
-    @Binding var selection: Int
+    @Binding var selection: AppTab
 
     private struct TabItem {
-        let tag: Int
+        let tag: AppTab
         let titleKey: String
         let icon: String
     }
 
     private let items: [TabItem] = [
-        TabItem(tag: 0, titleKey: "tab.plan", icon: "flame.fill"),
-        TabItem(tag: 1, titleKey: "tab.history", icon: "clock.fill"),
-        TabItem(tag: 2, titleKey: "tab.snacks", icon: "fork.knife"),
-        TabItem(tag: 3, titleKey: "tab.settings", icon: "gearshape.fill")
+        TabItem(tag: .plan, titleKey: "tab.plan", icon: "flame.fill"),
+        TabItem(tag: .history, titleKey: "tab.history", icon: "clock.fill"),
+        TabItem(tag: .snacks, titleKey: "tab.snacks", icon: "fork.knife"),
+        TabItem(tag: .settings, titleKey: "tab.settings", icon: "gearshape.fill")
     ]
 
     var body: some View {

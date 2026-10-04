@@ -397,3 +397,15 @@
 "unit.label.grams" = "g";
 "unit.label.milliliters" = "ml";
 "unit.label.milligrams" = "mg";
+
+/* Phase 2 */
+"unit.bottle" = "bottle";
+"error.barcodeNoNutrition" = "This product has no carbohydrate data in Open Food Facts. Add it manually instead.";
+"error.barcodeAlreadyAdded" = "This product is already in your snacks.";
+"history.detail.missing" = "This session is no longer available.";
+"history.action.delete" = "Delete";
+"history.action.replan" = "Plan again";
+"results.water.total" = "%@ ml water";
+"results.water.step" = "%@ ml water";
+"metrics.portion.drink" = "%@ ml %@";
+"error.invalidWeight" = "Please enter a weight between 30 and 250 kg.";

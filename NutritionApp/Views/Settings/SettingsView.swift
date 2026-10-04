@@ -41,7 +41,7 @@ struct SettingsView: View {
     }
 
     private var profileInitials: String {
-        let name = appState.profile.displayName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let name = appState.store.profile.displayName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let parts = name.split(separator: " ").prefix(2)
         if parts.isEmpty { return "FZ" }
         return parts.map { String($0.prefix(1)).uppercased() }.joined()
@@ -56,9 +56,8 @@ struct SettingsView: View {
                     (.english, "settings.language.english"),
                     (.german, "settings.language.german")
                 ],
-                selection: $appState.settings.language
+                selection: appState.settingsBinding(\.language)
             )
-            .onChange(of: appState.settings.language) { _, _ in appState.saveSettings() }
         }
         .fuelZoneCard()
     }
@@ -72,9 +71,8 @@ struct SettingsView: View {
                     (.light, "settings.appearance.light"),
                     (.dark, "settings.appearance.dark")
                 ],
-                selection: $appState.settings.appearance
+                selection: appState.settingsBinding(\.appearance)
             )
-            .onChange(of: appState.settings.appearance) { _, _ in appState.saveSettings() }
         }
         .fuelZoneCard()
     }
@@ -83,7 +81,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 10) {
             FuelZoneProCard(
                 subscriptionManager: appState.subscriptionManager,
-                isProActive: appState.settings.isProSubscriber
+                isProActive: appState.isPro
             )
 
             if let message = appState.subscriptionManager.statusMessage,
@@ -102,14 +100,13 @@ struct SettingsView: View {
                 .font(DesignSystem.Typography.bodySecondary)
                 .foregroundStyle(DesignSystem.textPrimary)
             Spacer()
-            Toggle("", isOn: $appState.settings.isProSubscriber)
-                .labelsHidden()
-                .tint(DesignSystem.accent)
+            Toggle(isOn: $appState.debugSimulatePro) {
+                Text(localized: "settings.pro.debugToggle")
+            }
+            .labelsHidden()
+            .tint(DesignSystem.accent)
         }
         .fuelZoneCard()
-        .onChange(of: appState.settings.isProSubscriber) { _, _ in
-            appState.saveSettings()
-        }
     }
     #endif
 
@@ -150,7 +147,7 @@ struct SettingsView: View {
                     subtitleKey: "settings.sync.description"
                 )
                 Button {
-                    appState.syncNow()
+                    Task { await appState.store.syncNow() }
                 } label: {
                     Text(localized: "settings.sync.now")
                 }
@@ -207,8 +204,7 @@ struct SettingsView: View {
 
     private var onboardingSection: some View {
         Button {
-            appState.profile.hasCompletedOnboarding = false
-            appState.showOnboarding = true
+            appState.startOnboarding()
         } label: {
             Text(localized: "settings.onboarding")
         }

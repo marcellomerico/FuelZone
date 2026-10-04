@@ -3,7 +3,6 @@ import SwiftUI
 struct ProPaywallSheet: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.dismiss) private var dismiss
-    var onOpenSettings: (() -> Void)?
 
     var body: some View {
         NavigationStack {
@@ -24,7 +23,7 @@ struct ProPaywallSheet: View {
                 }
                 .fuelZoneCard()
 
-                if appState.settings.isProSubscriber {
+                if appState.isPro {
                     FuelZoneInfoBanner(message: String(localized: "storekit.status.active"), style: .success)
                 } else {
                     FuelZoneSubscriptionOptions(
@@ -38,11 +37,6 @@ struct ProPaywallSheet: View {
                     Text(status)
                         .font(DesignSystem.Typography.caption)
                         .foregroundStyle(DesignSystem.textSecondary)
-                }
-
-                FuelZoneTextButton(titleKey: "pro.paywall.cta") {
-                    dismiss()
-                    onOpenSettings?()
                 }
 
                 FuelZoneTextButton(titleKey: "pro.paywall.dismiss") {
@@ -65,7 +59,7 @@ struct ProPaywallSheet: View {
         .task {
             await appState.subscriptionManager.loadProducts()
         }
-        .onChange(of: appState.settings.isProSubscriber) { _, isPro in
+        .onChange(of: appState.isPro) { _, isPro in
             if isPro {
                 dismiss()
             }

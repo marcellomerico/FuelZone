@@ -87,16 +87,6 @@ struct OnboardingProfileStep: View {
     }
 }
 
-struct OnboardingReadyStep: View {
-    var body: some View {
-        FuelZoneHeroBlock(
-            systemImage: "checkmark.circle.fill",
-            titleKey: "onboarding.ready.title",
-            subtitleKey: "onboarding.ready.message"
-        )
-    }
-}
-
 // MARK: - Helpers
 
 private func stepShell<Content: View>(

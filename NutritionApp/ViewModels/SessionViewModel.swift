@@ -9,14 +9,23 @@ final class SessionViewModel: ObservableObject {
     @Published var showProPaywall = false
     @Published var isFetchingWeather = false
     @Published var weatherStatusMessage: String?
-    @Published private(set) var zoneThresholds: HeartRateZoneThresholds?
     @Published private(set) var lastResult: FuelingResult?
 
+    let store: UserDataStore
+    var isProProvider: () -> Bool = { false }
     private let locationAccess = LocationAccessService()
-    private var profile = UserProfile()
-    private var settings = AppSettings()
-    private weak var snackViewModel: SnackViewModel?
-    private weak var resultsViewModel: ResultsViewModel?
+
+    init(store: UserDataStore) {
+        self.store = store
+        setup.sport = store.profile.primarySport
+    }
+
+    var profile: UserProfile { store.profile }
+
+    var zoneThresholds: HeartRateZoneThresholds? {
+        profile.zoneThresholds
+            ?? profile.maxHeartRate.flatMap { HeartRateZoneCalculator.thresholds(maxHeartRate: $0) }
+    }
 
     var resolvedSessionMinutes: Int? { setup.resolvedDurationMinutes() }
 
@@ -27,36 +36,7 @@ final class SessionViewModel: ObservableObject {
         return setup.zoneDistribution.isValid(sessionDurationMinutes: minutes)
     }
 
-    func configure(
-        profile: UserProfile,
-        settings: AppSettings,
-        snacks: SnackViewModel,
-        results: ResultsViewModel? = nil
-    ) {
-        self.profile = profile
-        self.settings = settings
-        snackViewModel = snacks
-        resultsViewModel = results
-        setup.sport = profile.primarySport
-        zoneThresholds = profile.zoneThresholds
-            ?? profile.maxHeartRate.flatMap { HeartRateZoneCalculator.thresholds(maxHeartRate: $0) }
-    }
-
-    func bind(results: ResultsViewModel) {
-        resultsViewModel = results
-    }
-
-    func updateProfile(_ profile: UserProfile) {
-        self.profile = profile
-        zoneThresholds = profile.zoneThresholds
-            ?? profile.maxHeartRate.flatMap { HeartRateZoneCalculator.thresholds(maxHeartRate: $0) }
-    }
-
-    func updateSettings(_ settings: AppSettings) { self.settings = settings }
-
-    var canUseZoneMode: Bool {
-        settings.hasAccess(to: .zoneBasedIntensity)
-    }
+    var canUseZoneMode: Bool { isProProvider() }
 
     func selectIntensityMode(_ mode: IntensityMode) {
         if mode == .zoneBased, !canUseZoneMode {
@@ -143,13 +123,11 @@ final class SessionViewModel: ObservableObject {
             return nil
         }
 
-        let snacks = snackViewModel?.enabledSnacks() ?? []
         do {
             let result = try FuelingCalculator.calculate(
-                FuelingCalculatorInput(profile: profile, setup: setup, availableSnacks: snacks)
+                FuelingCalculatorInput(profile: profile, setup: setup, availableSnacks: store.kitSnacks)
             )
             lastResult = result
-            resultsViewModel?.setResult(result, setup: setup, profile: profile)
             return result
         } catch let error as FuelingCalculatorError {
             errorMessage = error.localizedMessage
@@ -157,6 +135,23 @@ final class SessionViewModel: ObservableObject {
             errorMessage = String(localized: "error.invalidDuration")
         }
         return nil
+    }
+
+    /// Calculates the plan and saves it to the history. Returns the saved session for navigation.
+    func createPlan() -> SessionRecord? {
+        guard let result = calculatePlan() else { return nil }
+        return store.addSession(setup: setup, result: result)
+    }
+
+    /// Loads a saved session's setup to plan it again.
+    func reuse(_ record: SessionRecord) {
+        var copy = record.setup
+        copy.id = UUID()
+        copy.createdAt = .now
+        if copy.intensityMode == .zoneBased, !canUseZoneMode {
+            copy.intensityMode = .simple
+        }
+        setup = copy
     }
 
     private func validateSetupInput() -> String? {

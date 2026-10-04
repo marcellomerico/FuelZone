@@ -148,7 +148,7 @@ final class CalculationCoreTests: XCTestCase {
     }
 
     func testPlanPreview_matchesCalculator() throws {
-        let vm = SessionViewModel()
+        let vm = SessionViewModel(store: TestStores.make())
         vm.setup = SessionSetup(durationMinutes: 150, simpleIntensity: .hard)
         let preview = try XCTUnwrap(vm.planPreview(profile: UserProfile()))
         let result = try FuelingCalculator.calculate(FuelingCalculatorInput(profile: UserProfile(), setup: vm.setup))
@@ -157,7 +157,7 @@ final class CalculationCoreTests: XCTestCase {
     }
 
     func testPlanPreview_nilForInvalidDuration() {
-        let vm = SessionViewModel()
+        let vm = SessionViewModel(store: TestStores.make())
         vm.setup = SessionSetup(durationMinutes: 2)
         XCTAssertNil(vm.planPreview(profile: UserProfile()))
     }

@@ -105,29 +105,18 @@ struct BarcodeScannerScreen: View {
 
     @MainActor
     private func handleBarcode(_ code: String) async {
-        let trimmed = code.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard errorMessage == nil else { return }
         isLoading = true
-        defer { isLoading = false }
-        do {
-            let nutrition = try await OpenFoodFactsClient.fetchProduct(barcode: trimmed)
-            let snack = Snack(
-                nameEN: nutrition.nameEN,
-                nameDE: nutrition.nameDE,
-                category: .other,
-                carbsPerServing: nutrition.carbsPerServing,
-                sodiumMgPerServing: nutrition.sodiumMgPerServing,
-                nutritionBasis: nutrition.nutritionBasis,
-                defaultPortionGrams: nutrition.defaultPortionGrams,
-                unitKey: "unit.piece",
-                isBuiltIn: false,
-                barcode: nutrition.barcode
-            )
-            snackViewModel.addCustomSnack(snack)
-            snackViewModel.snackBeingEdited = snack
+        let outcome = await snackViewModel.handleScannedBarcode(code)
+        isLoading = false
+        switch outcome {
+        case .added(let snack), .alreadyInLibrary(let snack):
             dismiss()
-        } catch {
-            errorMessage = String(localized: "error.barcodeNotFound")
+            snackViewModel.snackBeingEdited = snack
+        case .failed(let message):
+            errorMessage = message
+        case .ignored:
+            break
         }
     }
 }

@@ -3,10 +3,10 @@ import SwiftUI
 struct SessionSetupView: View {
     @EnvironmentObject private var appState: AppState
     @ObservedObject var viewModel: SessionViewModel
-    @Binding var showResults: Bool
+    var onPlanCreated: (UUID) -> Void
 
     private var preview: PlanPreview? {
-        viewModel.planPreview(profile: appState.profile)
+        viewModel.planPreview(profile: appState.store.profile)
     }
 
     var body: some View {
@@ -27,12 +27,9 @@ struct SessionSetupView: View {
         .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .sheet(isPresented: $viewModel.showProPaywall) {
-            ProPaywallSheet {
-                appState.selectedTab = 3
-            }
+            ProPaywallSheet()
             .environmentObject(appState)
         }
-        .onAppear { viewModel.updateProfile(appState.profile) }
     }
 
     private var fuelPreviewCard: some View {
@@ -47,13 +44,8 @@ struct SessionSetupView: View {
     }
 
     private func startPlan() {
-        guard let result = viewModel.calculatePlan() else { return }
-        appState.historyViewModel.saveSession(
-            setup: viewModel.setup,
-            result: result,
-            profile: appState.profile
-        )
-        showResults = true
+        guard let record = viewModel.createPlan() else { return }
+        onPlanCreated(record.id)
     }
 
     private var sportSection: some View {

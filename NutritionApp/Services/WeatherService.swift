@@ -17,11 +17,11 @@ enum WeatherServiceError: Error {
 
 /// Fetches current conditions via Open-Meteo (no API key) and maps them to app enums.
 enum WeatherService {
-    private static let geocoder = CLGeocoder()
-
     static func geocode(locationName: String) async throws -> CLLocationCoordinate2D {
         let trimmed = locationName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw WeatherServiceError.geocodingFailed }
+        // A fresh geocoder per request: CLGeocoder cancels an in-flight request when reused.
+        let geocoder = CLGeocoder()
         return try await withCheckedThrowingContinuation { continuation in
             geocoder.geocodeAddressString(trimmed) { placemarks, error in
                 if let error {
@@ -46,7 +46,9 @@ enum WeatherService {
             URLQueryItem(name: "timezone", value: "auto")
         ]
         guard let url = components.url else { throw WeatherServiceError.weatherUnavailable }
-        let (data, response) = try await URLSession.shared.data(from: url)
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 15
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw WeatherServiceError.weatherUnavailable
         }

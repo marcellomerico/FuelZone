@@ -173,10 +173,10 @@ struct EditSnackView: View {
     }
 
     private func save() {
-        guard let carbsValue = Double(carbs.replacingOccurrences(of: ",", with: ".")) else { return }
-        let sodiumValue = Double(sodium.replacingOccurrences(of: ",", with: ".")) ?? 0
+        guard let carbsValue = InputParsing.nonNegative(carbs) else { return }
+        let sodiumValue = InputParsing.nonNegative(sodium) ?? 0
         let snackID = existingSnack?.id ?? UUID()
-        let portion = Double(portionGrams.replacingOccurrences(of: ",", with: "."))
+        let portion = InputParsing.nonNegative(portionGrams).flatMap { $0 > 0 ? $0 : nil }
         let snack = Snack(
             id: snackID,
             nameEN: nameEN,
@@ -197,11 +197,7 @@ struct EditSnackView: View {
             SnackPhotoStore.delete(snackID: snackID)
         }
 
-        if isEditing {
-            viewModel.updateCustomSnack(snack)
-        } else {
-            viewModel.addCustomSnack(snack)
-        }
+        viewModel.saveCustomSnack(snack, isNew: !isEditing)
         dismiss()
     }
 

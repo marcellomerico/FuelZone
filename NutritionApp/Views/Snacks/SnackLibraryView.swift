@@ -4,9 +4,8 @@ import VisionKit
 struct SnackLibraryView: View {
     @EnvironmentObject private var appState: AppState
     @ObservedObject var viewModel: SnackViewModel
-    @State private var showAddSnack = false
 
-    private var snacks: [Snack] { viewModel.filteredSnacks() }
+    private var snacks: [Snack] { viewModel.catalogSnacks }
 
     var body: some View {
         FuelZoneScreenScroll {
@@ -32,9 +31,7 @@ struct SnackLibraryView: View {
                 .accessibilityLabel(Text(localized: "snack.scanBarcode"))
 
                 Button {
-                    if viewModel.requestAddCustomSnack() {
-                        showAddSnack = true
-                    }
+                    viewModel.requestAddCustomSnack()
                 } label: {
                     Image(systemName: "plus")
                         .foregroundStyle(DesignSystem.accentOnAmber)
@@ -45,7 +42,7 @@ struct SnackLibraryView: View {
                 .accessibilityLabel(Text(localized: "snack.addCustom.title"))
             }
         }
-        .sheet(isPresented: $showAddSnack) {
+        .sheet(isPresented: $viewModel.showAddSnack) {
             EditSnackView(viewModel: viewModel, existingSnack: nil)
         }
         .sheet(item: $viewModel.snackBeingEdited) { snack in
@@ -60,7 +57,7 @@ struct SnackLibraryView: View {
             }
         }
         .sheet(isPresented: $viewModel.showProPaywall) {
-            ProPaywallSheet { appState.selectedTab = 3 }
+            ProPaywallSheet()
                 .environmentObject(appState)
         }
     }
@@ -78,9 +75,9 @@ struct SnackLibraryView: View {
                     FuelZoneSnackRowStyled(
                         snack: snack,
                         photo: SnackPhotoStore.load(snackID: snack.id),
-                        isEnabled: viewModel.isEnabled(snack),
-                        onToggle: { viewModel.setEnabled(snack, enabled: $0) },
-                        onTap: { openEditor(for: snack) }
+                        isEnabled: viewModel.isInKit(snack),
+                        onToggle: { _ in viewModel.toggleKit(snack) },
+                        onTap: { viewModel.requestEdit(snack) }
                     )
                     if index < snacks.count - 1 {
                         FuelZoneCardDivider()
@@ -89,14 +86,5 @@ struct SnackLibraryView: View {
             }
         }
         .fuelZoneCard(padding: 6)
-    }
-
-    private func openEditor(for snack: Snack) {
-        guard !snack.isBuiltIn else { return }
-        guard viewModel.canEditCustom else {
-            viewModel.showProPaywall = true
-            return
-        }
-        viewModel.snackBeingEdited = snack
     }
 }

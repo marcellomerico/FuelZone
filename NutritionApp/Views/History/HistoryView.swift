@@ -2,33 +2,52 @@ import SwiftUI
 
 struct HistoryView: View {
     @EnvironmentObject private var appState: AppState
-    @ObservedObject var viewModel: HistoryViewModel
+
+    private var records: [SessionRecord] {
+        appState.store.visibleHistory(isPro: appState.isPro)
+    }
 
     var body: some View {
         Group {
-            if viewModel.records.isEmpty {
+            if records.isEmpty {
                 FuelZoneHistoryEmptyState {
-                    appState.selectedTab = 0
+                    appState.selectedTab = .plan
                 }
                 .background(DesignSystem.appBackground)
             } else {
-                FuelZoneScreenScroll {
-                    ForEach(viewModel.records) { record in
+                List {
+                    ForEach(records) { record in
                         NavigationLink {
-                            SessionDetailView(record: record)
+                            PlanResultView(recordID: record.id)
                         } label: {
                             HistoryRow(record: record)
                         }
-                        .buttonStyle(.plain)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(DesignSystem.appBackground)
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                appState.store.deleteSession(id: record.id)
+                            } label: {
+                                Label { Text(localized: "history.action.delete") } icon: { Image(systemName: "trash") }
+                            }
+                            Button {
+                                appState.sessionViewModel.reuse(record)
+                                appState.selectedTab = .plan
+                            } label: {
+                                Label { Text(localized: "history.action.replan") } icon: { Image(systemName: "arrow.clockwise") }
+                            }
+                        }
                     }
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .background(DesignSystem.appBackground)
             }
         }
         .navigationTitle(Text(localized: "history.title"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(DesignSystem.appBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .onAppear { viewModel.reload() }
     }
 }
 
@@ -50,7 +69,6 @@ private struct HistoryRow: View {
                     .foregroundStyle(DesignSystem.textPrimary)
                 HStack(spacing: 8) {
                     Text(LocalizedEnum.label(for: record.setup.sport))
-                    Text("·")
                     Text(NutritionMetricsFormatting.historyDuration(minutes: record.result.sessionDurationMinutes))
                 }
                 .font(DesignSystem.Typography.caption)

@@ -1,142 +1,127 @@
 import Combine
 import Foundation
 
+/// Snack screen state: “My kit”, catalog filtering, custom snacks and barcode scanning.
 @MainActor
 final class SnackViewModel: ObservableObject {
-    @Published private(set) var builtInSnacks: [Snack] = []
-    @Published private(set) var libraryState = SnackLibraryState()
     @Published var selectedCategory: SnackCategory?
-    @Published var loadError: String?
+    @Published var searchText = ""
     @Published var showProPaywall = false
     @Published var showBarcodeScanner = false
+    @Published var showAddSnack = false
     @Published var snackBeingEdited: Snack?
+    @Published private(set) var isProcessingBarcode = false
 
-    private var settings = AppSettings()
-    private let store = DataStore.shared
+    let store: UserDataStore
+    var isProProvider: () -> Bool = { false }
+    private var cancellable: AnyCancellable?
 
-    init() {
-        reload()
+    init(store: UserDataStore) {
+        self.store = store
+        cancellable = store.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
     }
 
-    func configure(settings: AppSettings) { self.settings = settings }
+    var loadError: String? {
+        store.snackLoadFailed ? L10n.string("error.snacksLoadFailed") : nil
+    }
 
-    func reload() {
-        do {
-            builtInSnacks = try DefaultSnackLoader.loadBuiltInSnacks()
-            loadError = nil
-        } catch {
-            builtInSnacks = []
-            loadError = String(localized: "error.snacksLoadFailed")
-        }
-        if let state = store.load(SnackLibraryState.self, key: PersistenceKeys.snackLibraryState) {
-            libraryState = state
+    var kitSnacks: [Snack] { store.kitSnacks }
+
+    /// Catalog filtered by category and search text. Snacks stay visible whether or not they are in the kit.
+    var catalogSnacks: [Snack] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return store.allSnacks.filter { snack in
+            (selectedCategory == nil || snack.category == selectedCategory)
+                && (query.isEmpty || snack.localizedName.localizedCaseInsensitiveContains(query))
         }
     }
 
-    func allSnacks() -> [Snack] {
-        var snacks = builtInSnacks.filter { !libraryState.disabledBuiltInIDs.contains($0.id) }
+    func isInKit(_ snack: Snack) -> Bool { store.isInKit(snack.id) }
+
+    func toggleKit(_ snack: Snack) {
+        store.setInKit(snack.id, !store.isInKit(snack.id))
+    }
+
+    var canManageCustomSnacks: Bool { isProProvider() }
+
+    func requestAddCustomSnack() {
         if canManageCustomSnacks {
-            snacks.append(contentsOf: libraryState.customSnacks)
-        }
-        return sortedSnacks(snacks)
-    }
-
-    private func sortedSnacks(_ snacks: [Snack]) -> [Snack] {
-        snacks.sorted { lhs, rhs in
-            if lhs.category != rhs.category {
-                return lhs.category.sortOrder < rhs.category.sortOrder
-            }
-            return lhs.localizedName.localizedCaseInsensitiveCompare(rhs.localizedName) == .orderedAscending
+            showAddSnack = true
+        } else {
+            showProPaywall = true
         }
     }
-
-    func enabledSnacks() -> [Snack] {
-        allSnacks().filter(\.isEnabled)
-    }
-
-    func filteredSnacks() -> [Snack] {
-        let snacks = allSnacks()
-        guard let selectedCategory else { return snacks }
-        return snacks.filter { $0.category == selectedCategory }
-    }
-
-    func isEnabled(_ snack: Snack) -> Bool {
-        snack.isEnabled && !libraryState.disabledBuiltInIDs.contains(snack.id)
-    }
-
-    func setEnabled(_ snack: Snack, enabled: Bool) {
-        if snack.isBuiltIn {
-            if enabled {
-                libraryState.disabledBuiltInIDs.remove(snack.id)
-            } else {
-                libraryState.disabledBuiltInIDs.insert(snack.id)
-            }
-        } else if let index = libraryState.customSnacks.firstIndex(where: { $0.id == snack.id }) {
-            libraryState.customSnacks[index].isEnabled = enabled
-        }
-        persist()
-    }
-
-    var canManageCustomSnacks: Bool { settings.hasAccess(to: .customSnacks) }
-    var canAddCustom: Bool { canManageCustomSnacks }
-    var canEditCustom: Bool { canManageCustomSnacks }
-    var canScanBarcode: Bool { settings.hasAccess(to: .barcodeScanner) }
 
     func requestBarcodeScan() {
-        if canScanBarcode {
+        if canManageCustomSnacks {
             showBarcodeScanner = true
         } else {
             showProPaywall = true
         }
     }
 
-    @discardableResult
-    func requestAddCustomSnack() -> Bool {
-        guard canAddCustom else {
+    func requestEdit(_ snack: Snack) {
+        guard !snack.isBuiltIn else { return }
+        if canManageCustomSnacks {
+            snackBeingEdited = snack
+        } else {
             showProPaywall = true
-            return false
         }
-        return true
     }
 
-    func addCustomSnack(_ snack: Snack) {
+    func saveCustomSnack(_ snack: Snack, isNew: Bool) {
         guard canManageCustomSnacks else {
             showProPaywall = true
             return
         }
-        var custom = snack
-        custom.isBuiltIn = false
-        libraryState.customSnacks.append(custom)
-        persist()
-        objectWillChange.send()
-    }
-
-    func updateCustomSnack(_ snack: Snack) {
-        guard canEditCustom else {
-            showProPaywall = true
-            return
+        if isNew {
+            store.addCustomSnack(snack)
+        } else {
+            store.updateCustomSnack(snack)
         }
-        guard let index = libraryState.customSnacks.firstIndex(where: { $0.id == snack.id }) else { return }
-        var updated = snack
-        updated.isBuiltIn = false
-        libraryState.customSnacks[index] = updated
-        persist()
-        objectWillChange.send()
     }
 
     func deleteCustomSnack(_ snack: Snack) {
-        guard canEditCustom else {
-            showProPaywall = true
-            return
-        }
-        guard !snack.isBuiltIn else { return }
-        libraryState.customSnacks.removeAll { $0.id == snack.id }
-        SnackPhotoStore.delete(snackID: snack.id)
-        persist()
-        objectWillChange.send()
+        guard canManageCustomSnacks, !snack.isBuiltIn else { return }
+        store.deleteCustomSnack(id: snack.id)
     }
 
-    func persist() {
-        store.save(libraryState, key: PersistenceKeys.snackLibraryState)
+    enum BarcodeOutcome: Equatable {
+        case added(Snack)
+        case alreadyInLibrary(Snack)
+        case failed(String)
+        case ignored
+    }
+
+    /// Looks up a scanned barcode once; repeated callbacks while a lookup runs are ignored.
+    func handleScannedBarcode(_ code: String) async -> BarcodeOutcome {
+        guard canManageCustomSnacks, !isProcessingBarcode else { return .ignored }
+        let barcode = code.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let existing = store.customSnack(withBarcode: barcode) {
+            return .alreadyInLibrary(existing)
+        }
+        isProcessingBarcode = true
+        defer { isProcessingBarcode = false }
+        do {
+            let product = try await OpenFoodFactsClient.fetchProduct(barcode: barcode)
+            let snack = Snack(
+                nameEN: product.nameEN,
+                nameDE: product.nameDE,
+                category: product.isLiquid ? .drink : .other,
+                carbsPerServing: product.carbsPerServing,
+                sodiumMgPerServing: product.sodiumMgPerServing,
+                nutritionBasis: product.nutritionBasis,
+                defaultPortionGrams: product.defaultPortionGrams,
+                unitKey: product.isLiquid ? "unit.bottle" : "unit.piece",
+                isBuiltIn: false,
+                barcode: product.barcode
+            )
+            store.addCustomSnack(snack)
+            return .added(snack)
+        } catch OpenFoodFactsClient.ClientError.missingNutrition {
+            return .failed(L10n.string("error.barcodeNoNutrition"))
+        } catch {
+            return .failed(L10n.string("error.barcodeNotFound"))
+        }
     }
 }

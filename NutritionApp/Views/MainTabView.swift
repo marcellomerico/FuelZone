@@ -2,30 +2,30 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject private var appState: AppState
-    @State private var showResults = false
+    @State private var planPath: [UUID] = []
 
     var body: some View {
         ZStack(alignment: .bottom) {
             ZStack {
                 planTab
-                    .opacity(appState.selectedTab == 0 ? 1 : 0)
-                    .allowsHitTesting(appState.selectedTab == 0)
-                    .accessibilityHidden(appState.selectedTab != 0)
+                    .opacity(appState.selectedTab == .plan ? 1 : 0)
+                    .allowsHitTesting(appState.selectedTab == .plan)
+                    .accessibilityHidden(appState.selectedTab != .plan)
 
                 historyTab
-                    .opacity(appState.selectedTab == 1 ? 1 : 0)
-                    .allowsHitTesting(appState.selectedTab == 1)
-                    .accessibilityHidden(appState.selectedTab != 1)
+                    .opacity(appState.selectedTab == .history ? 1 : 0)
+                    .allowsHitTesting(appState.selectedTab == .history)
+                    .accessibilityHidden(appState.selectedTab != .history)
 
                 snacksTab
-                    .opacity(appState.selectedTab == 2 ? 1 : 0)
-                    .allowsHitTesting(appState.selectedTab == 2)
-                    .accessibilityHidden(appState.selectedTab != 2)
+                    .opacity(appState.selectedTab == .snacks ? 1 : 0)
+                    .allowsHitTesting(appState.selectedTab == .snacks)
+                    .accessibilityHidden(appState.selectedTab != .snacks)
 
                 settingsTab
-                    .opacity(appState.selectedTab == 3 ? 1 : 0)
-                    .allowsHitTesting(appState.selectedTab == 3)
-                    .accessibilityHidden(appState.selectedTab != 3)
+                    .opacity(appState.selectedTab == .settings ? 1 : 0)
+                    .allowsHitTesting(appState.selectedTab == .settings)
+                    .accessibilityHidden(appState.selectedTab != .settings)
             }
 
             FuelZoneFloatingTabBar(selection: $appState.selectedTab)
@@ -34,23 +34,19 @@ struct MainTabView: View {
     }
 
     private var planTab: some View {
-        NavigationStack {
-            SessionSetupView(
-                viewModel: appState.sessionViewModel,
-                showResults: $showResults
-            )
-            .navigationDestination(isPresented: $showResults) {
-                ResultsView(
-                    viewModel: appState.resultsViewModel,
-                    snackViewModel: appState.snackViewModel
-                )
+        NavigationStack(path: $planPath) {
+            SessionSetupView(viewModel: appState.sessionViewModel) { recordID in
+                planPath.append(recordID)
+            }
+            .navigationDestination(for: UUID.self) { recordID in
+                PlanResultView(recordID: recordID)
             }
         }
     }
 
     private var historyTab: some View {
         NavigationStack {
-            HistoryView(viewModel: appState.historyViewModel)
+            HistoryView()
         }
     }
 

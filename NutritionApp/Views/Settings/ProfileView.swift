@@ -10,7 +10,7 @@ struct ProfileView: View {
     @State private var showProPaywall = false
 
     private var canEditHeartRateZones: Bool {
-        appState.settings.hasAccess(to: .zoneBasedIntensity)
+        appState.isPro
     }
 
     var body: some View {
@@ -42,13 +42,13 @@ struct ProfileView: View {
         .navigationBarTitleDisplayMode(.large)
         .onAppear { loadFromProfile() }
         .sheet(isPresented: $showProPaywall) {
-            ProPaywallSheet { appState.selectedTab = 3 }
+            ProPaywallSheet()
                 .environmentObject(appState)
         }
     }
 
     private func loadFromProfile() {
-        let p = appState.profile
+        let p = appState.store.profile
         displayName = p.displayName ?? ""
         weightText = p.weightKg.map { String(format: "%.1f", $0) } ?? ""
         maxHRText = p.maxHeartRate.map { "\($0)" } ?? ""
@@ -78,7 +78,7 @@ struct ProfileView: View {
                 subtitleKey: "profile.sport.subtitle",
                 systemImage: "sportscourt"
             )
-            SportSelectionGrid(selection: $appState.profile.primarySport)
+            SportSelectionGrid(selection: appState.profileBinding(\.primarySport))
                 .frame(maxWidth: .infinity)
         }
         .fuelZoneCard()
@@ -93,19 +93,19 @@ struct ProfileView: View {
             )
             profilePickerRow(
                 titleKey: "onboarding.stomach.title",
-                selection: $appState.profile.stomachSensitivity,
+                selection: appState.profileBinding(\.stomachSensitivity),
                 cases: StomachSensitivity.allCases,
                 label: { LocalizedEnum.label(for: $0) }
             )
             profilePickerRow(
                 titleKey: "onboarding.sweat.title",
-                selection: $appState.profile.sweatRate,
+                selection: appState.profileBinding(\.sweatRate),
                 cases: SweatRate.allCases,
                 label: { LocalizedEnum.label(for: $0) }
             )
             profilePickerRow(
                 titleKey: "onboarding.saltiness.title",
-                selection: $appState.profile.sweatSaltiness,
+                selection: appState.profileBinding(\.sweatSaltiness),
                 cases: SweatSaltiness.allCases,
                 label: { LocalizedEnum.label(for: $0) }
             )
@@ -161,7 +161,7 @@ struct ProfileView: View {
                     FuelZoneInfoBanner(
                         message: String(localized: "profile.hr.missingMax"), style: .info)
                 }
-            } else if let thresholds = zoneThresholds ?? appState.profile.zoneThresholds {
+            } else if let thresholds = zoneThresholds ?? appState.store.profile.zoneThresholds {
                 zoneLimitsReadOnly(thresholds)
             }
         }
@@ -340,9 +340,18 @@ struct ProfileView: View {
 
     private func saveProfile() {
         profileError = nil
-        var profile = appState.profile
-        profile.displayName = displayName.isEmpty ? nil : displayName
-        profile.weightKg = Double(weightText.replacingOccurrences(of: ",", with: "."))
+        var profile = appState.store.profile
+        let trimmedName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        profile.displayName = trimmedName.isEmpty ? nil : trimmedName
+        let trimmedWeight = weightText.trimmingCharacters(in: .whitespaces)
+        if trimmedWeight.isEmpty {
+            profile.weightKg = nil
+        } else if let weight = InputParsing.weightKg(trimmedWeight) {
+            profile.weightKg = weight
+        } else {
+            profileError = L10n.string("error.invalidWeight")
+            return
+        }
 
         if canEditHeartRateZones {
             let trimmedHR = maxHRText.trimmingCharacters(in: .whitespaces)
@@ -373,9 +382,8 @@ struct ProfileView: View {
             }
         }
 
-        profile.updatedAt = .now
-        appState.profile = profile
-        appState.saveProfile()
+        let updated = profile
+        appState.store.updateProfile { $0 = updated }
         loadFromProfile()
     }
 }
