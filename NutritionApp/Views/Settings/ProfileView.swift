@@ -151,7 +151,8 @@ struct ProfileView: View {
                 } else if let maxHR = InputParsing.maxHeartRate(trimmed), maxHR != profile.maxHeartRate {
                     appState.store.updateProfile { profile in
                         profile.maxHeartRate = maxHR
-                        if let thresholds = profile.zoneThresholds, appState.isPro {
+                        // Keep custom limits (also for lapsed Pro users) as long as they fit the new max HR.
+                        if let thresholds = profile.zoneThresholds {
                             var updated = thresholds
                             updated.maxHeartRate = maxHR
                             profile.zoneThresholds = updated.isValid() ? updated : .standard(maxHeartRate: maxHR)

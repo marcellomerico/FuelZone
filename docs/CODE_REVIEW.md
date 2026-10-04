@@ -43,6 +43,11 @@ Alle Punkte wurden in den Branches `redesign/phase-0-setup` … `redesign/phase-
 | B25 doppelter Trenner | ☑️ | neue Verlaufskarten |
 | *Neu in Phase 6:* Absturz beim Freigeben von MainActor-Klassen auf iOS 17/18 (isolated-deinit-Shim) | ✅ | `nonisolated deinit` in allen eigenen Klassen; alle Tests auch auf iOS 18.6 grün |
 | *Neu in Phase 6:* Dock verdeckt Eingabefelder bei offener Tastatur | ✅ | Dock blendet sich beim Tippen aus, „Fertig“-Taste über der Tastatur |
+| *Feedback 04.10. (Phase 7):* Onboarding fehlte bei bestehenden Nutzern | ✅ | neue Onboarding-Version wird jedem einmal gezeigt (vorausgefüllt) |
+| *Feedback (Phase 7):* „Bitte Distanz und Dauer eingeben“ im Dauer-Modus | ✅ | Validierungsfehler verschwindet bei jeder Änderung |
+| *Feedback (Phase 7):* Pace als Dezimalzahl | ✅ | Pace als min:s (Räder), Radfahren in km/h |
+| *Feedback (Phase 7):* Flüssigkeit ignoriert Intensität | ✅ | `FluidGuidelines`: Intensität, Gewicht, Obergrenze 1 l/h + Hinweis, siehe `FLUID_ANALYSIS.md` |
+| *Review 2 (Phase 7):* Sync-Rennen, verlorene Sync-Anfragen, gelöschte iCloud-Zone, wachsende Löschmarker, Zonen bei Nicht-Pro, Barcode-Getränke | ✅ | behoben, Regressionstest für das Sync-Rennen |
 | Code-Qualität (Duplikate, toter Code, Warnungen) | ☑️ | Ergebnis/Detail zusammengeführt, toter Code entfernt, 0 Compiler-Warnungen |
 | Accessibility | ☑️ | Dynamic Type, Labels, 44 pt, „ausgewählt“-Traits |
 | Release: Rechtslinks 404 | 🔶 | Seiten liegen unter `docs/privacy.md`/`docs/terms.md` – **GitHub Pages muss noch aktiviert werden** |

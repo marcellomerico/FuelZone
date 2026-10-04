@@ -115,7 +115,8 @@ final class SnackViewModel: ObservableObject {
                 carbsPerServing: product.carbsPerServing,
                 sodiumMgPerServing: product.sodiumMgPerServing,
                 nutritionBasis: product.nutritionBasis,
-                defaultPortionGrams: product.defaultPortionGrams,
+                // Liquids need a volume to count as fluid; assume a 500 ml bottle when OFF has no serving size.
+                defaultPortionGrams: product.defaultPortionGrams ?? (product.isLiquid ? 500 : nil),
                 unitKey: product.isLiquid ? "unit.bottle" : "unit.piece",
                 isBuiltIn: false,
                 barcode: product.barcode

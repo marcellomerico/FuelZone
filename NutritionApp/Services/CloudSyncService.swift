@@ -35,7 +35,15 @@ actor CloudSyncService {
         guard await isAccountAvailable() else { throw SyncError.accountUnavailable }
         try await ensureZone()
 
-        let remoteRecords = try await fetchAllRecords()
+        let remoteRecords: [CKRecord.ID: CKRecord]
+        do {
+            remoteRecords = try await fetchAllRecords()
+        } catch let error as CKError where error.code == .zoneNotFound || error.code == .userDeletedZone {
+            // The user deleted FuelZone's iCloud data: recreate the zone and upload everything again.
+            zoneReady = false
+            try await ensureZone()
+            remoteRecords = [:]
+        }
         let remote = remoteRecords.values.compactMap(Self.envelope(from:))
         let outcome = SyncMerge.merge(local: local, remote: remote)
 

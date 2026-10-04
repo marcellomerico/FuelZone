@@ -26,6 +26,14 @@ final class AppState: ObservableObject {
     let onboardingViewModel: OnboardingViewModel
 
     private static let debugProKey = "fuelzone.debug.simulatePro"
+    /// Bump when the onboarding changes enough that existing users should see it once more on this device.
+    static let currentOnboardingVersion = 2
+    static let onboardingVersionKey = "fuelzone.onboardingVersionSeen"
+
+    /// Whether the onboarding must be shown: new users, or users who have not seen the current version.
+    static func needsOnboarding(profile: UserProfile, defaults: UserDefaults = .standard) -> Bool {
+        !profile.hasCompletedOnboarding || defaults.integer(forKey: onboardingVersionKey) < currentOnboardingVersion
+    }
     private var cancellables = Set<AnyCancellable>()
 
     /// Pro access is always derived from current StoreKit entitlements.
@@ -45,6 +53,7 @@ final class AppState: ObservableObject {
             UserDefaults.standard.removeObject(forKey: LegacyStoreMigration.migratedFlag)
             LegacyStoreMigration.legacyKeys.values.forEach { UserDefaults.standard.removeObject(forKey: $0) }
             UserDefaults.standard.removeObject(forKey: Self.debugProKey)
+            UserDefaults.standard.removeObject(forKey: Self.onboardingVersionKey)
         }
         let store = store ?? UserDataStore(syncService: UserDefaults.standard.bool(forKey: "FZResetData") ? nil : CloudSyncService())
         #else
@@ -58,7 +67,7 @@ final class AppState: ObservableObject {
         #else
         debugSimulatePro = false
         #endif
-        showOnboarding = !store.profile.hasCompletedOnboarding
+        showOnboarding = Self.needsOnboarding(profile: store.profile)
 
         let onboarding = OnboardingViewModel()
         onboarding.reset(from: store.profile)
@@ -87,7 +96,8 @@ final class AppState: ObservableObject {
             .map(\.hasCompletedOnboarding)
             .removeDuplicates()
             .sink { [weak self] completed in
-                if completed { self?.showOnboarding = false }
+                // Completed on another device (iCloud): hide it only if this device has seen the current version.
+                if completed, let self, !Self.needsOnboarding(profile: self.store.profile) { self.showOnboarding = false }
             }
             .store(in: &cancellables)
 
@@ -124,6 +134,7 @@ final class AppState: ObservableObject {
             onboarding.apply(to: &profile)
             profile.hasCompletedOnboarding = true
         }
+        UserDefaults.standard.set(Self.currentOnboardingVersion, forKey: Self.onboardingVersionKey)
         sessionViewModel.setup.sport = store.profile.primarySport
         showOnboarding = false
     }

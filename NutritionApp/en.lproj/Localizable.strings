@@ -271,7 +271,7 @@
 "methodology.adjustment.intensity.body" = "Heart-rate zones: more minutes in easy zones → slightly lower carb target.";
 "methodology.adjustment.stomach.body" = "Stomach sensitivity: conservative caps intake at about 77 g/h. Tolerant allows up to about 100 g/h in sessions of 2.5 h or more – only with a trained gut and glucose–fructose products.";
 "methodology.fluids.title" = "Fluids & sodium";
-"methodology.fluids.body" = "These use your sweat profile, temperature, and weather — separate from the carbohydrate research above.";
+"methodology.fluids.body" = "Fluids come from your sweat rate, increased by intensity, heat, humidity/wind and slightly by body weight: harder sessions produce more heat and therefore more sweat. Typical advice is 0.4–0.8 litres per hour; FuelZone plans 300–1000 ml/h. The goal is not to replace every drop – drinking more than you sweat can be dangerous (hyponatraemia). Sodium follows fluids via your sweat saltiness.";
 "methodology.sources.title" = "Scientific sources";
 "methodology.sources.subtitle" = "Tap to open the original publications.";
 "methodology.sources.open" = "Open publication";
@@ -524,3 +524,18 @@
 
 /* Phase 5 */
 "storekit.error.unverified" = "The purchase could not be verified. Please try “Restore” or contact support.";
+
+/* Phase 7 */
+"plan.speed" = "Average speed";
+"plan.duration.mode.speed" = "Speed";
+"plan.pace.title" = "Pace (min:s per km)";
+"plan.pace.minutes" = "Minutes";
+"plan.pace.seconds" = "Seconds";
+"plan.pace.unit" = "/km";
+"warning.fluid_cap" = "Your estimated sweat loss is higher than you can comfortably drink. The plan stops at 1 litre per hour – drink to thirst and weigh yourself before and after to learn your real sweat rate.";
+"methodology.ref.sawka.title" = "Sawka et al. (2007)";
+"methodology.ref.sawka.citation" = "ACSM Position Stand: Exercise and fluid replacement. Medicine & Science in Sports & Exercise.";
+"methodology.ref.gagnon.title" = "Gagnon, Jay & Kenny (2013)";
+"methodology.ref.gagnon.citation" = "The evaporative requirement for heat balance determines whole-body sweat rate during exercise. Journal of Physiology.";
+"methodology.ref.eah.title" = "Hew-Butler et al. (2015)";
+"methodology.ref.eah.citation" = "Statement of the 3rd International Exercise-Associated Hyponatremia Consensus Conference. British Journal of Sports Medicine.";

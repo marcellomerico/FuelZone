@@ -66,11 +66,11 @@ enum FuelingCalculator {
             .centered(value: carbsPerHour * hours, spreadFraction: AppConstants.carbRangeSpread)
             .rounded(toPlaces: 0)
 
-        let fluidsPerHour = fluidsPerHourMl(
-            sweatRate: input.profile.sweatRate,
-            temperature: input.setup.temperature,
-            conditions: input.setup.conditions
-        )
+        let fluid = FluidGuidelines.estimate(profile: input.profile, setup: input.setup, durationMinutes: durationMinutes)
+        let fluidsPerHour = fluid.mlPerHour
+        if fluid.wasCapped {
+            warningKeys.append("warning.fluid_cap")
+        }
         let fluidsRange = NutritionRange
             .centered(value: Double(fluidsPerHour), spreadFraction: AppConstants.fluidRangeSpread)
             .rounded(toPlaces: 0)
@@ -138,19 +138,6 @@ enum FuelingCalculator {
             return (ceiling, true)
         }
         return (rawCarbsPerHour, false)
-    }
-
-    // MARK: - Fluids & sodium
-
-    private static func fluidsPerHourMl(
-        sweatRate: SweatRate,
-        temperature: TemperatureLevel,
-        conditions: WeatherCondition
-    ) -> Int {
-        let value = Double(sweatRate.baselineMlPerHour)
-            * temperature.fluidMultiplier
-            * conditions.fluidMultiplier
-        return Int(value.rounded())
     }
 
     // MARK: - Timeline

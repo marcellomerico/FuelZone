@@ -18,7 +18,7 @@ FuelZone ist eine iOS-App für Ausdauersportler:innen. Du beschreibst deine näc
 
 ### Planen
 - **Sportart** als Chips: Laufen, Radfahren, Triathlon, Wandern, Sonstiges.
-- **Dauer** wie auf einer Rennuhr: Lineal-Slider (15 min – 8 h) mit Schnellwahl (45′, 1h, 1:30, 2h, 3h, 4h), alternativ **Distanz + Pace** oder **Distanz + Zeit**.
+- **Dauer** wie auf einer Rennuhr: Lineal-Slider (15 min – 8 h) mit Schnellwahl (45′, 1h, 1:30, 2h, 3h, 4h), alternativ **Distanz + Pace** (Pace als Minuten:Sekunden pro km, beim Radfahren als km/h) oder **Distanz + Zeit**.
 - **Intensität**: Leicht / Mittel / Hart, mit Live-Anzeige der g/h je Stufe, oder **Herzfrequenz-Zonen in Minuten** (Pro).
 - **Bedingungen**: Temperatur und Wetter manuell oder automatisch per Standort bzw. Ortssuche (Open-Meteo).
 - **Live-Dock**: Kohlenhydrate, Flüssigkeit und Natrium pro Stunde ändern sich, während du planst.
@@ -62,7 +62,7 @@ Monatlich (3,99 €) oder jährlich (24,99 €) über StoreKit 2. Der Pro-Status
 
 1. **Kohlenhydrate** in absoluten g/h nach Dauer: unter 75 min ≈ 30 g/h, bis 2,5 h ≈ 60 g/h, darüber ≈ 90 g/h. Skaliert nach Intensität (Leicht 70 %, Mittel 85 %, Hart 100 %, bzw. gewichtet über die Zonen-Minuten).
 2. **Magen**: *Konservativ* begrenzt auf ≈ 77 g/h, *Verträglich* erlaubt ab 2,5 h bis ≈ 100 g/h.
-3. **Flüssigkeit** = Schweißrate × Temperatur × Wetter; **Natrium** = Flüssigkeit × Salzgehalt des Schweißes.
+3. **Flüssigkeit** = Schweißrate × Temperatur × Wetter × **Intensität** × Körpergewicht, begrenzt auf 300–1000 ml/h (zu viel Trinken ist riskant). **Natrium** = Flüssigkeit × Salzgehalt des Schweißes. Herleitung und Quellen: [`docs/FLUID_ANALYSIS.md`](docs/FLUID_ANALYSIS.md).
 4. **SnackComposer**: plant nach den *aufgelaufenen* Zielen, damit keine Überdosierung entsteht. Er nimmt Iso-Getränk in Schlucken plus Wasser, wählt Gels (auch halbe) passend zur Lücke und achtet beim Natrium auf natriumarme Gels, wenn das Ziel schon erreicht ist. Er nutzt nur Snacks aus deinem Kit.
 5. **Ergebnis**: Ziel als Bereich (±8–10 %), die **geplanten Werte** kommen aus den echten Snacks (Soll vs. Ist).
 
@@ -139,9 +139,10 @@ xcodebuild test -scheme NutritionApp -destination 'platform=iOS Simulator,name=i
 | `FuelingCalculatorTests`, `ExerciseCarbGuidelinesTests` | Dauer-Stufen, Intensität, Magen-Grenze, Natrium |
 | `CalculationCoreTests` | SnackComposer über viele Dauern/Intensitäten, Packliste, Parser, Grenzen, Vorschau, Altdaten |
 | `DataLayerTests` | Kit, Migration, Persistenz, iCloud-Merge, Löschen, Tausch, Pro-Ableitung, Onboarding |
+| `FluidGuidelinesTests` | Flüssigkeit nach Intensität, Hitze, Gewicht, Obergrenze; Onboarding-Version |
 | `HeartRateZone*Tests` | Zonen und Minuten-Verteilung |
 | `CodeReviewFindingsTests` | Regressionstests für alle bestätigten Review-Funde |
-| `FlowUITests` | Onboarding → Plan → Ergebnis → Verlauf → Löschen, Kit, Pace-Eingabe, Pro-Sperre |
+| `FlowUITests` | Onboarding → Plan → Ergebnis → Verlauf → Löschen, Kit, Pace als min:s, Rad-Tempo in km/h, Fehlermeldung verschwindet, Pro-Sperre |
 | `UIReviewScreenshots` | optional: `TEST_RUNNER_UI_MODE=light\|dark` erzeugt Screenshots aller Screens |
 
 ---
@@ -161,6 +162,7 @@ xcodebuild test -scheme NutritionApp -destination 'platform=iOS Simulator,name=i
 
 - [`docs/CODE_REVIEW.md`](docs/CODE_REVIEW.md): Code Review mit Status pro Fund
 - [`docs/UI_REVIEW.md`](docs/UI_REVIEW.md): UI/UX-Review und Design-Herleitung
+- [`docs/FLUID_ANALYSIS.md`](docs/FLUID_ANALYSIS.md): Flüssigkeit & Natrium, wissenschaftliche Analyse
 - [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md): Umsetzungsplan des Redesigns
 - [`docs/PRE_LAUNCH_CHECKLIST.md`](docs/PRE_LAUNCH_CHECKLIST.md): Schritte bis zum App Store
 - [`docs/PRODUCT_ROADMAP.md`](docs/PRODUCT_ROADMAP.md): Wettbewerb und Roadmap

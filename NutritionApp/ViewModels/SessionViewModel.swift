@@ -8,7 +8,12 @@ final class SessionViewModel: ObservableObject {
     // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
     nonisolated deinit {}
 
-    @Published var setup = SessionSetup()
+    /// Any change to the setup clears a previous validation error (it may no longer apply).
+    @Published var setup = SessionSetup() {
+        didSet {
+            if errorMessage != nil, oldValue != setup { errorMessage = nil }
+        }
+    }
     @Published var errorMessage: String?
     @Published var showProPaywall = false
     @Published var isFetchingWeather = false
@@ -43,14 +48,6 @@ final class SessionViewModel: ObservableObject {
     }
 
     var canUseZoneMode: Bool { isProProvider() }
-
-    func selectIntensityMode(_ mode: IntensityMode) {
-        if mode == .zoneBased, !canUseZoneMode {
-            showProPaywall = true
-            return
-        }
-        setup.intensityMode = mode
-    }
 
     /// Manual temperature/condition changes invalidate the fetched weather.
     func setManualConditions(temperature: TemperatureLevel? = nil, conditions: WeatherCondition? = nil) {

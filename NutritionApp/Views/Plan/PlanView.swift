@@ -247,9 +247,11 @@ private struct DurationCard: View {
             case .duration:
                 rulerAndPicks
             case .distanceAndPace:
-                HStack(spacing: 10) {
-                    FZTextField(label: L10n.string("session.distance.km"), text: decimalBinding(\.distanceKm), placeholder: "21,1", unit: "km", keyboard: .decimalPad)
-                    FZTextField(label: L10n.string("session.pace.minPerKm"), text: decimalBinding(\.paceMinutesPerKm), placeholder: "5,5", unit: "min/km", keyboard: .decimalPad)
+                FZTextField(label: L10n.string("session.distance.km"), text: decimalBinding(\.distanceKm), placeholder: isCycling ? "60" : "21,1", unit: "km", keyboard: .decimalPad)
+                if isCycling {
+                    FZTextField(label: L10n.string("plan.speed"), text: speedBinding, placeholder: "28", unit: "km/h", keyboard: .decimalPad)
+                } else {
+                    PacePicker(paceMinutesPerKm: $viewModel.setup.paceMinutesPerKm)
                 }
             case .distanceAndTime:
                 FZTextField(label: L10n.string("session.distance.km"), text: decimalBinding(\.distanceKm), placeholder: "42,2", unit: "km", keyboard: .decimalPad)
@@ -287,10 +289,29 @@ private struct DurationCard: View {
         }
     }
 
+    private var isCycling: Bool { viewModel.setup.sport == .cycling }
+
+    /// Cyclists think in km/h; stored as minutes per km like a running pace.
+    private var speedBinding: Binding<String> {
+        Binding(
+            get: {
+                guard let pace = viewModel.setup.paceMinutesPerKm, pace > 0 else { return "" }
+                return (60 / pace).formatted(.number.precision(.fractionLength(0...1)))
+            },
+            set: { text in
+                if let speed = InputParsing.decimal(text), speed > 0 {
+                    viewModel.setup.paceMinutesPerKm = 60 / speed
+                } else {
+                    viewModel.setup.paceMinutesPerKm = nil
+                }
+            }
+        )
+    }
+
     private func modeTitle(_ mode: DurationInputMode) -> String {
         switch mode {
         case .duration: L10n.string("plan.duration.mode.time")
-        case .distanceAndPace: L10n.string("plan.duration.mode.pace")
+        case .distanceAndPace: L10n.string(isCycling ? "plan.duration.mode.speed" : "plan.duration.mode.pace")
         case .distanceAndTime: L10n.string("plan.duration.mode.distanceTime")
         }
     }
@@ -312,6 +333,69 @@ private struct DurationCard: View {
             },
             set: { viewModel.setup[keyPath: keyPath] = InputParsing.decimal($0) }
         )
+    }
+}
+
+/// Running pace as minutes and seconds per km (e.g. 5:20 /km), not as a decimal.
+private struct PacePicker: View {
+    @Binding var paceMinutesPerKm: Double?
+    private static let defaultSeconds = 330
+    static let minuteRange = 2...20
+
+    /// Clamped to the wheel range so a pace carried over from a fast bike speed stays selectable.
+    private var totalSeconds: Int {
+        guard let pace = paceMinutesPerKm, pace > 0 else { return Self.defaultSeconds }
+        let seconds = Int((pace * 60 / 5).rounded()) * 5
+        return min(max(seconds, Self.minuteRange.lowerBound * 60), Self.minuteRange.upperBound * 60 + 55)
+    }
+
+    private var minutes: Binding<Int> {
+        Binding(
+            get: { totalSeconds / 60 },
+            set: { paceMinutesPerKm = Double($0 * 60 + totalSeconds % 60) / 60 }
+        )
+    }
+
+    private var seconds: Binding<Int> {
+        Binding(
+            get: { totalSeconds % 60 },
+            set: { paceMinutesPerKm = Double((totalSeconds / 60) * 60 + $0) / 60 }
+        )
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(localized: "plan.pace.title")
+                .font(Theme.Typography.footnote)
+                .foregroundStyle(Theme.Colors.ink2)
+            HStack(spacing: 0) {
+                Picker(L10n.string("plan.pace.minutes"), selection: minutes) {
+                    ForEach(Self.minuteRange, id: \.self) { Text("\($0)").tag($0) }
+                }
+                .pickerStyle(.wheel)
+                .frame(maxWidth: .infinity)
+                Text(":").font(.title2.weight(.heavy))
+                Picker(L10n.string("plan.pace.seconds"), selection: seconds) {
+                    ForEach(Array(stride(from: 0, to: 60, by: 5)), id: \.self) { Text(String(format: "%02d", $0)).tag($0) }
+                }
+                .pickerStyle(.wheel)
+                .frame(maxWidth: .infinity)
+                Text(localized: "plan.pace.unit")
+                    .font(Theme.Typography.subheadlineEmphasis)
+                    .foregroundStyle(Theme.Colors.ink2)
+                    .padding(.trailing, 8)
+            }
+            .frame(height: 120)
+            .clipped()
+            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Theme.Colors.surface2))
+        }
+        .onAppear {
+            // Start from a sensible running pace; normalise values outside the wheel range.
+            let normalized = Double(totalSeconds) / 60
+            if paceMinutesPerKm != normalized { paceMinutesPerKm = normalized }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(localized: "plan.pace.title"))
     }
 }
 

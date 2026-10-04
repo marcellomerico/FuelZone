@@ -169,6 +169,16 @@ final class DataLayerTests: XCTestCase {
         XCTAssertNotNil(store.session(id: record.id))
     }
 
+    func testApplyRemote_ignoresOlderCopyThanLocalEdit() throws {
+        let store = TestStores.make()
+        var older = store.profile
+        older.displayName = "Remote"
+        older.updatedAt = Date(timeIntervalSinceNow: -60)
+        store.updateProfile { $0.displayName = "Local" }   // edited while a sync was in flight
+        store.apply([SyncEnvelope(key: "profile", modifiedAt: older.updatedAt, payload: try JSONEncoder.fuelZone.encode(older))])
+        XCTAssertEqual(store.profile.displayName, "Local")
+    }
+
     // MARK: - Plan editing
 
     func testSwap_persistsToHistory_andKeepsCarbsSimilar() throws {

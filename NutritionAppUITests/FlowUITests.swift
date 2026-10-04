@@ -87,10 +87,36 @@ final class FlowUITests: XCTestCase {
         let distance = app.textFields.matching(NSPredicate(format: "label CONTAINS[c] %@", "Distanz")).firstMatch
         XCTAssertTrue(distance.waitForExistence(timeout: 2))
         type("21,1", into: distance)
-        let pace = app.textFields.matching(NSPredicate(format: "label CONTAINS[c] %@", "Pace")).firstMatch
-        type("5,5", into: pace)
+        // Pace is picked as min:s (default 5:30 /km), no decimal typing.
+        XCTAssertTrue(app.pickerWheels.count >= 2, "Pace uses minute and second wheels")
         let duration = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", "1:56")).firstMatch
-        XCTAssertTrue(duration.waitForExistence(timeout: 2), "21.1 km at 5:30/km ≈ 1:56")
+        XCTAssertTrue(duration.waitForExistence(timeout: 2), "21.1 km at the default 5:30 /km ≈ 1:56")
+    }
+
+    func testCycling_usesSpeedInsteadOfPace() {
+        completeOnboarding()
+        button(containing: "Radfahren").tap()
+        button(containing: "Tempo").tap()
+        let distance = app.textFields.matching(NSPredicate(format: "label CONTAINS[c] %@", "Distanz")).firstMatch
+        XCTAssertTrue(distance.waitForExistence(timeout: 2))
+        type("60", into: distance)
+        app.buttons["Fertig"].firstMatch.tap()   // close the number pad like a user would
+        let speed = app.textFields.matching(NSPredicate(format: "label CONTAINS[c] %@", "geschwindigkeit")).firstMatch
+        XCTAssertTrue(speed.exists, "Cycling asks for km/h")
+        type("30", into: speed)
+        let duration = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", "2:00")).firstMatch
+        XCTAssertTrue(duration.waitForExistence(timeout: 2), "60 km at 30 km/h = 2:00")
+    }
+
+    func testValidationError_disappearsAfterChangingInput() {
+        completeOnboarding()
+        button(containing: "Distanz").tap()
+        app.buttons["plan.create"].tap()
+        let error = app.staticTexts["Bitte Distanz und Dauer eingeben."]
+        if error.waitForExistence(timeout: 2) {
+            button(containing: "Dauer").firstMatch.tap()
+            XCTAssertFalse(error.waitForExistence(timeout: 1), "Old error must not stay visible in another mode")
+        }
     }
 
     func testZonesWithoutPro_showsPaywall() {

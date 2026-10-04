@@ -6,19 +6,22 @@ struct PlanResultView: View {
     let recordID: UUID
 
     var body: some View {
-        PlanResultContent(
-            viewModel: PlanResultViewModel(
-                recordID: recordID,
-                store: appState.store,
-                isPro: { [weak appState] in appState?.isPro ?? false }
-            )
-        )
+        PlanResultContent(recordID: recordID, appState: appState)
     }
 }
 
 private struct PlanResultContent: View {
     @EnvironmentObject private var appState: AppState
-    @StateObject var viewModel: PlanResultViewModel
+    @StateObject private var viewModel: PlanResultViewModel
+
+    /// The autoclosure makes SwiftUI create the view model once per screen, not on every parent render.
+    init(recordID: UUID, appState: AppState) {
+        _viewModel = StateObject(wrappedValue: PlanResultViewModel(
+            recordID: recordID,
+            store: appState.store,
+            isPro: { [weak appState] in appState?.isPro ?? false }
+        ))
+    }
     @State private var showRename = false
     @State private var newTitle = ""
 

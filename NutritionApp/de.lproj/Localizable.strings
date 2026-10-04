@@ -272,7 +272,7 @@
 "methodology.adjustment.intensity.body" = "HF-Zonen: mehr Minuten in leichten Zonen → etwas weniger Kohlenhydrate pro Stunde.";
 "methodology.adjustment.stomach.body" = "Magenempfindlichkeit: „konservativ“ begrenzt auf rund 77 g/h. „Verträglich“ erlaubt bei Einheiten ab 2,5 Std. bis zu rund 100 g/h – nur mit trainiertem Magen und Glukose-Fruktose-Produkten.";
 "methodology.fluids.title" = "Flüssigkeit & Natrium";
-"methodology.fluids.body" = "Basierend auf Schweißprofil, Temperatur und Wetter — getrennt von der Kohlenhydrat-Forschung oben.";
+"methodology.fluids.body" = "Flüssigkeit ergibt sich aus deiner Schweißrate, verstärkt durch Intensität, Hitze, Luftfeuchte/Wind und leicht durch dein Gewicht: Härtere Einheiten erzeugen mehr Wärme und damit mehr Schweiß. Empfohlen werden meist 0,4–0,8 l pro Stunde; FuelZone plant 300–1000 ml/h. Ziel ist nicht, jeden Schweißverlust zu ersetzen – zu viel zu trinken kann gefährlich sein (Hyponatriämie). Natrium folgt der Flüssigkeit über den Salzgehalt deines Schweißes.";
 "methodology.sources.title" = "Wissenschaftliche Quellen";
 "methodology.sources.subtitle" = "Tippen, um die Originalpublikation zu öffnen.";
 "methodology.sources.open" = "Publikation öffnen";
@@ -525,3 +525,18 @@
 
 /* Phase 5 */
 "storekit.error.unverified" = "Der Kauf konnte nicht bestätigt werden. Bitte „Wiederherstellen“ versuchen oder den Support kontaktieren.";
+
+/* Phase 7 */
+"plan.speed" = "Durchschnittsgeschwindigkeit";
+"plan.duration.mode.speed" = "Tempo";
+"plan.pace.title" = "Pace (min:s pro km)";
+"plan.pace.minutes" = "Minuten";
+"plan.pace.seconds" = "Sekunden";
+"plan.pace.unit" = "/km";
+"warning.fluid_cap" = "Dein geschätzter Schweißverlust ist höher, als du gut trinken kannst. Der Plan endet bei 1 Liter pro Stunde – trink nach Durst und wieg dich vor und nach dem Training, um deine echte Schweißrate zu kennen.";
+"methodology.ref.sawka.title" = "Sawka et al. (2007)";
+"methodology.ref.sawka.citation" = "ACSM-Positionspapier: Exercise and fluid replacement. Medicine & Science in Sports & Exercise.";
+"methodology.ref.gagnon.title" = "Gagnon, Jay & Kenny (2013)";
+"methodology.ref.gagnon.citation" = "Der Verdunstungsbedarf für das Wärmegleichgewicht bestimmt die Schweißrate beim Sport. Journal of Physiology.";
+"methodology.ref.eah.title" = "Hew-Butler et al. (2015)";
+"methodology.ref.eah.citation" = "Konsens zur belastungsassoziierten Hyponatriämie (3. internationale Konferenz). British Journal of Sports Medicine.";

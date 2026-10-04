@@ -32,6 +32,10 @@ final class UserDataStore: ObservableObject {
     private let syncService: CloudSyncService?
     private var tombstones: [String: Date]
     private var syncTask: Task<Void, Never>?
+    /// A sync was requested while another one was running; run again when it finishes.
+    private var syncRequestedWhileRunning = false
+    /// Tombstones older than this are dropped after a successful sync (other devices have seen them by then).
+    static let tombstoneRetention: TimeInterval = 90 * 24 * 60 * 60
     private static let logger = Logger(subsystem: "com.mmerico.FuelZone", category: "UserDataStore")
 
     init(
@@ -217,11 +221,22 @@ final class UserDataStore: ObservableObject {
     }
 
     func syncNow() async {
-        guard let syncService, syncStatus != .syncing else { return }
+        guard let syncService else { return }
+        guard syncStatus != .syncing else {
+            syncRequestedWhileRunning = true
+            return
+        }
         syncStatus = .syncing
+        defer {
+            if syncRequestedWhileRunning {
+                syncRequestedWhileRunning = false
+                scheduleSync(after: .milliseconds(300))
+            }
+        }
         do {
             let remote = try await syncService.sync(local: localEnvelopes())
             apply(remote)
+            pruneTombstones()
             syncStatus = .synced(.now)
         } catch CloudSyncService.SyncError.accountUnavailable {
             syncStatus = .unavailable
@@ -256,11 +271,33 @@ final class UserDataStore: ObservableObject {
         return envelopes
     }
 
-    /// Applies newer remote items. Exposed for tests.
+    private func pruneTombstones(now: Date = .now) {
+        let cutoff = now.addingTimeInterval(-Self.tombstoneRetention)
+        let pruned = tombstones.filter { $0.value > cutoff }
+        guard pruned.count != tombstones.count else { return }
+        tombstones = pruned
+        files.save(tombstones, to: .tombstones)
+    }
+
+    /// Last local modification of an item, used to ignore remote copies that are not newer
+    /// (local edits can happen while a sync is waiting for the network).
+    private func localModifiedAt(for key: String) -> Date? {
+        switch key {
+        case "profile": return profile.updatedAt
+        case "settings": return settings.modifiedAt
+        case "library": return library.modifiedAt
+        default:
+            if let deletedAt = tombstones[key] { return deletedAt }
+            return history.first { Self.sessionKey($0.id) == key }?.modifiedAt
+        }
+    }
+
+    /// Applies remote items that are newer than the local copy. Exposed for tests.
     func apply(_ remote: [SyncEnvelope]) {
         let decoder = JSONDecoder.fuelZone
         var historyChanged = false
         for envelope in remote {
+            if let local = localModifiedAt(for: envelope.key), local >= envelope.modifiedAt { continue }
             switch envelope.key {
             case "profile":
                 if let data = envelope.payload, let value = try? decoder.decode(UserProfile.self, from: data) {

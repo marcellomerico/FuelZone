@@ -156,6 +156,24 @@ private struct MethodologyReference: Identifiable {
             titleKey: "methodology.ref.issn.title",
             citationKey: "methodology.ref.issn.citation",
             url: URL(string: "https://pubmed.ncbi.nlm.nih.gov/28919842/")!
+        ),
+        MethodologyReference(
+            id: "sawka2007",
+            titleKey: "methodology.ref.sawka.title",
+            citationKey: "methodology.ref.sawka.citation",
+            url: URL(string: "https://pubmed.ncbi.nlm.nih.gov/17277604/")!
+        ),
+        MethodologyReference(
+            id: "gagnon2013",
+            titleKey: "methodology.ref.gagnon.title",
+            citationKey: "methodology.ref.gagnon.citation",
+            url: URL(string: "https://pmc.ncbi.nlm.nih.gov/articles/PMC3690695/")!
+        ),
+        MethodologyReference(
+            id: "eah2015",
+            titleKey: "methodology.ref.eah.title",
+            citationKey: "methodology.ref.eah.citation",
+            url: URL(string: "https://bjsm.bmj.com/content/49/22/1432")!
         )
     ]
 }
