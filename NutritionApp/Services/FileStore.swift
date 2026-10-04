@@ -73,7 +73,7 @@ extension JSONDecoder {
 /// One-time import of data written by versions that stored JSON blobs in UserDefaults / iCloud KVS.
 nonisolated enum LegacyStoreMigration {
     static let migratedFlag = "fuelzone.migratedToFileStore.v1"
-    private static let legacyKeys: [FileStore.File: String] = [
+    static let legacyKeys: [FileStore.File: String] = [
         .profile: "fuelzone.userProfile",
         .settings: "fuelzone.appSettings",
         .history: "fuelzone.sessionHistory",

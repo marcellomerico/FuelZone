@@ -7,6 +7,7 @@ struct PlanView: View {
     var onPlanCreated: (UUID) -> Void
 
     @State private var showConditions = false
+    @State private var isKeyboardVisible = false
 
     private var preview: PlanPreview? {
         viewModel.planPreview(profile: appState.store.profile)
@@ -42,7 +43,26 @@ struct PlanView: View {
         .scrollDismissesKeyboard(.interactively)
         .fzScreenBackground()
         .toolbar(.hidden, for: .navigationBar)
-        .safeAreaInset(edge: .bottom) { dock }
+        .safeAreaInset(edge: .bottom) {
+            // The dock steps aside while typing so it never covers the focused field.
+            if !isKeyboardVisible { dock }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                } label: {
+                    Text(localized: "common.done").bold()
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            isKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            isKeyboardVisible = false
+        }
         .sheet(isPresented: $showConditions) {
             ConditionsSheet(viewModel: viewModel)
                 .presentationDetents([.medium, .large])

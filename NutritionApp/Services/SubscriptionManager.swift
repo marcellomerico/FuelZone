@@ -44,7 +44,8 @@ final class SubscriptionManager: ObservableObject {
         Task { await refreshEntitlements() }
     }
 
-    deinit {
+    // Nonisolated: see UserDataStore (isolated-deinit back-deployment crash on iOS < 26).
+    nonisolated deinit {
         updatesTask?.cancel()
     }
 

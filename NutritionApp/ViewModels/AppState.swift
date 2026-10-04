@@ -8,6 +8,10 @@ enum AppTab: Hashable {
 /// App-wide coordinator: owns the data store, StoreKit and the screen view models.
 @MainActor
 final class AppState: ObservableObject {
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
     @Published var showOnboarding: Bool
     @Published var selectedTab: AppTab = .plan
     /// Debug-only override to try Pro features without a purchase. Never synced, never in release builds.
@@ -34,7 +38,18 @@ final class AppState: ObservableObject {
     }
 
     init(store: UserDataStore? = nil, subscriptionManager: SubscriptionManager? = nil) {
+        #if DEBUG
+        // UI tests: `-FZResetData YES` starts from a clean install.
+        if store == nil, UserDefaults.standard.bool(forKey: "FZResetData") {
+            FileStore.applicationSupport().removeAll()
+            UserDefaults.standard.removeObject(forKey: LegacyStoreMigration.migratedFlag)
+            LegacyStoreMigration.legacyKeys.values.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+            UserDefaults.standard.removeObject(forKey: Self.debugProKey)
+        }
+        let store = store ?? UserDataStore(syncService: UserDefaults.standard.bool(forKey: "FZResetData") ? nil : CloudSyncService())
+        #else
         let store = store ?? UserDataStore()
+        #endif
         let subscriptions = subscriptionManager ?? SubscriptionManager()
         self.store = store
         self.subscriptionManager = subscriptions

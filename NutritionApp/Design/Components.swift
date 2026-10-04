@@ -435,6 +435,7 @@ struct FZTextField: View {
             HStack(spacing: 8) {
                 TextField(label, text: $text, prompt: Text(placeholder).foregroundStyle(Theme.Colors.ink3))
                     .keyboardType(keyboard)
+                    .accessibilityLabel(Text(label))
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Colors.ink)
                 if let unit {

@@ -4,6 +4,10 @@ import Foundation
 /// Shows one saved plan (fresh result or history entry). Snack swaps are written back to the store.
 @MainActor
 final class PlanResultViewModel: ObservableObject {
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
     let recordID: UUID
     let store: UserDataStore
     private let isProProvider: () -> Bool

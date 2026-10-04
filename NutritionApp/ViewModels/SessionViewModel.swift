@@ -4,6 +4,10 @@ import Foundation
 
 @MainActor
 final class SessionViewModel: ObservableObject {
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
     @Published var setup = SessionSetup()
     @Published var errorMessage: String?
     @Published var showProPaywall = false

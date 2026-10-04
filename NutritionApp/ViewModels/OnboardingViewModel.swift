@@ -3,6 +3,10 @@ import Foundation
 
 @MainActor
 final class OnboardingViewModel: ObservableObject {
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
     @Published var stepIndex = 0
     @Published var primarySport: SportType = .running
     @Published var stomachSensitivity: StomachSensitivity = .moderate

@@ -7,6 +7,10 @@ import os
 /// Every mutation stamps `modifiedAt`, writes the matching JSON file and schedules an iCloud sync.
 @MainActor
 final class UserDataStore: ObservableObject {
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
     enum SyncStatus: Equatable {
         case idle
         case syncing

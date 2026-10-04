@@ -40,6 +40,9 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
             self.parent = parent
         }
 
+        // Avoid the isolated-deinit back-deployment crash on iOS < 26 (see UserDataStore).
+        nonisolated deinit {}
+
         func dataScanner(_ dataScanner: DataScannerViewController, didTapOn item: RecognizedItem) {
             process(item)
         }

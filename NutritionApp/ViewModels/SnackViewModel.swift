@@ -4,6 +4,10 @@ import Foundation
 /// Snack screen state: “My kit”, catalog filtering, custom snacks and barcode scanning.
 @MainActor
 final class SnackViewModel: ObservableObject {
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
     @Published var selectedCategory: SnackCategory?
     @Published var searchText = ""
     @Published var showProPaywall = false

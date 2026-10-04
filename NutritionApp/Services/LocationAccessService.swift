@@ -5,6 +5,10 @@ import Foundation
 /// One-shot location lookup for weather. Waits for the permission answer instead of polling.
 @MainActor
 final class LocationAccessService: NSObject, ObservableObject, CLLocationManagerDelegate {
+    // A nonisolated deinit avoids the isolated-deinit back-deployment shim, which crashes on iOS < 26
+    // (swift_task_deinitOnExecutorMainActorBackDeploy) when the object is released on the main thread.
+    nonisolated deinit {}
+
     @Published private(set) var authorizationStatus: CLAuthorizationStatus
 
     private let manager = CLLocationManager()

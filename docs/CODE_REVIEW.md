@@ -8,7 +8,52 @@ Legende: 🔴 kritisch · 🟠 Bug · 🟡 Code-Qualität / Risiko · 🔵 Klein
 
 ---
 
-## 1. Gesamtbild
+## 0. Status nach dem Redesign (04.10.2026)
+
+Alle Punkte wurden in den Branches `redesign/phase-0-setup` … `redesign/phase-6-verification` bearbeitet. ✅ = behoben und durch Tests abgesichert, ☑️ = behoben, 🔶 = braucht einen externen Schritt.
+
+| Punkt | Status | Umsetzung |
+|---|---|---|
+| K1 SnackComposer überplant | ✅ | Neuer Composer nach aufgelaufenen Zielen, halbe Gels, natriumbewusst (`CalculationCoreTests`) |
+| K2 iCloud-Datenverlust | ✅ | `UserDataStore` + `CloudSyncService`: ein Datensatz pro Element, „neuer gewinnt“, Löschmarkierungen (`DataLayerTests`) |
+| K3 KVS nicht konfiguriert | ✅ | KVS entfernt, nur noch CloudKit |
+| K4 Pro gespeichert | ✅ | Pro nur aus StoreKit, Verlauf wird nie gekürzt |
+| B1 Snack verschwindet | ✅ | „Mein Kit“ + Katalog |
+| B2 altes Ergebnis | ✅ | `calculatePlan()` gibt Ergebnis zurück, löscht alte |
+| B3/B4 Onboarding | ✅ | Neustart bei Schritt 1, Profil-ID und Zonen bleiben |
+| B5 Validierung | ✅ | `InputParsing` |
+| B6 Barcode-Portion | ✅ | Regex-Parser mit Einheiten |
+| B7 Barcode doppelt | ✅ | Sperre während der Abfrage + Duplikat-Erkennung |
+| B8 Tausch nicht gespeichert | ✅ | `PlanResultViewModel` schreibt in den Verlauf |
+| B9 Verlauf löschen | ✅ | Wischen/Kontextmenü |
+| B10/B11 Profil-State | ✅ | eine Datenquelle, sofort speichern |
+| B12 „Verträglich“ wirkungslos | ✅ | bis ≈ 100 g/h ab 2,5 h |
+| B13 Dauergrenzen | ✅ | 10 min – 24 h |
+| B14 Profil-Speichern | ☑️ | Profil neu, Eingaben bleiben, Fehler direkt am Feld |
+| B15 Standort | ☑️ | wartet auf Erlaubnis, keine hängenden Continuations |
+| B16 Geocoder | ☑️ | neuer Geocoder je Anfrage |
+| B17 Toggle im Tausch-Sheet | ☑️ | neues Sheet ohne Toggle |
+| B18 Snacks verschwinden | ✅ | Snapshot der genutzten Snacks im Ergebnis |
+| B19 Menge beim Tausch | ✅ | `FuelPlanEditor` rechnet um |
+| B20 Slider 30–300 | ☑️ | 15 min – 8 h + Distanz-Modi |
+| B21 Filter-Chips | ☑️ | alle Kategorien + Suche |
+| B22 Einheit/Validierung im Editor | ☑️ | Einheiten-Picker, Validierung, Lösch-Bestätigung |
+| B23 Barcode-Kategorie | ☑️ | Getränke werden erkannt |
+| B24 Detail ohne Snacks | ✅ | gemeinsame Ergebnisansicht |
+| B25 doppelter Trenner | ☑️ | neue Verlaufskarten |
+| *Neu in Phase 6:* Absturz beim Freigeben von MainActor-Klassen auf iOS 17/18 (isolated-deinit-Shim) | ✅ | `nonisolated deinit` in allen eigenen Klassen; alle Tests auch auf iOS 18.6 grün |
+| *Neu in Phase 6:* Dock verdeckt Eingabefelder bei offener Tastatur | ✅ | Dock blendet sich beim Tippen aus, „Fertig“-Taste über der Tastatur |
+| Code-Qualität (Duplikate, toter Code, Warnungen) | ☑️ | Ergebnis/Detail zusammengeführt, toter Code entfernt, 0 Compiler-Warnungen |
+| Accessibility | ☑️ | Dynamic Type, Labels, 44 pt, „ausgewählt“-Traits |
+| Release: Rechtslinks 404 | 🔶 | Seiten liegen unter `docs/privacy.md`/`docs/terms.md` – **GitHub Pages muss noch aktiviert werden** |
+| Release: Paywall-Rechtslinks | ✅ | in der Paywall |
+| Release: Push-Capability | ☑️ | entfernt |
+| Release: Privacy Manifest | ☑️ | ungefährer Standort deklariert |
+| Release: App Store Connect | 🔶 | Abos anlegen, TestFlight |
+
+---
+
+## 1. Gesamtbild (Stand vor dem Redesign)
 
 | Bereich | Zustand |
 |---|---|
