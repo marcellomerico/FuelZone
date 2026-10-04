@@ -16,8 +16,8 @@ final class NutritionAppTests: XCTestCase {
         }
         XCTAssertEqual(bundle.localizedString(forKey: "onboarding.tagline", value: nil, table: nil),
                          "Fuel that fits your session.")
-        XCTAssertEqual(bundle.localizedString(forKey: "snack.gel.standard", value: nil, table: nil),
-                         "Energy gel")
+        XCTAssertEqual(bundle.localizedString(forKey: "snack.gel.maurten320", value: nil, table: nil),
+                         "Maurten Gel 320")
     }
 
     func testGermanLocalizationKeysResolve() {
