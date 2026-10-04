@@ -49,28 +49,6 @@ extension Snack {
         (fluidMlPerDefaultPortion ?? 0) * max(quantity, 0)
     }
 
-    /// Human-readable nutrition line for lists (includes basis).
-    var nutritionSummaryLine: String {
-        switch nutritionBasis {
-        case .per100g:
-            return L10n.format(
-                "snack.nutrition.summary.per100g",
-                String(format: "%.1f", carbsPerServing),
-                String(format: "%.1f", sodiumMgPerServing),
-                "\(Int(effectivePortionGrams))",
-                "\(Int(carbsPerDefaultPortion.rounded()))",
-                "\(Int(sodiumMgPerDefaultPortion.rounded()))"
-            )
-        case .perServing:
-            return L10n.format(
-                "snack.nutrition.summary.perServing",
-                "\(Int(carbsPerDefaultPortion.rounded()))",
-                "\(Int(sodiumMgPerDefaultPortion.rounded()))",
-                localizedUnit
-            )
-        }
-    }
-
     private static let millilitersByUnitKey: [String: Double] = [
         "unit.ml500": 500,
         "unit.ml330": 330,

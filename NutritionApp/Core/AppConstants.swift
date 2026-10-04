@@ -1,9 +1,6 @@
 import Foundation
 
 enum AppConstants {
-    static let appName = "FuelZone"
-    static let defaultTaglineKey = "onboarding.tagline"
-
     /// Timeline steps are generated every N minutes.
     static let timelineStepMinutes = 20
 
@@ -22,6 +19,6 @@ enum AppConstants {
     static let fluidRangeSpread = 0.1
     static let sodiumRangeSpread = 0.1
 
-    /// Free tier: number of history sessions kept locally / in iCloud.
+    /// Free tier: number of history sessions shown (older ones stay stored).
     static let freeHistorySessionLimit = 10
 }

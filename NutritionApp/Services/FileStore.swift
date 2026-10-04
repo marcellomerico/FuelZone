@@ -2,7 +2,7 @@ import Foundation
 import os
 
 /// Local source of truth: one JSON file per data set in Application Support.
-struct FileStore: Sendable {
+nonisolated struct FileStore: Sendable {
     enum File: String, CaseIterable, Sendable {
         case profile = "profile.json"
         case settings = "settings.json"
@@ -55,7 +55,7 @@ struct FileStore: Sendable {
 }
 
 extension JSONEncoder {
-    static var fuelZone: JSONEncoder {
+    nonisolated static var fuelZone: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .deferredToDate
         return encoder
@@ -63,7 +63,7 @@ extension JSONEncoder {
 }
 
 extension JSONDecoder {
-    static var fuelZone: JSONDecoder {
+    nonisolated static var fuelZone: JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .deferredToDate
         return decoder
@@ -71,7 +71,7 @@ extension JSONDecoder {
 }
 
 /// One-time import of data written by versions that stored JSON blobs in UserDefaults / iCloud KVS.
-enum LegacyStoreMigration {
+nonisolated enum LegacyStoreMigration {
     static let migratedFlag = "fuelzone.migratedToFileStore.v1"
     private static let legacyKeys: [FileStore.File: String] = [
         .profile: "fuelzone.userProfile",

@@ -41,9 +41,4 @@ struct UserProfile: Codable, Hashable, Identifiable, Sendable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
-
-    mutating func refreshZoneThresholdsFromMaxHR() {
-        guard let maxHeartRate else { return }
-        zoneThresholds = HeartRateZoneThresholds.standard(maxHeartRate: maxHeartRate)
-    }
 }

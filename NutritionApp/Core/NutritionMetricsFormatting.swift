@@ -1,15 +1,6 @@
 import Foundation
 
 enum NutritionMetricsFormatting {
-    static func stepTargets(carbs: Double, fluidsMl: Int, sodiumMg: Double) -> String {
-        L10n.format(
-            "metrics.step.targets",
-            "\(Int(carbs.rounded()))",
-            "\(fluidsMl)",
-            "\(Int(sodiumMg.rounded()))"
-        )
-    }
-
     static func snackQuantityLine(quantity: Double, name: String) -> String {
         L10n.format("metrics.snack.quantity", quantityText(quantity), name)
     }
@@ -32,21 +23,5 @@ enum NutritionMetricsFormatting {
             return L10n.format("metrics.portion.drink", "\(ml)", snack.localizedName)
         }
         return snackQuantityLine(quantity: portion.quantity, name: snack.localizedName)
-    }
-
-    static func snackMacros(carbs: Int, sodium: Int) -> String {
-        L10n.format("metrics.snack.macros", "\(carbs)", "\(sodium)")
-    }
-
-    static func snackPlanTotals(carbs: Int, sodium: Int, fluids: Int) -> String {
-        L10n.format("metrics.plan.totals", "\(carbs)", "\(sodium)", "\(fluids)")
-    }
-
-    static func historyDuration(minutes: Int) -> String {
-        L10n.format("history.duration", "\(minutes)")
-    }
-
-    static func carbsPerHour(value: Int) -> String {
-        L10n.format("history.carbsPerHour", "\(value)")
     }
 }

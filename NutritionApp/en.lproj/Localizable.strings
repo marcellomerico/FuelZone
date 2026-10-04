@@ -521,3 +521,6 @@
 "unit.hours.short" = "h";
 "unit.sodium.short" = "mg Na";
 "storekit.restore.short" = "Restore";
+
+/* Phase 5 */
+"storekit.error.unverified" = "The purchase could not be verified. Please try “Restore” or contact support.";

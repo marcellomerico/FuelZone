@@ -54,8 +54,6 @@ final class SessionViewModel: ObservableObject {
         if let conditions { setup.conditions = conditions }
         weatherCelsius = nil
         setup.weatherLocationName = nil
-        setup.weatherLatitude = nil
-        setup.weatherLongitude = nil
     }
 
     /// Hourly carb preview for a given simple intensity (shown on the intensity tiles).
@@ -99,8 +97,6 @@ final class SessionViewModel: ObservableObject {
             let coordinate = try await coordinateProvider()
             let snapshot = try await WeatherService.fetchCurrent(at: coordinate, locationLabel: locationLabel)
             setup.weatherLocationName = snapshot.locationLabel
-            setup.weatherLatitude = coordinate.latitude
-            setup.weatherLongitude = coordinate.longitude
             setup.temperature = WeatherService.mapToTemperature(snapshot)
             setup.conditions = WeatherService.mapToConditions(snapshot)
             weatherCelsius = snapshot.temperatureCelsius

@@ -1,7 +1,7 @@
 import Foundation
 
 /// One synced item (profile, settings, snack library or a session) as stored in CloudKit.
-struct SyncEnvelope: Equatable, Sendable {
+nonisolated struct SyncEnvelope: Equatable, Sendable {
     /// Stable record name, e.g. `profile`, `settings`, `library`, `session.<uuid>`.
     var key: String
     var modifiedAt: Date
@@ -12,7 +12,7 @@ struct SyncEnvelope: Equatable, Sendable {
 }
 
 /// Last-writer-wins merge between local and remote items.
-enum SyncMerge {
+nonisolated enum SyncMerge {
     struct Outcome: Equatable, Sendable {
         /// Remote items that are newer than the local copy and must be applied locally.
         var toApplyLocally: [SyncEnvelope]

@@ -522,3 +522,6 @@
 "unit.hours.short" = "Std.";
 "unit.sodium.short" = "mg Na";
 "storekit.restore.short" = "Wiederherstellen";
+
+/* Phase 5 */
+"storekit.error.unverified" = "Der Kauf konnte nicht bestätigt werden. Bitte „Wiederherstellen“ versuchen oder den Support kontaktieren.";

@@ -48,7 +48,7 @@ enum OpenFoodFactsClient {
 
     /// Parses an Open Food Facts `serving_size` such as "1 bar (40 g)", "40g", "250 ml" or "2 x 25 g".
     /// Returns the amount in grams (or millilitres for drinks) and whether it is a liquid.
-    static func servingAmount(from text: String) -> (amount: Double, isLiquid: Bool)? {
+    nonisolated static func servingAmount(from text: String) -> (amount: Double, isLiquid: Bool)? {
         let normalized = text.lowercased().replacingOccurrences(of: ",", with: ".")
         let pattern = #"(\d+(?:\.\d+)?)\s*(g|ml|cl|l)\b"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
@@ -71,7 +71,7 @@ enum OpenFoodFactsClient {
         }
     }
 
-    private static func multipliedAmount(in text: String) -> (amount: Double, isLiquid: Bool)? {
+    nonisolated private static func multipliedAmount(in text: String) -> (amount: Double, isLiquid: Bool)? {
         let pattern = #"^\s*(\d+)\s*[x×]\s*(\d+(?:\.\d+)?)\s*(g|ml)\b"#
         guard let regex = try? NSRegularExpression(pattern: pattern),
               let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),

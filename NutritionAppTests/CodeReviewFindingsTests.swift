@@ -3,6 +3,7 @@ import XCTest
 
 /// Regression probes written during the code review (see docs/CODE_REVIEW.md).
 /// Each test asserts the *correct* behavior, so a failing test documents a confirmed bug.
+@MainActor
 final class CodeReviewFindingsTests: XCTestCase {
 
     private func plannedCarbsPerHour(_ result: FuelingResult, snacks: [Snack]) -> Double {

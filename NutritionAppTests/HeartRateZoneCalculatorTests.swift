@@ -15,7 +15,7 @@ final class HeartRateZoneCalculatorTests: XCTestCase {
     }
 
     func testDefaultDistributionMatchesSessionDuration() {
-        let d = HeartRateZoneCalculator.defaultDistribution(sessionMinutes: 60)
+        let d = HeartRateZoneDistribution.default(forSessionMinutes: 60)
         XCTAssertTrue(d.isValid(sessionDurationMinutes: 60))
         XCTAssertEqual(d.totalMinutes, 60)
     }
